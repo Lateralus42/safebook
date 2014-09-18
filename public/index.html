@@ -1,0 +1,130 @@
+<html lang="fr">
+	<head>
+    <meta charset="utf8">
+
+    <!-- CSS files -->
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <!-- JS files -->
+    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript" src="js/backbone.js"></script>
+    <script type="text/javascript" src="js/sjcl.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+
+    <!-- Login template -->
+    <script type="text/template" id="logViewTemplate">
+      <div class="col-sm-6 col-sm-offset-3">
+        <div class="form-group">
+          <label for="pseudo_input">
+            <u>A-Side</u>: Pseudo
+          </label>
+          <input type="text" id="pseudo_input" placeholder="Your Pseudo" class="form-control" autofocus></input>
+        </div>
+        <div class="form-group">
+          <label for="string_password_input">
+            <u>B-Side (1)</u>: Use a string as a password
+          </label>
+          <input type="password" id="string_password_input" placeholder="Password" class="form-control"></input>
+          <p class="help-block">
+            You need something random with at least <b>12 characters</b>, numbers and <b>other characters</b>
+          </p>
+        </div>
+        <div class="form-group">
+          <label for="file_password_input">
+            <u>B-Side (2)</u>: And/Or use a file as a password
+          </label>
+          <input type="file" id="file_password_input"></input>
+          <input type="hidden" id="file_password_result_input"></input>
+          <p class="help-block">
+            You can use anything (picture, document, ...) but in order to achieve your and others security, <b>make sure that you are the only owner of this file</b>
+          </p>
+        </div>
+        <div class="col-sm-6">
+          <button type="submit" id="signin" class="btn btn-block btn-success">Sign In</button>
+        </div>
+        <div class="col-sm-6">
+          <button type="submit" id="signup" class="btn btn-block btn-warning">Sign Up</button>
+        </div>
+      </div>
+    </script>
+
+    <!-- Login file progress bar template 1 -->
+    <script type="text/template" id="StartHashFileTemplate">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+          0%
+        </div>
+      </div>
+    </script>
+
+    <!-- Login file progress bar template 2 -->
+    <script type="text/template" id="EndHashFileTemplate">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+          100%
+        </div>
+      </div>
+    </script>
+
+    <!-- Home template -->
+    <script type="text/template" id="homeViewTemplate">
+      <div class="col-sm-3 col-sm-offset-1" id="userList">
+      </div>
+      <div class="col-sm-7">
+        <div class="well well-lg">
+          <h2>Welcome Home !</h2>
+        </div>
+        <div id="messageList">
+        </div>
+      </div>
+    </script>
+
+    <script type="text/template" id="userListTemplate">
+      <ul class="list-group">
+        <% for(var i = 0; i < users.length; i++) { %>
+          <li class="text-center list-group-item">
+            <a href="#user/<%= users[i].get("pseudo") %>" class="user">
+              <%= users[i].get("pseudo") %>
+            </a>
+            <span class="badge">1</span>
+          </li>
+        <% } %>
+        <li class="text-center list-group-item">
+          <input type="text" id="searchInput" placeholder="Find your friends" class="form-control"></input>
+        </li>
+      </ul>
+    </script>
+
+    <script type="text/template" id="talkTemplate">
+      <div class="col-sm-3 col-sm-offset-1 panel panel-default">
+        <%= user.get("pseudo") %>
+      </div>
+      <div class="col-sm-7">
+        <textarea class="form-control" rows="3">
+        </textarea>
+        <div id="messageList">
+        </div>
+      </div>
+    </script>
+
+    <script type="text/template" id="messageListTemplate">
+    </script>
+
+	</head>
+	<body class="container-fluid">
+
+    <div id="header" class="row">
+      <div class="col-sm-4">
+        <img src="logo.png" class="col-sm-offset-1" style="margin-bottom: 10px; margin-top: 10px">
+      </div>
+      <div class="col-sm-8">
+        <h1>This is the header !</h1>
+      </div>
+    </div>
+
+    <div id="content" class="row">
+    </div>
+
+  </body>
+</html>
