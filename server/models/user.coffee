@@ -1,9 +1,10 @@
 Sequelize = require 'sequelize'
 _         = Sequelize.Utils._
 
-### opti to do :
-3 uniques -> 1 requete sql ou 0 et contraintes sur la base
-###
+# opti to do :
+# 3 uniques => 3 requete sql ?
+# Soit 1 requete dans la validation
+# Soit des contraintes sur la bdd
 
 module.exports = (sequelize) ->
   return sequelize.define('User', {

@@ -226,21 +226,29 @@ App.Views.talk = (function(_super) {
     return $("textarea").autosize();
   };
 
-  talk.prototype.event = 'click #send_message';
+  talk.prototype.events = {
+    'click #send_message': 'talk'
+  };
 
   talk.prototype.talk = function() {
     var hidden_content, message;
-    hidden_content = App.S.hide_text();
-    message = App.Models.Message({
-      destination: this.model.get('id'),
+    hidden_content = $("#message_input").val();
+    message = new App.Models.Message({
+      destination_id: this.model.get('id'),
       hidden_content: hidden_content
     });
-    return message.on('sync', (function(_this) {
+    message.on('error', (function(_this) {
+      return function() {
+        return alert("Sending error");
+      };
+    })(this));
+    message.on('sync', (function(_this) {
       return function() {
         $("#message_input").val("");
         return App.Collections.Messages.add(message);
       };
     })(this));
+    return message.save();
   };
 
   return talk;
@@ -298,6 +306,22 @@ App.Views.userList = (function(_super) {
   return userList;
 
 })(Backbone.View);
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Models.Message = (function(_super) {
+  __extends(Message, _super);
+
+  function Message() {
+    return Message.__super__.constructor.apply(this, arguments);
+  }
+
+  Message.prototype.urlRoot = "/message";
+
+  return Message;
+
+})(Backbone.Model);
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -366,7 +390,7 @@ App.Models.User = (function(_super) {
 
   User.prototype.shared = function(user) {
     var point;
-    point = App.S.curve.fromBits(from_b64(this.get('pubkey'))).mult(App.User.get('seckey'));
+    point = App.S.curve.fromBits(from_b64(this.get('pubkey'))).mult(App.I.get('seckey'));
     return this.set({
       shared: sjcl.hash.sha256.hash(point.toBits())
     });
@@ -397,6 +421,27 @@ App.Models.User = (function(_super) {
   log: =>
     shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
  */
+
+var Messages,
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+Messages = (function(_super) {
+  __extends(Messages, _super);
+
+  function Messages() {
+    return Messages.__super__.constructor.apply(this, arguments);
+  }
+
+  Messages.prototype.model = App.Models.Message;
+
+  Messages.prototype.url = '/users';
+
+  return Messages;
+
+})(Backbone.Collection);
+
+App.Collections.Messages = new Messages();
 
 var Users,
   __hasProp = {}.hasOwnProperty,
