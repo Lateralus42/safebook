@@ -37,11 +37,11 @@ server.use express.static(__dirname + '/../public')
 # Server routes
 
 server.post   '/user', App.Controllers.users.create
-#server.get    '/users', App.Controllers.users.findAll
-server.get    '/user/:pseudo', App.Controllers.users.find
 server.put    '/user/:pseudo', App.Controllers.users.login
+server.get    '/user/:pseudo', App.Controllers.users.find
 
 server.post   '/message', App.Controllers.messages.create
+server.get    '/messages', App.Controllers.messages.findAll
 
 # XXX: Admin section
 

@@ -208,6 +208,42 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+App.Views.messageList = (function(_super) {
+  __extends(messageList, _super);
+
+  function messageList() {
+    this.render = __bind(this.render, this);
+    this.initialize = __bind(this.initialize, this);
+    return messageList.__super__.constructor.apply(this, arguments);
+  }
+
+  messageList.prototype.initialize = function() {
+    console.log("initialize");
+    messageList.__super__.initialize.apply(this, arguments);
+    App.Collections.Messages.fetch({
+      success: this.render
+    });
+    return this;
+  };
+
+  messageList.prototype.render = function() {
+    var template;
+    console.log("render");
+    template = $("#messageListTemplate").html();
+    this.$el.html(_.template(template)({
+      messages: App.Collections.Messages.toArray()
+    }));
+    return this;
+  };
+
+  return messageList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
 App.Views.talk = (function(_super) {
   __extends(talk, _super);
 
@@ -435,7 +471,7 @@ Messages = (function(_super) {
 
   Messages.prototype.model = App.Models.Message;
 
-  Messages.prototype.url = '/users';
+  Messages.prototype.url = '/messages';
 
   return Messages;
 
@@ -512,7 +548,10 @@ Router = (function(_super) {
     App.Views.UserList = new App.Views.userList({
       el: $("#userList")
     });
-    return App.Views.UserList.render();
+    App.Views.UserList.render();
+    return App.Views.MessageList = new App.Views.messageList({
+      el: $("#messageList")
+    });
   };
 
   Router.prototype.talk = function(pseudo) {

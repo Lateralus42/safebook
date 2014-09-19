@@ -12,12 +12,12 @@ class Router extends Backbone.Router
     App.Content.render()
 
     # Dans le futur:
-    # Faire des trucs si on a un cookie :)
+    # Faire des trucs si on a un bon cookie :)
 
   home: =>
     return @show("") unless App.I
 
-    App.Collections.Users.add App.I
+    App.Collections.Users.add(App.I)
 
     App.Content = new App.Views.home(el: $("#content"))
     App.Content.render()
@@ -25,7 +25,7 @@ class Router extends Backbone.Router
     App.Views.UserList = new App.Views.userList(el: $("#userList"))
     App.Views.UserList.render()
 
-    #App.Collections.Users.fetch()
+    App.Views.MessageList = new App.Views.messageList(el: $("#messageList"))
 
   talk: (pseudo) =>
     model = App.Collections.Users.get(pseudo)

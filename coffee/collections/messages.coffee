@@ -1,5 +1,5 @@
 class Messages extends Backbone.Collection
   model: App.Models.Message
-  url: '/users'
+  url: '/messages'
 
 App.Collections.Messages = new Messages()

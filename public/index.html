@@ -98,6 +98,19 @@
       </ul>
     </script>
 
+    <!-- Message list template -->
+    <script type="text/template" id="messageListTemplate">
+      <ul class="list-group">
+        <% for(var i = 0; i < messages.length; i++) { %>
+          <li class="text-center list-group-item">
+            <a href="#home">
+              <%= messages[i].get("hidden_content") %>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </script>
+
     <!-- Talk template -->
     <script type="text/template" id="talkTemplate">
 
