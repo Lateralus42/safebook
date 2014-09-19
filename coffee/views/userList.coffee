@@ -5,11 +5,11 @@ class App.Views.userList extends Backbone.View
     @
 
   events:
-    'keypress #searchInput': 'search_user'
+    'keypress #search_input': 'search_user'
 
   search_user: (e) =>
     if e.which is 13
-      user = new App.Models.User(pseudo: $("#searchInput").val())
+      user = new App.Models.User(pseudo: $("#search_input").val())
       user.fetch()
       user.on 'error', => alert("Not found...")
       user.on 'sync', =>

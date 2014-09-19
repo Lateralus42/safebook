@@ -100,7 +100,6 @@ App.Views.home = (function(_super) {
   __extends(home, _super);
 
   function home() {
-    this.search_user = __bind(this.search_user, this);
     this.render = __bind(this.render, this);
     return home.__super__.constructor.apply(this, arguments);
   }
@@ -110,31 +109,6 @@ App.Views.home = (function(_super) {
     template = $("#homeViewTemplate").html();
     this.$el.html(_.template(template)());
     return this;
-  };
-
-  home.prototype.events = {
-    'keypress #search_input': 'search_user'
-  };
-
-  home.prototype.search_user = function(e) {
-    var user;
-    if (e.which === 13) {
-      user = new App.Models.User({
-        pseudo: $("#searchInput").val()
-      });
-      user.fetch();
-      user.on('error', (function(_this) {
-        return function() {
-          return alert("Not found...");
-        };
-      })(this));
-      return user.on('sync', (function(_this) {
-        return function() {
-          $("#search_input").val("");
-          return App.Collections.Users.add(user);
-        };
-      })(this));
-    }
   };
 
   return home;
@@ -238,6 +212,7 @@ App.Views.talk = (function(_super) {
   __extends(talk, _super);
 
   function talk() {
+    this.talk = __bind(this.talk, this);
     this.render = __bind(this.render, this);
     return talk.__super__.constructor.apply(this, arguments);
   }
@@ -245,9 +220,27 @@ App.Views.talk = (function(_super) {
   talk.prototype.render = function() {
     var template;
     template = $("#talkTemplate").html();
-    return this.$el.html(_.template(template)({
+    this.$el.html(_.template(template)({
       user: this.model
     }));
+    return $("textarea").autosize();
+  };
+
+  talk.prototype.event = 'click #send_message';
+
+  talk.prototype.talk = function() {
+    var hidden_content, message;
+    hidden_content = App.S.hide_text();
+    message = App.Models.Message({
+      destination: this.model.get('id'),
+      hidden_content: hidden_content
+    });
+    return message.on('sync', (function(_this) {
+      return function() {
+        $("#message_input").val("");
+        return App.Collections.Messages.add(message);
+      };
+    })(this));
   };
 
   return talk;
@@ -277,14 +270,14 @@ App.Views.userList = (function(_super) {
   };
 
   userList.prototype.events = {
-    'keypress #searchInput': 'search_user'
+    'keypress #search_input': 'search_user'
   };
 
   userList.prototype.search_user = function(e) {
     var user;
     if (e.which === 13) {
       user = new App.Models.User({
-        pseudo: $("#searchInput").val()
+        pseudo: $("#search_input").val()
       });
       user.fetch();
       user.on('error', (function(_this) {

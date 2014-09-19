@@ -1,4 +1,4 @@
-<html lang="fr">
+<html lang="en">
 	<head>
     <meta charset="utf8">
 
@@ -7,6 +7,7 @@
 
     <!-- JS files -->
     <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="js/jquery.autosize.js"></script>
     <script type="text/javascript" src="js/underscore.js"></script>
     <script type="text/javascript" src="js/backbone.js"></script>
     <script type="text/javascript" src="js/sjcl.js"></script>
@@ -80,6 +81,7 @@
       </div>
     </script>
 
+    <!-- User list template -->
     <script type="text/template" id="userListTemplate">
       <ul class="list-group">
         <% for(var i = 0; i < users.length; i++) { %>
@@ -91,18 +93,21 @@
           </li>
         <% } %>
         <li class="text-center list-group-item">
-          <input type="text" id="searchInput" placeholder="Find your friends" class="form-control"></input>
+          <input type="text" id="search_input" placeholder="Find your friends" class="form-control"></input>
         </li>
       </ul>
     </script>
 
+    <!-- Talk template -->
     <script type="text/template" id="talkTemplate">
       <div class="col-sm-3 col-sm-offset-1 panel panel-default">
-        <%= user.get("pseudo") %>
+        <h3 class="text-center">
+          <%= user.get("pseudo") %>
+        </h3>
       </div>
       <div class="col-sm-7">
-        <textarea class="form-control" rows="3">
-        </textarea>
+        <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
+        <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
         <div id="messageList">
         </div>
       </div>
