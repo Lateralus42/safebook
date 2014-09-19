@@ -1,10 +1,9 @@
 Sequelize = require 'sequelize'
 _         = Sequelize.Utils._
-async     = require 'async'
 
 module.exports = (App) ->
 
-  # Middlewares
+  # XXX Middlewares
 
   load: (req, res, next) ->
     return res.json(401, null) unless req.session.user_id
@@ -13,14 +12,15 @@ module.exports = (App) ->
       req.user = user
       next()
 
-  find_dest: (req, res, next) ->
-    return res.json(401, null) unless req.body.dest_id
-    App.Models.user.find(where: id: req.body.dest_id).done (err, user) ->
-      return res.json(401, null) if err or not user
-      req.dest = user
-      next()
+  #find_dest: (req, res, next) ->
+  #  return res.json(401, null) unless req.body.dest_id
+  #  App.Models.user.find(where: id: req.body.dest_id).done (err, user) ->
+  #    return res.json(401, null) if err or not user
+  #    req.dest = user
+  #    next()
 
-  # Controllers
+
+  # XXX Controllers
 
   create: (req, res) ->
 
@@ -28,7 +28,7 @@ module.exports = (App) ->
     user = req.body
     user.id = user.pubkey.substring(0, 8)
 
-    # XXX?
+    # XXX refactor ?
     user.remote_password_salt = App.Helpers.gen_salt()
     user.remote_password_hash = App.Helpers.hash(req.body.remote_secret, user.remote_secret_salt)
 
@@ -36,11 +36,6 @@ module.exports = (App) ->
       return res.status(401).end() if err
       req.session.user_id = user.id
       res.json 201, user
-
-  findAll: (req, res) ->
-    App.Models.user.findAll().done (err, users) ->
-      return res.json(401, null) if err or !users
-      res.json 200, users
 
   find: (req, res) ->
     pseudo = req.params.pseudo
@@ -58,6 +53,11 @@ module.exports = (App) ->
       req.session.user_id = user.id
       data = user.full()
       res.json(data)
+
+  #findAll: (req, res) ->
+  #  App.Models.user.findAll().done (err, users) ->
+  #    return res.json(401, null) if err or !users
+  #    res.json 200, users
 
 ###
       App.Models.key.findAll(where: Sequelize.or({user_id: data.id}, {dest_id: data.id})).done (err, keys) ->

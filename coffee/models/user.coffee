@@ -32,10 +32,8 @@ class App.Models.User extends Backbone.Model
   bare_mainkey: ->
     @set mainkey: App.S.bare(@get('local_secret'), @get('hidden_mainkey'))
 
-  # XXX WARN
-  # WTF ? Ca utilise pas (user)
   shared: (user) ->
-    point = App.S.curve.fromBits(from_b64(@get('pubkey'))).mult(App.User.get('seckey'))
+    point = App.S.curve.fromBits(from_b64(@get('pubkey'))).mult(App.I.get('seckey'))
     @set shared: sjcl.hash.sha256.hash point.toBits()
 
 ###
