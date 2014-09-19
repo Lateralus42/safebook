@@ -1,5 +1,5 @@
-class Users extends Backbone.Collection
+class App.Collections.users extends Backbone.Collection
   model: App.Models.User
   url: '/users'
 
-App.Collections.Users = new Users()
+App.Collections.Users = new App.Collections.users()

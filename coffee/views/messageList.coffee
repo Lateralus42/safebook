@@ -1,12 +1,10 @@
 class App.Views.messageList extends Backbone.View
   initialize: =>
-    console.log "initialize"
-    super
+    super # needed ?
     App.Collections.Messages.fetch(success: @render)
     @
 
   render: =>
-    console.log "render"
-    template = $("#messageListTemplate").html()
-    @$el.html _.template(template)(messages: App.Collections.Messages.toArray())
+    template = Handlebars.compile $("#messageListTemplate").html()
+    @$el.html template(messages: App.Collections.Messages.toJSON())
     @

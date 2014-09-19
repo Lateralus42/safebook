@@ -8,6 +8,7 @@
     <!-- JS files -->
     <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="js/jquery.autosize.js"></script>
+    <script type="text/javascript" src="js/handlebars-v2.0.0.js"></script>
     <script type="text/javascript" src="js/underscore.js"></script>
     <script type="text/javascript" src="js/backbone.js"></script>
     <script type="text/javascript" src="js/sjcl.js"></script>
@@ -84,14 +85,14 @@
     <!-- User list template -->
     <script type="text/template" id="userListTemplate">
       <ul class="list-group">
-        <% for(var i = 0; i < users.length; i++) { %>
+        {{#each users}}
           <li class="text-center list-group-item">
-            <a href="#user/<%= users[i].get("pseudo") %>" class="user">
-              <%= users[i].get("pseudo") %>
+            <a href="#user/{{pseudo}}">
+              {{pseudo}}
             </a>
             <span class="badge">1</span>
           </li>
-        <% } %>
+        {{/each}}
         <li class="text-center list-group-item">
           <input type="text" id="search_input" placeholder="Find your friends" class="form-control"></input>
         </li>
@@ -100,15 +101,23 @@
 
     <!-- Message list template -->
     <script type="text/template" id="messageListTemplate">
-      <ul class="list-group">
-        <% for(var i = 0; i < messages.length; i++) { %>
-          <li class="text-center list-group-item">
-            <a href="#home">
-              <%= messages[i].get("hidden_content") %>
+      {{#each messages}}
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            From
+            <a href="#user/{{user_id}}">
+              {{user_id}}
             </a>
-          </li>
-        <% } %>
-      </ul>
+            To 
+            <a href="#user/{{destination_id}}">
+              {{destination_id}}
+            </a>
+          </div>
+          <div class="panel-body">
+            {{hidden_content}}
+          </div>
+        </div>
+      {{/each}}
     </script>
 
     <!-- Talk template -->
@@ -118,11 +127,11 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title text-center">
-              <%= user.get("pseudo") %>
+              {{user.pseudo}}
             </h3>
           </div>
           <div class="panel-body">
-            <p class="text-center"><%= user.get("id") %></p>
+            <p class="text-center">{{user.id}}</p>
           </div>
         </div>
       </div>
@@ -130,12 +139,13 @@
       <div class="col-sm-7">
         <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
         <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
-        <div id="messageList">
+
+        <div id="talkMessageList">
         </div>
       </div>
     </script>
 
-    <script type="text/template" id="messageListTemplate">
+    <script type="text/template" id="talkMessageListTemplate">
     </script>
 
 	</head>

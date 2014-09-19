@@ -1,7 +1,8 @@
 class App.Views.userList extends Backbone.View
+
   render: =>
-    template = $("#userListTemplate").html()
-    @$el.html _.template(template)(users: App.Collections.Users.toArray())
+    template = Handlebars.compile $("#userListTemplate").html()
+    @$el.html template(users: App.Collections.Users.toJSON())
     @
 
   events:

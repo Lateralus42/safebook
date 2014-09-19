@@ -28,6 +28,8 @@ class Router extends Backbone.Router
     App.Views.MessageList = new App.Views.messageList(el: $("#messageList"))
 
   talk: (pseudo) =>
+    return @show("") unless App.I
+
     model = App.Collections.Users.get(pseudo)
     unless model
       alert "user not found !"
@@ -40,5 +42,10 @@ class Router extends Backbone.Router
       model: model
     )
     App.Content.render()
+
+    App.Views.TalkMessageList = new App.Views.talkMessageList(
+      el: $("#talkMessageList")
+      model: model
+    )
 
 App.Router = new Router

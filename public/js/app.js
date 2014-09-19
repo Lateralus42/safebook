@@ -105,9 +105,7 @@ App.Views.home = (function(_super) {
   }
 
   home.prototype.render = function() {
-    var template;
-    template = $("#homeViewTemplate").html();
-    this.$el.html(_.template(template)());
+    this.$el.html($("#homeViewTemplate").html());
     return this;
   };
 
@@ -132,9 +130,7 @@ App.Views.log = (function(_super) {
   }
 
   log.prototype.render = function() {
-    var template;
-    template = $("#logViewTemplate").html();
-    this.$el.html(_.template(template)());
+    this.$el.html($("#logViewTemplate").html());
     return this;
   };
 
@@ -218,7 +214,6 @@ App.Views.messageList = (function(_super) {
   }
 
   messageList.prototype.initialize = function() {
-    console.log("initialize");
     messageList.__super__.initialize.apply(this, arguments);
     App.Collections.Messages.fetch({
       success: this.render
@@ -228,10 +223,9 @@ App.Views.messageList = (function(_super) {
 
   messageList.prototype.render = function() {
     var template;
-    console.log("render");
-    template = $("#messageListTemplate").html();
-    this.$el.html(_.template(template)({
-      messages: App.Collections.Messages.toArray()
+    template = Handlebars.compile($("#messageListTemplate").html());
+    this.$el.html(template({
+      messages: App.Collections.Messages.toJSON()
     }));
     return this;
   };
@@ -255,9 +249,9 @@ App.Views.talk = (function(_super) {
 
   talk.prototype.render = function() {
     var template;
-    template = $("#talkTemplate").html();
-    this.$el.html(_.template(template)({
-      user: this.model
+    template = Handlebars.compile($("#talkTemplate").html());
+    this.$el.html(template({
+      user: this.model.attributes
     }));
     return $("textarea").autosize();
   };
@@ -295,6 +289,44 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+App.Views.talkMessageList = (function(_super) {
+  __extends(talkMessageList, _super);
+
+  function talkMessageList() {
+    this.render = __bind(this.render, this);
+    this.initialize = __bind(this.initialize, this);
+    return talkMessageList.__super__.constructor.apply(this, arguments);
+  }
+
+  talkMessageList.prototype.initialize = function() {
+    talkMessageList.__super__.initialize.apply(this, arguments);
+    this.collection = new App.Collections.messages();
+    this.collection.push(App.Collections.Messages.where({
+      user_id: this.model.get('id')
+    }));
+    this.collection.push(App.Collections.Messages.where({
+      destination_id: this.model.get('id')
+    }));
+    return this.render();
+  };
+
+  talkMessageList.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#messageListTemplate").html());
+    this.$el.html(template({
+      messages: App.Collections.Messages.toJSON()
+    }));
+    return this;
+  };
+
+  return talkMessageList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
 App.Views.userList = (function(_super) {
   __extends(userList, _super);
 
@@ -306,9 +338,9 @@ App.Views.userList = (function(_super) {
 
   userList.prototype.render = function() {
     var template;
-    template = $("#userListTemplate").html();
-    this.$el.html(_.template(template)({
-      users: App.Collections.Users.toArray()
+    template = Handlebars.compile($("#userListTemplate").html());
+    this.$el.html(template({
+      users: App.Collections.Users.toJSON()
     }));
     return this;
   };
@@ -458,47 +490,45 @@ App.Models.User = (function(_super) {
     shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
  */
 
-var Messages,
-  __hasProp = {}.hasOwnProperty,
+var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-Messages = (function(_super) {
-  __extends(Messages, _super);
+App.Collections.messages = (function(_super) {
+  __extends(messages, _super);
 
-  function Messages() {
-    return Messages.__super__.constructor.apply(this, arguments);
+  function messages() {
+    return messages.__super__.constructor.apply(this, arguments);
   }
 
-  Messages.prototype.model = App.Models.Message;
+  messages.prototype.model = App.Models.Message;
 
-  Messages.prototype.url = '/messages';
+  messages.prototype.url = '/messages';
 
-  return Messages;
+  return messages;
 
 })(Backbone.Collection);
 
-App.Collections.Messages = new Messages();
+App.Collections.Messages = new App.Collections.messages();
 
-var Users,
-  __hasProp = {}.hasOwnProperty,
+var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-Users = (function(_super) {
-  __extends(Users, _super);
+App.Collections.users = (function(_super) {
+  __extends(users, _super);
 
-  function Users() {
-    return Users.__super__.constructor.apply(this, arguments);
+  function users() {
+    return users.__super__.constructor.apply(this, arguments);
   }
 
-  Users.prototype.model = App.Models.User;
+  users.prototype.model = App.Models.User;
 
-  Users.prototype.url = '/users';
+  users.prototype.url = '/users';
 
-  return Users;
+  return users;
 
 })(Backbone.Collection);
 
-App.Collections.Users = new Users();
+App.Collections.Users = new App.Collections.users();
 
 var Router,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -556,6 +586,9 @@ Router = (function(_super) {
 
   Router.prototype.talk = function(pseudo) {
     var model;
+    if (!App.I) {
+      return this.show("");
+    }
     model = App.Collections.Users.get(pseudo);
     if (!model) {
       alert("user not found !");
@@ -566,7 +599,11 @@ Router = (function(_super) {
       el: $("#content"),
       model: model
     });
-    return App.Content.render();
+    App.Content.render();
+    return App.Views.TalkMessageList = new App.Views.talkMessageList({
+      el: $("#talkMessageList"),
+      model: model
+    });
   };
 
   return Router;

@@ -1,7 +1,6 @@
 class App.Views.log extends Backbone.View
   render: =>
-    template = $("#logViewTemplate").html()
-    @$el.html _.template(template)()
+    @$el.html $("#logViewTemplate").html()
     @
 
   events:
