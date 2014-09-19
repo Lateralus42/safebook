@@ -274,8 +274,10 @@ App.Views.talk = (function(_super) {
     })(this));
     message.on('sync', (function(_this) {
       return function() {
-        $("#message_input").val("");
-        return App.Collections.Messages.add(message);
+        App.Collections.Messages.add(message);
+        App.Views.TalkMessageList.collection.push(message);
+        App.Views.TalkMessageList.render();
+        return $("#message_input").val("");
       };
     })(this));
     return message.save();
