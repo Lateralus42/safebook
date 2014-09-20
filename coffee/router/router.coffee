@@ -35,8 +35,6 @@ class Router extends Backbone.Router
       alert "user not found !"
       return @show("home")
 
-    console.log model
-
     App.Content = new App.Views.talk(
       el: $("#content")
       model: model
