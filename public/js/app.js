@@ -222,10 +222,26 @@ App.Views.messageList = (function(_super) {
   };
 
   messageList.prototype.render = function() {
-    var template;
+    var destination, message, messages, template, user, _i, _len;
+    messages = App.Collections.Messages.toJSON();
+    for (_i = 0, _len = messages.length; _i < _len; _i++) {
+      message = messages[_i];
+      user = App.Collections.Users.findWhere({
+        id: message.user_id
+      });
+      if (user) {
+        message.user_pseudo = user.get('pseudo');
+      }
+      destination = App.Collections.Users.findWhere({
+        id: message.destination_id
+      });
+      if (destination) {
+        message.destination_pseudo = destination.get('pseudo');
+      }
+    }
     template = Handlebars.compile($("#messageListTemplate").html());
     this.$el.html(template({
-      messages: App.Collections.Messages.toJSON()
+      messages: messages
     }));
     return this;
   };
@@ -596,7 +612,6 @@ Router = (function(_super) {
       alert("user not found !");
       return this.show("home");
     }
-    console.log(model);
     App.Content = new App.Views.talk({
       el: $("#content"),
       model: model

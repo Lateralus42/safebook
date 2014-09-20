@@ -105,13 +105,23 @@
         <div class="panel panel-success">
           <div class="panel-heading">
             From
-            <a href="#user/{{user_id}}">
-              {{user_id}}
-            </a>
+            {{#user_pseudo}}
+              <a href="#user/{{.}}">
+                {{.}}
+              </a>
+            {{/user_pseudo}}
+            {{^user_pseudo}}
+              Unknown
+            {{/user_pseudo}}
             To 
-            <a href="#user/{{destination_id}}">
-              {{destination_id}}
-            </a>
+            {{#destination_pseudo}}
+              <a href="#user/{{this}}">
+                {{this}}
+              </a>
+            {{/destination_pseudo}}
+            {{^destination_pseudo}}
+              Unknown
+            {{/destination_pseudo}}
           </div>
           <div class="panel-body">
             {{hidden_content}}
@@ -127,18 +137,22 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title text-center">
-              {{user.pseudo}}
+              Talk
             </h3>
           </div>
           <div class="panel-body">
-            <p class="text-center">{{user.id}}</p>
+            <p class="text-center">Pseudo: <b>{{user.pseudo}}</b></p>
+            <p class="text-center">Id: <b>{{user.id}}</b></p>
           </div>
         </div>
+        <button type="button" class="btn btn-block btn-success">Back</button>
       </div>
 
       <div class="col-sm-7">
-        <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
-        <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
+        <div class="well">
+          <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
+          <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
+        </div>
 
         <div id="talkMessageList">
         </div>
@@ -153,7 +167,9 @@
 
     <div id="header" class="row">
       <div class="col-sm-4">
-        <img src="logo.png" class="col-sm-offset-1" style="margin-bottom: 10px; margin-top: 10px">
+        <a href="#home">
+          <img src="logo.png" class="col-sm-offset-1" style="margin-bottom: 10px; margin-top: 10px">
+        </a>
       </div>
       <div class="col-sm-8">
         <h1>This is the header !</h1>
