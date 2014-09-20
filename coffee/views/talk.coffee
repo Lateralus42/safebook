@@ -1,11 +1,23 @@
 class App.Views.talk extends Backbone.View
+
   render: =>
     template = Handlebars.compile $("#talkTemplate").html()
-    @$el.html template(user: @model.attributes)
+    @$el.html(template(user: @model.attributes))
     $("textarea").autosize()
+
+    messages = new App.Collections.messages()
+    messages.push(App.Collections.Messages.where(user_id: @model.get('id')))
+    messages.push(App.Collections.Messages.where(destination_id: @model.get('id')))
+
+    App.Views.MessageList = new App.Views.messageList(
+      el: $("#messageList")
+      collection: messages
+    )
+    App.Views.MessageList.render()
 
   events:
     'click #send_message': 'talk'
+    'click #back_button': 'go_home'
 
   talk: =>
     hidden_content = $("#message_input").val()
@@ -20,7 +32,10 @@ class App.Views.talk extends Backbone.View
     message.on 'error', => alert "Sending error"
     message.on 'sync', =>
       App.Collections.Messages.add(message)
-      App.Views.TalkMessageList.collection.push(message)
-      App.Views.TalkMessageList.render()
+      App.Views.MessageList.collection.push(message)
+      App.Views.MessageList.render()
       $("#message_input").val("")
     message.save()
+
+  go_home: =>
+    App.Router.show("home")

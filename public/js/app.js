@@ -106,6 +106,15 @@ App.Views.home = (function(_super) {
 
   home.prototype.render = function() {
     this.$el.html($("#homeViewTemplate").html());
+    App.Views.UserList = new App.Views.userList({
+      el: $("#userList")
+    });
+    App.Views.UserList.render();
+    App.Views.MessageList = new App.Views.messageList({
+      el: $("#messageList"),
+      collection: App.Collections.Messages
+    });
+    App.Views.MessageList.render();
     return this;
   };
 
@@ -209,21 +218,12 @@ App.Views.messageList = (function(_super) {
 
   function messageList() {
     this.render = __bind(this.render, this);
-    this.initialize = __bind(this.initialize, this);
     return messageList.__super__.constructor.apply(this, arguments);
   }
 
-  messageList.prototype.initialize = function() {
-    messageList.__super__.initialize.apply(this, arguments);
-    App.Collections.Messages.fetch({
-      success: this.render
-    });
-    return this;
-  };
-
   messageList.prototype.render = function() {
     var destination, message, messages, template, user, _i, _len;
-    messages = App.Collections.Messages.toJSON();
+    messages = this.collection.toJSON();
     for (_i = 0, _len = messages.length; _i < _len; _i++) {
       message = messages[_i];
       user = App.Collections.Users.findWhere({
@@ -258,22 +258,36 @@ App.Views.talk = (function(_super) {
   __extends(talk, _super);
 
   function talk() {
+    this.go_home = __bind(this.go_home, this);
     this.talk = __bind(this.talk, this);
     this.render = __bind(this.render, this);
     return talk.__super__.constructor.apply(this, arguments);
   }
 
   talk.prototype.render = function() {
-    var template;
+    var messages, template;
     template = Handlebars.compile($("#talkTemplate").html());
     this.$el.html(template({
       user: this.model.attributes
     }));
-    return $("textarea").autosize();
+    $("textarea").autosize();
+    messages = new App.Collections.messages();
+    messages.push(App.Collections.Messages.where({
+      user_id: this.model.get('id')
+    }));
+    messages.push(App.Collections.Messages.where({
+      destination_id: this.model.get('id')
+    }));
+    App.Views.MessageList = new App.Views.messageList({
+      el: $("#messageList"),
+      collection: messages
+    });
+    return App.Views.MessageList.render();
   };
 
   talk.prototype.events = {
-    'click #send_message': 'talk'
+    'click #send_message': 'talk',
+    'click #back_button': 'go_home'
   };
 
   talk.prototype.talk = function() {
@@ -291,12 +305,16 @@ App.Views.talk = (function(_super) {
     message.on('sync', (function(_this) {
       return function() {
         App.Collections.Messages.add(message);
-        App.Views.TalkMessageList.collection.push(message);
-        App.Views.TalkMessageList.render();
+        App.Views.MessageList.collection.push(message);
+        App.Views.MessageList.render();
         return $("#message_input").val("");
       };
     })(this));
     return message.save();
+  };
+
+  talk.prototype.go_home = function() {
+    return App.Router.show("home");
   };
 
   return talk;
@@ -318,13 +336,6 @@ App.Views.talkMessageList = (function(_super) {
 
   talkMessageList.prototype.initialize = function() {
     talkMessageList.__super__.initialize.apply(this, arguments);
-    this.collection = new App.Collections.messages();
-    this.collection.push(App.Collections.Messages.where({
-      user_id: this.model.get('id')
-    }));
-    this.collection.push(App.Collections.Messages.where({
-      destination_id: this.model.get('id')
-    }));
     return this.render();
   };
 
@@ -589,17 +600,23 @@ Router = (function(_super) {
       return this.show("");
     }
     App.Collections.Users.add(App.I);
-    App.Content = new App.Views.home({
-      el: $("#content")
-    });
-    App.Content.render();
-    App.Views.UserList = new App.Views.userList({
-      el: $("#userList")
-    });
-    App.Views.UserList.render();
-    return App.Views.MessageList = new App.Views.messageList({
-      el: $("#messageList")
-    });
+    if (App.Collections.Messages.length !== 0) {
+      App.Content = new App.Views.home({
+        el: $("#content")
+      });
+      return App.Content.render();
+    } else {
+      return App.Collections.Messages.fetch({
+        success: (function(_this) {
+          return function() {
+            App.Content = new App.Views.home({
+              el: $("#content")
+            });
+            return App.Content.render();
+          };
+        })(this)
+      });
+    }
   };
 
   Router.prototype.talk = function(pseudo) {
@@ -608,19 +625,16 @@ Router = (function(_super) {
       return this.show("");
     }
     model = App.Collections.Users.get(pseudo);
-    if (!model) {
-      alert("user not found !");
+    if (model) {
+      App.Content = new App.Views.talk({
+        el: $("#content"),
+        model: model
+      });
+      return App.Content.render();
+    } else {
+      console.log("user not found !");
       return this.show("home");
     }
-    App.Content = new App.Views.talk({
-      el: $("#content"),
-      model: model
-    });
-    App.Content.render();
-    return App.Views.TalkMessageList = new App.Views.talkMessageList({
-      el: $("#talkMessageList"),
-      model: model
-    });
   };
 
   return Router;

@@ -19,31 +19,24 @@ class Router extends Backbone.Router
 
     App.Collections.Users.add(App.I)
 
-    App.Content = new App.Views.home(el: $("#content"))
-    App.Content.render()
-
-    App.Views.UserList = new App.Views.userList(el: $("#userList"))
-    App.Views.UserList.render()
-
-    App.Views.MessageList = new App.Views.messageList(el: $("#messageList"))
+    unless App.Collections.Messages.length is 0
+      App.Content = new App.Views.home(el: $("#content"))
+      App.Content.render()
+    else
+      App.Collections.Messages.fetch success: =>
+        App.Content = new App.Views.home(el: $("#content"))
+        App.Content.render()
 
   talk: (pseudo) =>
     return @show("") unless App.I
 
     model = App.Collections.Users.get(pseudo)
-    unless model
-      alert "user not found !"
+    if model
+      App.Content = new App.Views.talk(el: $("#content"), model: model)
+      App.Content.render()
+    else
+      console.log "user not found !"
       return @show("home")
 
-    App.Content = new App.Views.talk(
-      el: $("#content")
-      model: model
-    )
-    App.Content.render()
-
-    App.Views.TalkMessageList = new App.Views.talkMessageList(
-      el: $("#talkMessageList")
-      model: model
-    )
 
 App.Router = new Router
