@@ -1,6 +1,7 @@
 class App.Views.messageList extends Backbone.View
 
   render: =>
+    @collection.sort()
     messages = @collection.toJSON()
 
     for message in messages

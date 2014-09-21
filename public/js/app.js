@@ -223,6 +223,7 @@ App.Views.messageList = (function(_super) {
 
   messageList.prototype.render = function() {
     var destination, message, messages, template, user, _i, _len;
+    this.collection.sort();
     messages = this.collection.toJSON();
     for (_i = 0, _len = messages.length; _i < _len; _i++) {
       message = messages[_i];
@@ -490,19 +491,27 @@ App.Models.User = (function(_super) {
     shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
  */
 
-var __hasProp = {}.hasOwnProperty,
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 App.Collections.messages = (function(_super) {
   __extends(messages, _super);
 
   function messages() {
+    this.comparator = __bind(this.comparator, this);
     return messages.__super__.constructor.apply(this, arguments);
   }
 
   messages.prototype.model = App.Models.Message;
 
   messages.prototype.url = '/messages';
+
+  messages.prototype.comparator = function(a, b) {
+    console.log(a);
+    console.log(b);
+    return (new Date(a.get('createdAt'))) < (new Date(b.get('createdAt')));
+  };
 
   return messages;
 

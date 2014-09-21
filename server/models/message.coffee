@@ -13,5 +13,5 @@ module.exports = (sequelize) ->
     hidden_content:
       type: Sequelize.TEXT
   }, {
-    timestamps: false
+    updatedAt: false
   })
