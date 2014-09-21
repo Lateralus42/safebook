@@ -325,37 +325,6 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.talkMessageList = (function(_super) {
-  __extends(talkMessageList, _super);
-
-  function talkMessageList() {
-    this.render = __bind(this.render, this);
-    this.initialize = __bind(this.initialize, this);
-    return talkMessageList.__super__.constructor.apply(this, arguments);
-  }
-
-  talkMessageList.prototype.initialize = function() {
-    talkMessageList.__super__.initialize.apply(this, arguments);
-    return this.render();
-  };
-
-  talkMessageList.prototype.render = function() {
-    var template;
-    template = Handlebars.compile($("#messageListTemplate").html());
-    this.$el.html(template({
-      messages: App.Collections.Messages.toJSON()
-    }));
-    return this;
-  };
-
-  return talkMessageList;
-
-})(Backbone.View);
-
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
 App.Views.userList = (function(_super) {
   __extends(userList, _super);
 
