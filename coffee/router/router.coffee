@@ -19,7 +19,9 @@ class Router extends Backbone.Router
 
     App.Collections.Users.add(App.I)
 
-    unless App.Collections.Messages.length is 0
+    App.Content.undelegateEvents() if App.Content
+
+    unless App.Collections.Messages.length is 0 # XXX: Fix to use it only once
       App.Content = new App.Views.home(el: $("#content"))
       App.Content.render()
     else
@@ -29,6 +31,8 @@ class Router extends Backbone.Router
 
   talk: (pseudo) =>
     return @show("") unless App.I
+
+    App.Content.undelegateEvents() if App.Content
 
     model = App.Collections.Users.get(pseudo)
     if model

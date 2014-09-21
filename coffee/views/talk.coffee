@@ -8,6 +8,7 @@ class App.Views.talk extends Backbone.View
     messages = new App.Collections.messages()
     messages.push(App.Collections.Messages.where(user_id: @model.get('id')))
     messages.push(App.Collections.Messages.where(destination_id: @model.get('id')))
+      # and destination_type: "user"
 
     App.Views.MessageList = new App.Views.messageList(
       el: $("#messageList")
@@ -20,6 +21,8 @@ class App.Views.talk extends Backbone.View
     'click #back_button': 'go_home'
 
   talk: =>
+    console.log "trigger talk"
+
     hidden_content = $("#message_input").val()
     # hidden_content = App.S.hide_text()
     # ...
@@ -29,8 +32,10 @@ class App.Views.talk extends Backbone.View
       destination_id: @model.get('id')
       hidden_content: hidden_content
     )
-    message.on 'error', => alert "Sending error"
+    message.on 'error', =>
+      alert "Sending error"
     message.on 'sync', =>
+      console.log "trigger sync"
       App.Collections.Messages.add(message)
       App.Views.MessageList.collection.push(message)
       App.Views.MessageList.render()

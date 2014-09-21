@@ -292,6 +292,7 @@ App.Views.talk = (function(_super) {
 
   talk.prototype.talk = function() {
     var hidden_content, message;
+    console.log("trigger talk");
     hidden_content = $("#message_input").val();
     message = new App.Models.Message({
       destination_id: this.model.get('id'),
@@ -304,6 +305,7 @@ App.Views.talk = (function(_super) {
     })(this));
     message.on('sync', (function(_this) {
       return function() {
+        console.log("trigger sync");
         App.Collections.Messages.add(message);
         App.Views.MessageList.collection.push(message);
         App.Views.MessageList.render();
@@ -569,6 +571,9 @@ Router = (function(_super) {
       return this.show("");
     }
     App.Collections.Users.add(App.I);
+    if (App.Content) {
+      App.Content.undelegateEvents();
+    }
     if (App.Collections.Messages.length !== 0) {
       App.Content = new App.Views.home({
         el: $("#content")
@@ -592,6 +597,9 @@ Router = (function(_super) {
     var model;
     if (!App.I) {
       return this.show("");
+    }
+    if (App.Content) {
+      App.Content.undelegateEvents();
     }
     model = App.Collections.Users.get(pseudo);
     if (model) {
