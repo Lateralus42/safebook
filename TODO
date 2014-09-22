@@ -1,3 +1,4 @@
+* Utiliser les pubkey pour les messages...
 * Refactor
 * Corriger l'ajax pour simplifier
 * Rendre les pseudos cases insensitifs
