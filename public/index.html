@@ -39,7 +39,7 @@
           <input type="file" id="file_password_input"></input>
           <input type="hidden" id="file_password_result_input"></input>
           <p class="help-block">
-            You can use anything (picture, document, ...) but in order to achieve your and others security, <b>make sure that you are the only owner of this file</b>
+            You can use any file (picture, document, ...) but <b>make sure that you are the only owner of this file</b>
           </p>
         </div>
         <div class="col-sm-6">
@@ -71,12 +71,14 @@
 
     <!-- Home template -->
     <script type="text/template" id="homeViewTemplate">
-      <div class="col-sm-3 col-sm-offset-1" id="userList">
-      </div>
-      <div class="col-sm-7">
-        <div class="well well-lg">
-          <h2>Welcome Home !</h2>
+      <div class="col-sm-3">
+        <div id="userList">
         </div>
+        <div id="groupList">
+        </div>
+      </div>
+      <div class="col-sm-9">
+        <h2 class="text-center">Welcome Home !</h2>
         <div id="messageList">
         </div>
       </div>
@@ -84,19 +86,39 @@
 
     <!-- User list template -->
     <script type="text/template" id="userListTemplate">
-      <ul class="list-group">
-        {{#each users}}
-          <li class="text-center list-group-item">
-            <a href="#user/{{pseudo}}">
-              {{pseudo}}
-            </a>
-            <span class="badge">1</span>
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Users</div>
+        <ul class="list-group">
+          {{#each users}}
+            <li class="text-center list-group-item">
+              <a href="#user/{{pseudo}}">
+                {{pseudo}}
+              </a>
+              <span class="badge">0</span>
+            </li>
+          {{/each}}
+          <li class="list-group-item">
+            <input type="text" id="search_input" placeholder="Find someone" class="form-control text-center"></input>
           </li>
-        {{/each}}
-        <li class="text-center list-group-item">
-          <input type="text" id="search_input" placeholder="Find your friends" class="form-control"></input>
-        </li>
-      </ul>
+        </ul>
+      </div>
+    </script>
+
+    <!-- Group list template -->
+    <script type="text/template" id="groupListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Groups</div>
+        <ul class="list-group">
+          <li class="text-center list-group-item">
+            <a href="#group/{{id}}">
+              Group name
+            </a>
+          </li>
+          <li class="list-group-item">
+            <input type="text" id="search_input" placeholder="Create a new group" class="form-control text-center"></input>
+          </li>
+        </ul>
+      </div>
     </script>
 
     <!-- Message list template -->
@@ -106,8 +128,8 @@
           <div class="panel-heading">
             From
             {{#user_pseudo}}
-              <a href="#user/{{.}}">
-                {{.}}
+              <a href="#user/{{this}}">
+                {{this}}
               </a>
             {{/user_pseudo}}
             {{^user_pseudo}}
@@ -133,8 +155,8 @@
     <!-- Talk template -->
     <script type="text/template" id="talkTemplate">
 
-      <div class="col-sm-3 col-sm-offset-1">
-        <div class="panel panel-default">
+      <div class="col-sm-4">
+        <div class="panel panel-success">
           <div class="panel-heading">
             <h3 class="panel-title text-center">
               Talk
@@ -148,7 +170,7 @@
         <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
       </div>
 
-      <div class="col-sm-7">
+      <div class="col-sm-8">
         <div class="well">
           <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
           <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
@@ -160,7 +182,7 @@
     </script>
 
 	</head>
-	<body class="container-fluid">
+	<body class="container">
 
     <div id="header" class="row">
       <div class="col-sm-4">

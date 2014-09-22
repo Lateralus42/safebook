@@ -12,4 +12,6 @@ class App.Views.home extends Backbone.View
     )
     App.Views.MessageList.render()
 
+    # Testing
+    $("#groupList").html($("#groupListTemplate").html())
     @

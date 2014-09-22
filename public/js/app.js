@@ -115,6 +115,7 @@ App.Views.home = (function(_super) {
       collection: App.Collections.Messages
     });
     App.Views.MessageList.render();
+    $("#groupList").html($("#groupListTemplate").html());
     return this;
   };
 
