@@ -2,12 +2,10 @@
 
 Using node.js and npm :
 
-```bash
 git clone https://github.com/mjal/safebook.git
 cd safebook
 npm install
 npm start
-```
 
 # Develop
 
