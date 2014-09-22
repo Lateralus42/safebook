@@ -568,6 +568,8 @@ Router = (function(_super) {
     });
   };
 
+  Router.prototype.fetched = false;
+
   Router.prototype.index = function() {
     App.Content = new App.Views.log({
       el: $("#content")
@@ -579,11 +581,11 @@ Router = (function(_super) {
     if (!App.I) {
       return this.show("");
     }
-    App.Collections.Users.add(App.I);
     if (App.Content) {
       App.Content.undelegateEvents();
     }
-    if (App.Collections.Messages.length !== 0) {
+    if (this.fetched) {
+      App.Collections.Users.add(App.I);
       App.Content = new App.Views.home({
         el: $("#content")
       });
@@ -592,10 +594,16 @@ Router = (function(_super) {
       return App.Collections.Messages.fetch({
         success: (function(_this) {
           return function() {
-            App.Content = new App.Views.home({
-              el: $("#content")
+            return App.Collections.Users.fetch({
+              success: function() {
+                _this.fetched = true;
+                App.Collections.Users.add(App.I);
+                App.Content = new App.Views.home({
+                  el: $("#content")
+                });
+                return App.Content.render();
+              }
             });
-            return App.Content.render();
           };
         })(this)
       });

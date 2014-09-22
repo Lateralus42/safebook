@@ -1,4 +1,5 @@
 class Router extends Backbone.Router
+
   routes:
     '': 'index'
     'home': 'home'
@@ -6,6 +7,8 @@ class Router extends Backbone.Router
 
   show: (route) =>
     @navigate(route, {trigger: true, replace: true})
+
+  fetched: false
 
   index: =>
     App.Content = new App.Views.log(el: $("#content"))
@@ -17,17 +20,19 @@ class Router extends Backbone.Router
   home: =>
     return @show("") unless App.I
 
-    App.Collections.Users.add(App.I)
-
     App.Content.undelegateEvents() if App.Content
 
-    unless App.Collections.Messages.length is 0 # XXX: Fix to use it only once
+    if @fetched
+      App.Collections.Users.add(App.I)
       App.Content = new App.Views.home(el: $("#content"))
       App.Content.render()
     else
       App.Collections.Messages.fetch success: =>
-        App.Content = new App.Views.home(el: $("#content"))
-        App.Content.render()
+        App.Collections.Users.fetch success: =>
+          @fetched = true
+          App.Collections.Users.add(App.I)
+          App.Content = new App.Views.home(el: $("#content"))
+          App.Content.render()
 
   talk: (pseudo) =>
     return @show("") unless App.I

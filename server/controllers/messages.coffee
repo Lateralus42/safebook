@@ -14,7 +14,6 @@ module.exports = (App) ->
         res.status(201).json(message)
 
   findAll: (req, res, next) ->
-    console.log "On findAll"
     return res.status(401).end() unless req.session.user_id
     App.Models.message.findAll(
       where: Sequelize.or(

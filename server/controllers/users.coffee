@@ -27,6 +27,22 @@ module.exports = (App) ->
       data = user.full()
       res.json(data)
 
+  # A terme a mettre dans /login
+  findAll: (req, res) ->
+    return res.status(401).end() unless req.session.user_id
+    App.Models.message.findAll(
+      where: Sequelize.or(
+        { user_id: req.session.user_id },
+        { destination_id: req.session.user_id }
+      )
+    ).done (err, messages) ->
+      a = (msg.user_id for msg in messages)
+      b = (msg.destination_id for msg in messages)
+      user_contacts = _.union(a, b)
+      App.Models.user.findAll(where: id: user_contacts).done (err, users) ->
+        return res.status(401).end() if err
+        res.status(200).json((user.public() for user in users))
+
 ### Login old pipeline
     data = user_keys = user_contacts = null # old stuff
     ....

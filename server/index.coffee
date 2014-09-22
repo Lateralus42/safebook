@@ -39,6 +39,7 @@ server.use express.static(__dirname + '/../public')
 server.post   '/user', App.Controllers.users.create
 server.put    '/user/:pseudo', App.Controllers.users.login
 server.get    '/user/:pseudo', App.Controllers.users.find
+server.get    '/users', App.Controllers.users.findAll
 
 server.post   '/message', App.Controllers.messages.create
 server.get    '/messages', App.Controllers.messages.findAll
