@@ -13,6 +13,7 @@ module.exports = (App) ->
         return res.status(401).end() if err
         res.status(201).json(message)
 
+  # A terme a mettre dans /login
   findAll: (req, res, next) ->
     return res.status(401).end() unless req.session.user_id
     App.Models.message.findAll(

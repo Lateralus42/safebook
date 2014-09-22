@@ -3,7 +3,6 @@ express   = require 'express'
 Sequelize = require 'sequelize'
 _         = Sequelize.Utils._
 
-
 # Loading App structure
 
 App =
@@ -39,12 +38,14 @@ server.use express.static(__dirname + '/../public')
 server.post   '/user', App.Controllers.users.create
 server.put    '/user/:pseudo', App.Controllers.users.login
 server.get    '/user/:pseudo', App.Controllers.users.find
+
+# A terme a mettre dans /login
 server.get    '/users', App.Controllers.users.findAll
 
 server.post   '/message', App.Controllers.messages.create
-server.get    '/messages', App.Controllers.messages.findAll
 
-# XXX: Admin section
+# A terme a mettre dans /login
+server.get    '/messages', App.Controllers.messages.findAll
 
 # Syncing DB, then server
 
