@@ -11,5 +11,5 @@ npm start
 
 # Develop
 
-We use grunt for client side compilation.
-If you edit server side code don't forget to restart the server
+Don't forget to grunt when you edit client side coffeescript.
+Don't forget to restart the server when you edit server side code
