@@ -5,8 +5,11 @@ App =
   Views: {}
 
 # Conversion helpers
-to_b64    = sjcl.codec.base64.fromBits
-from_b64  = sjcl.codec.base64.toBits
+to_b64    = (bin) ->
+  sjcl.codec.base64.fromBits(bin).replace(/\//g,'_').replace(/\+/g,'-')
+
+from_b64  = (b64) ->
+  sjcl.codec.base64.toBits(b64.replace(/\_/g,'/').replace(/\-/g,'+'))
 
 to_hex    = sjcl.codec.hex.fromBits
 from_hex  = sjcl.codec.hex.toBits

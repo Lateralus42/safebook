@@ -6,9 +6,13 @@ App = {
   Views: {}
 };
 
-to_b64 = sjcl.codec.base64.fromBits;
+to_b64 = function(bin) {
+  return sjcl.codec.base64.fromBits(bin).replace(/\//g, '_').replace(/\+/g, '-');
+};
 
-from_b64 = sjcl.codec.base64.toBits;
+from_b64 = function(b64) {
+  return sjcl.codec.base64.toBits(b64.replace(/\_/g, '/').replace(/\-/g, '+'));
+};
 
 to_hex = sjcl.codec.hex.fromBits;
 
@@ -708,7 +712,7 @@ Router = (function(_super) {
     }
   };
 
-  Router.prototype.talk = function(pseudo) {
+  Router.prototype.talk = function(id) {
     var model;
     if (!App.I) {
       return this.show("");
@@ -716,7 +720,9 @@ Router = (function(_super) {
     if (App.Content) {
       App.Content.undelegateEvents();
     }
-    model = App.Collections.Users.get(pseudo);
+    model = App.Collections.Users.findWhere({
+      id: id
+    });
     if (model) {
       App.Content = new App.Views.talk({
         el: $("#content"),

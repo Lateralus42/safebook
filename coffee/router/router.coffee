@@ -36,12 +36,12 @@ class Router extends Backbone.Router
             App.Content = new App.Views.home(el: $("#content"))
             App.Content.render()
 
-  talk: (pseudo) =>
+  talk: (id) =>
     return @show("") unless App.I
 
     App.Content.undelegateEvents() if App.Content
 
-    model = App.Collections.Users.get(pseudo)
+    model = App.Collections.Users.findWhere(id: id)
     if model
       App.Content = new App.Views.talk(el: $("#content"), model: model)
       App.Content.render()
