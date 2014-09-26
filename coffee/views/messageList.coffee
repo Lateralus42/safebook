@@ -11,6 +11,7 @@ class App.Views.messageList extends Backbone.View
       destination = App.Collections.Users.findWhere(id: message.destination_id)
       if destination # if useless now
         message.destination_pseudo = destination.get('pseudo')
+      message.createdAt = (new Date(message.createdAt)).toLocaleString()
 
     template = Handlebars.compile $("#messageListTemplate").html()
     @$el.html template(messages: messages)

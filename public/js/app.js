@@ -297,6 +297,7 @@ App.Views.messageList = (function(_super) {
       if (destination) {
         message.destination_pseudo = destination.get('pseudo');
       }
+      message.createdAt = (new Date(message.createdAt)).toLocaleString();
     }
     template = Handlebars.compile($("#messageListTemplate").html());
     this.$el.html(template({
@@ -603,8 +604,6 @@ App.Collections.messages = (function(_super) {
   messages.prototype.url = '/messages';
 
   messages.prototype.comparator = function(a, b) {
-    console.log(a);
-    console.log(b);
     return (new Date(a.get('createdAt'))) < (new Date(b.get('createdAt')));
   };
 
