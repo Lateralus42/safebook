@@ -96,6 +96,59 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+App.Views.groupList = (function(_super) {
+  __extends(groupList, _super);
+
+  function groupList() {
+    this.search_group = __bind(this.search_group, this);
+    this.render = __bind(this.render, this);
+    return groupList.__super__.constructor.apply(this, arguments);
+  }
+
+  groupList.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#groupListTemplate").html());
+    this.$el.html(template({
+      groups: App.Collections.Groups.toJSON()
+    }));
+    return this;
+  };
+
+  groupList.prototype.events = {
+    'keypress #search_group_input': 'search_group'
+  };
+
+  groupList.prototype.search_group = function(e) {
+    var group, name;
+    if (e.which === 13) {
+      name = $("#search_group_input").val();
+      group = new App.Models.Group({
+        name: name
+      });
+      group.save();
+      group.on('error', (function(_this) {
+        return function() {
+          return alert("Can't save...");
+        };
+      })(this));
+      return group.on('sync', (function(_this) {
+        return function() {
+          $("#search_group_input").val("");
+          App.Collections.Groups.add(group);
+          return _this.render();
+        };
+      })(this));
+    }
+  };
+
+  return groupList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
 App.Views.home = (function(_super) {
   __extends(home, _super);
 
@@ -115,7 +168,11 @@ App.Views.home = (function(_super) {
       collection: App.Collections.Messages
     });
     App.Views.MessageList.render();
-    $("#groupList").html($("#groupListTemplate").html());
+    App.Views.GroupList = new App.Views.groupList({
+      el: $("#groupList"),
+      collection: App.Collections.Groups
+    });
+    App.Views.GroupList.render();
     return this;
   };
 
@@ -348,14 +405,15 @@ App.Views.userList = (function(_super) {
   };
 
   userList.prototype.events = {
-    'keypress #search_input': 'search_user'
+    'keypress #search_user_input': 'search_user'
   };
 
   userList.prototype.search_user = function(e) {
-    var user;
+    var pseudo, user;
     if (e.which === 13) {
+      pseudo = $("#search_user_input").val();
       user = new App.Models.User({
-        pseudo: $("#search_input").val()
+        pseudo: pseudo
       });
       user.fetch();
       user.on('error', (function(_this) {
@@ -365,7 +423,7 @@ App.Views.userList = (function(_super) {
       })(this));
       return user.on('sync', (function(_this) {
         return function() {
-          $("#search_input").val("");
+          $("#search_user_input").val("");
           App.Collections.Users.add(user);
           return _this.render();
         };
@@ -376,6 +434,22 @@ App.Views.userList = (function(_super) {
   return userList;
 
 })(Backbone.View);
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Models.Group = (function(_super) {
+  __extends(Group, _super);
+
+  function Group() {
+    return Group.__super__.constructor.apply(this, arguments);
+  }
+
+  Group.prototype.urlRoot = "/group";
+
+  return Group;
+
+})(Backbone.Model);
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -492,6 +566,26 @@ App.Models.User = (function(_super) {
     shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
  */
 
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Collections.groups = (function(_super) {
+  __extends(groups, _super);
+
+  function groups() {
+    return groups.__super__.constructor.apply(this, arguments);
+  }
+
+  groups.prototype.model = App.Models.Group;
+
+  groups.prototype.url = '/groups';
+
+  return groups;
+
+})(Backbone.Collection);
+
+App.Collections.Groups = new App.Collections.groups();
+
 var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -597,12 +691,16 @@ Router = (function(_super) {
           return function() {
             return App.Collections.Users.fetch({
               success: function() {
-                _this.fetched = true;
-                App.Collections.Users.add(App.I);
-                App.Content = new App.Views.home({
-                  el: $("#content")
+                return App.Collections.Groups.fetch({
+                  success: function() {
+                    _this.fetched = true;
+                    App.Collections.Users.add(App.I);
+                    App.Content = new App.Views.home({
+                      el: $("#content")
+                    });
+                    return App.Content.render();
+                  }
                 });
-                return App.Content.render();
               }
             });
           };

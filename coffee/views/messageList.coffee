@@ -6,10 +6,10 @@ class App.Views.messageList extends Backbone.View
 
     for message in messages
       user = App.Collections.Users.findWhere(id: message.user_id)
-      if user
+      if user # if useless now
         message.user_pseudo = user.get('pseudo')
       destination = App.Collections.Users.findWhere(id: message.destination_id)
-      if destination
+      if destination # if useless now
         message.destination_pseudo = destination.get('pseudo')
 
     template = Handlebars.compile $("#messageListTemplate").html()

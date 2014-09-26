@@ -98,7 +98,7 @@
             </li>
           {{/each}}
           <li class="list-group-item">
-            <input type="text" id="search_input" placeholder="Find someone" class="form-control text-center"></input>
+            <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
           </li>
         </ul>
       </div>
@@ -109,13 +109,15 @@
       <div class="panel panel-success">
         <div class="panel-heading text-center">Groups</div>
         <ul class="list-group">
-          <li class="text-center list-group-item">
-            <a href="#group/{{id}}">
-              Group name
-            </a>
-          </li>
+          {{#each groups}}
+            <li class="text-center list-group-item">
+              <a href="#group/{{id}}">
+                {{name}}
+              </a>
+            </li>
+          {{/each}}
           <li class="list-group-item">
-            <input type="text" id="search_input" placeholder="Create a new group" class="form-control text-center"></input>
+            <input type="text" id="search_group_input" placeholder="Create a new group" class="form-control text-center"></input>
           </li>
         </ul>
       </div>

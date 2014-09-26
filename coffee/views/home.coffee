@@ -12,6 +12,10 @@ class App.Views.home extends Backbone.View
     )
     App.Views.MessageList.render()
 
-    # Testing
-    $("#groupList").html($("#groupListTemplate").html())
+    App.Views.GroupList = new App.Views.groupList(
+      el: $("#groupList")
+      collection: App.Collections.Groups
+    )
+    App.Views.GroupList.render()
+
     @
