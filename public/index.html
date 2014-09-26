@@ -129,23 +129,20 @@
         <div class="panel panel-success">
           <div class="panel-heading">
             From
-            {{#user_pseudo}}
-              <a href="#user/{{this}}">
-                {{this}}
+            <a href="#user/{{source.id}}">
+              {{source.pseudo}}
+            </a>
+            to
+            {{#if destination.pseudo}}
+              <a href="#user/{{destination.id}}">
+                {{destination.pseudo}}
               </a>
-            {{/user_pseudo}}
-            {{^user_pseudo}}
-              Unknown
-            {{/user_pseudo}}
-            to 
-            {{#destination_pseudo}}
-              <a href="#user/{{this}}">
-                {{this}}
+            {{/if}}
+            {{#if destination.name}}
+              <a href="#group/{{destination.id}}">
+                {{destination.name}}
               </a>
-            {{/destination_pseudo}}
-            {{^destination_pseudo}}
-              Unknown
-            {{/destination_pseudo}}
+            {{/if}}
             at
             {{createdAt}}
           </div>
@@ -156,14 +153,14 @@
       {{/each}}
     </script>
 
-    <!-- Talk template -->
-    <script type="text/template" id="talkTemplate">
+    <!-- UserTalk template -->
+    <script type="text/template" id="userTalkTemplate">
 
       <div class="col-sm-4">
         <div class="panel panel-success">
           <div class="panel-heading">
             <h3 class="panel-title text-center">
-              Talk
+              User Talk
             </h3>
           </div>
           <div class="panel-body">
@@ -184,6 +181,36 @@
         </div>
       </div>
     </script>
+
+    <!-- GroupTalk template -->
+    <script type="text/template" id="groupTalkTemplate">
+
+      <div class="col-sm-4">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title text-center">
+              Group Talk
+            </h3>
+          </div>
+          <div class="panel-body">
+            <p class="text-center">Name: <b>{{group.name}}</b></p>
+            <p class="text-center">Id: <b>{{group.id}}</b></p>
+          </div>
+        </div>
+        <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
+      </div>
+
+      <div class="col-sm-8">
+        <div class="well">
+          <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
+          <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
+        </div>
+
+        <div id="messageList">
+        </div>
+      </div>
+    </script>
+
 
 	</head>
 	<body class="container">

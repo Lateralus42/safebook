@@ -5,12 +5,16 @@ class App.Views.messageList extends Backbone.View
     messages = @collection.toJSON()
 
     for message in messages
+      console.log message
       user = App.Collections.Users.findWhere(id: message.user_id)
-      if user # if useless now
-        message.user_pseudo = user.get('pseudo')
-      destination = App.Collections.Users.findWhere(id: message.destination_id)
-      if destination # if useless now
-        message.destination_pseudo = destination.get('pseudo')
+      destination = if message.destination_type == "user"
+        App.Collections.Users.findWhere(id: message.destination_id)
+      else
+        console.log "find group"
+        App.Collections.Groups.findWhere(id: message.destination_id)
+      console.log destination
+      message.source = user.attributes
+      message.destination = destination.attributes
       message.createdAt = (new Date(message.createdAt)).toLocaleString()
 
     template = Handlebars.compile $("#messageListTemplate").html()

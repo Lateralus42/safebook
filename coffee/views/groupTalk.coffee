@@ -1,18 +1,22 @@
-class App.Views.talk extends Backbone.View
+class App.Views.groupTalk extends Backbone.View
+
+  selected_messages: =>
+    messages = new App.Collections.messages()
+    messages.push(App.Collections.Messages.where(
+      destination_type: 'group'
+      destination_id: @model.get('id')
+    ))
+    messages
 
   render: =>
-    template = Handlebars.compile $("#talkTemplate").html()
-    @$el.html(template(user: @model.attributes))
+    template = Handlebars.compile $("#groupTalkTemplate").html()
+    @$el.html(template(group: @model.attributes))
     $("textarea").autosize()
 
-    messages = new App.Collections.messages()
-    messages.push(App.Collections.Messages.where(user_id: @model.get('id')))
-    messages.push(App.Collections.Messages.where(destination_id: @model.get('id')))
-      # and destination_type: "user"
 
     App.Views.MessageList = new App.Views.messageList(
       el: $("#messageList")
-      collection: messages
+      collection: @selected_messages()
     )
     App.Views.MessageList.render()
 
@@ -21,21 +25,21 @@ class App.Views.talk extends Backbone.View
     'click #back_button': 'go_home'
 
   talk: =>
-    console.log "trigger talk"
-
-    hidden_content = $("#message_input").val()
+    # XXX
     # hidden_content = App.S.hide_text()
-    # ...
     # @model.get('shared'), $("message_input").val()
+    hidden_content = $("#message_input").val()
 
     message = new App.Models.Message(
+      destination_type: "group"
       destination_id: @model.get('id')
       hidden_content: hidden_content
     )
     message.on 'error', =>
       alert "Sending error"
     message.on 'sync', =>
-      console.log "trigger sync"
+      console.log "sync"
+      console.log message
       App.Collections.Messages.add(message)
       App.Views.MessageList.collection.push(message)
       App.Views.MessageList.render()

@@ -153,6 +153,84 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+App.Views.groupTalk = (function(_super) {
+  __extends(groupTalk, _super);
+
+  function groupTalk() {
+    this.go_home = __bind(this.go_home, this);
+    this.talk = __bind(this.talk, this);
+    this.render = __bind(this.render, this);
+    this.selected_messages = __bind(this.selected_messages, this);
+    return groupTalk.__super__.constructor.apply(this, arguments);
+  }
+
+  groupTalk.prototype.selected_messages = function() {
+    var messages;
+    messages = new App.Collections.messages();
+    messages.push(App.Collections.Messages.where({
+      destination_type: 'group',
+      destination_id: this.model.get('id')
+    }));
+    return messages;
+  };
+
+  groupTalk.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#groupTalkTemplate").html());
+    this.$el.html(template({
+      group: this.model.attributes
+    }));
+    $("textarea").autosize();
+    App.Views.MessageList = new App.Views.messageList({
+      el: $("#messageList"),
+      collection: this.selected_messages()
+    });
+    return App.Views.MessageList.render();
+  };
+
+  groupTalk.prototype.events = {
+    'click #send_message': 'talk',
+    'click #back_button': 'go_home'
+  };
+
+  groupTalk.prototype.talk = function() {
+    var hidden_content, message;
+    hidden_content = $("#message_input").val();
+    message = new App.Models.Message({
+      destination_type: "group",
+      destination_id: this.model.get('id'),
+      hidden_content: hidden_content
+    });
+    message.on('error', (function(_this) {
+      return function() {
+        return alert("Sending error");
+      };
+    })(this));
+    message.on('sync', (function(_this) {
+      return function() {
+        console.log("sync");
+        console.log(message);
+        App.Collections.Messages.add(message);
+        App.Views.MessageList.collection.push(message);
+        App.Views.MessageList.render();
+        return $("#message_input").val("");
+      };
+    })(this));
+    return message.save();
+  };
+
+  groupTalk.prototype.go_home = function() {
+    return App.Router.show("home");
+  };
+
+  return groupTalk;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
 App.Views.home = (function(_super) {
   __extends(home, _super);
 
@@ -289,18 +367,18 @@ App.Views.messageList = (function(_super) {
     messages = this.collection.toJSON();
     for (_i = 0, _len = messages.length; _i < _len; _i++) {
       message = messages[_i];
+      console.log(message);
       user = App.Collections.Users.findWhere({
         id: message.user_id
       });
-      if (user) {
-        message.user_pseudo = user.get('pseudo');
-      }
-      destination = App.Collections.Users.findWhere({
+      destination = message.destination_type === "user" ? App.Collections.Users.findWhere({
         id: message.destination_id
-      });
-      if (destination) {
-        message.destination_pseudo = destination.get('pseudo');
-      }
+      }) : (console.log("find group"), App.Collections.Groups.findWhere({
+        id: message.destination_id
+      }));
+      console.log(destination);
+      message.source = user.attributes;
+      message.destination = destination.attributes;
       message.createdAt = (new Date(message.createdAt)).toLocaleString();
     }
     template = Handlebars.compile($("#messageListTemplate").html());
@@ -311,79 +389,6 @@ App.Views.messageList = (function(_super) {
   };
 
   return messageList;
-
-})(Backbone.View);
-
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-App.Views.talk = (function(_super) {
-  __extends(talk, _super);
-
-  function talk() {
-    this.go_home = __bind(this.go_home, this);
-    this.talk = __bind(this.talk, this);
-    this.render = __bind(this.render, this);
-    return talk.__super__.constructor.apply(this, arguments);
-  }
-
-  talk.prototype.render = function() {
-    var messages, template;
-    template = Handlebars.compile($("#talkTemplate").html());
-    this.$el.html(template({
-      user: this.model.attributes
-    }));
-    $("textarea").autosize();
-    messages = new App.Collections.messages();
-    messages.push(App.Collections.Messages.where({
-      user_id: this.model.get('id')
-    }));
-    messages.push(App.Collections.Messages.where({
-      destination_id: this.model.get('id')
-    }));
-    App.Views.MessageList = new App.Views.messageList({
-      el: $("#messageList"),
-      collection: messages
-    });
-    return App.Views.MessageList.render();
-  };
-
-  talk.prototype.events = {
-    'click #send_message': 'talk',
-    'click #back_button': 'go_home'
-  };
-
-  talk.prototype.talk = function() {
-    var hidden_content, message;
-    console.log("trigger talk");
-    hidden_content = $("#message_input").val();
-    message = new App.Models.Message({
-      destination_id: this.model.get('id'),
-      hidden_content: hidden_content
-    });
-    message.on('error', (function(_this) {
-      return function() {
-        return alert("Sending error");
-      };
-    })(this));
-    message.on('sync', (function(_this) {
-      return function() {
-        console.log("trigger sync");
-        App.Collections.Messages.add(message);
-        App.Views.MessageList.collection.push(message);
-        App.Views.MessageList.render();
-        return $("#message_input").val("");
-      };
-    })(this));
-    return message.save();
-  };
-
-  talk.prototype.go_home = function() {
-    return App.Router.show("home");
-  };
-
-  return talk;
 
 })(Backbone.View);
 
@@ -437,6 +442,88 @@ App.Views.userList = (function(_super) {
   };
 
   return userList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Views.userTalk = (function(_super) {
+  __extends(userTalk, _super);
+
+  function userTalk() {
+    this.go_home = __bind(this.go_home, this);
+    this.talk = __bind(this.talk, this);
+    this.render = __bind(this.render, this);
+    this.selected_messages = __bind(this.selected_messages, this);
+    return userTalk.__super__.constructor.apply(this, arguments);
+  }
+
+  userTalk.prototype.selected_messages = function() {
+    var messages;
+    messages = new App.Collections.messages();
+    messages.push(App.Collections.Messages.where({
+      destination_type: 'user',
+      user_id: App.I.get('id'),
+      destination_id: this.model.get('id')
+    }));
+    messages.push(App.Collections.Messages.where({
+      destination_type: 'user',
+      user_id: this.model.get('id'),
+      destination_id: App.I.get('id')
+    }));
+    return messages;
+  };
+
+  userTalk.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#userTalkTemplate").html());
+    this.$el.html(template({
+      user: this.model.attributes
+    }));
+    $("textarea").autosize();
+    App.Views.MessageList = new App.Views.messageList({
+      el: $("#messageList"),
+      collection: this.selected_messages()
+    });
+    return App.Views.MessageList.render();
+  };
+
+  userTalk.prototype.events = {
+    'click #send_message': 'talk',
+    'click #back_button': 'go_home'
+  };
+
+  userTalk.prototype.talk = function() {
+    var hidden_content, message;
+    hidden_content = $("#message_input").val();
+    message = new App.Models.Message({
+      destination_type: "user",
+      destination_id: this.model.get('id'),
+      hidden_content: hidden_content
+    });
+    message.on('error', (function(_this) {
+      return function() {
+        return alert("Sending error");
+      };
+    })(this));
+    message.on('sync', (function(_this) {
+      return function() {
+        App.Collections.Messages.add(message);
+        App.Views.MessageList.collection.push(message);
+        App.Views.MessageList.render();
+        return $("#message_input").val("");
+      };
+    })(this));
+    return message.save();
+  };
+
+  userTalk.prototype.go_home = function() {
+    return App.Router.show("home");
+  };
+
+  return userTalk;
 
 })(Backbone.View);
 
@@ -646,7 +733,8 @@ Router = (function(_super) {
   __extends(Router, _super);
 
   function Router() {
-    this.talk = __bind(this.talk, this);
+    this.groupTalk = __bind(this.groupTalk, this);
+    this.userTalk = __bind(this.userTalk, this);
     this.home = __bind(this.home, this);
     this.index = __bind(this.index, this);
     this.show = __bind(this.show, this);
@@ -656,7 +744,8 @@ Router = (function(_super) {
   Router.prototype.routes = {
     '': 'index',
     'home': 'home',
-    'user/:pseudo': 'talk'
+    'user/:id': 'userTalk',
+    'group/:id': 'groupTalk'
   };
 
   Router.prototype.show = function(route) {
@@ -712,7 +801,7 @@ Router = (function(_super) {
     }
   };
 
-  Router.prototype.talk = function(id) {
+  Router.prototype.userTalk = function(id) {
     var model;
     if (!App.I) {
       return this.show("");
@@ -724,13 +813,36 @@ Router = (function(_super) {
       id: id
     });
     if (model) {
-      App.Content = new App.Views.talk({
+      App.Content = new App.Views.userTalk({
         el: $("#content"),
         model: model
       });
       return App.Content.render();
     } else {
       console.log("user not found !");
+      return this.show("home");
+    }
+  };
+
+  Router.prototype.groupTalk = function(id) {
+    var model;
+    if (!App.I) {
+      return this.show("");
+    }
+    if (App.Content) {
+      App.Content.undelegateEvents();
+    }
+    model = App.Collections.Groups.findWhere({
+      id: id
+    });
+    if (model) {
+      App.Content = new App.Views.groupTalk({
+        el: $("#content"),
+        model: model
+      });
+      return App.Content.render();
+    } else {
+      console.log("group not found !");
       return this.show("home");
     }
   };

@@ -10,6 +10,8 @@ module.exports = (sequelize) ->
       type: Sequelize.STRING
     destination_id:
       type: Sequelize.STRING
+    destination_type:
+      type: Sequelize.STRING
     hidden_content:
       type: Sequelize.TEXT
   }, {
