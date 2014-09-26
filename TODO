@@ -2,3 +2,8 @@
 * Refactor
 * Corriger l'ajax pour simplifier
 * Rendre les pseudos cases insensitifs
+
+# SUR LA CHIFFREMENT
+* Each message has a hidden_key and a hidden_content for more security
+* SRP ?
+* Remote salt ?
