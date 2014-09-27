@@ -7,8 +7,10 @@ module.exports = (App) ->
     return res.status(401).end() unless req.session.user_id
     pageUser = req.body
     App.Models.page.find(where:
-      page_id: pageUser.page_id
-      user_id: req.session.user_id
+      Sequelize.and(
+        { id: pageUser.page_id },
+        { user_id: req.session.user_id }
+      )
     ).done (err, page) ->
       return res.status(402).end() if err # Use 401
       App.Helpers.create_id 16, (id) ->

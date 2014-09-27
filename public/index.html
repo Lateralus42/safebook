@@ -227,9 +227,15 @@
                   {{pseudo}}
                 </a>
               <div class="pull-right">
-                <a href="#">
-                  (Add or remove)
-                </a>
+                {{#if auth}}
+                  <a class="delete" data-id="{{id}}" href="#">
+                    (Remove)
+                  </a>
+                {{else}}
+                  <a class="create" data-id="{{id}}" href="#">
+                    (Add)
+                  </a>
+                {{/if}}
               </div>
             </li>
           {{/each}}

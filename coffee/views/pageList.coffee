@@ -6,15 +6,16 @@ class App.Views.pageList extends Backbone.View
     @
 
   events:
-    'keypress #create_page_input': 'search_page'
+    'keypress #create_page_input': 'create_page'
 
-  search_page: (e) =>
+  create_page: (e) =>
     if e.which is 13
       name = $("#create_page_input").val()
       page = new App.Models.Page(name: name)
-      page.save()
-      page.on 'error', => alert("Can't save...")
+      page.on 'error', =>
+        alert("Can't save...")
       page.on 'sync', =>
         $("#create_page_input").val("")
         App.Collections.Pages.add(page)
         @render()
+      page.save()

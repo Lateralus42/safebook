@@ -26,7 +26,7 @@ class App.Views.userTalk extends Backbone.View
     App.Views.MessageList.render()
 
   events:
-    'click #send_message': 'talk'
+    'click #send_message': 'talk' # why not on the messageList controller ?
     'click #back_button': 'go_home'
 
   talk: =>

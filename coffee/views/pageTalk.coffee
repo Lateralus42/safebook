@@ -9,7 +9,14 @@ class App.Views.pageTalk extends Backbone.View
     messages
 
   page_users: =>
-    App.Collections.Users.toJSON()
+    users = App.Collections.Users.toJSON()
+    for user in users
+      links = App.Collections.PageUsers.where( # links au singulier après
+        page_id: @model.get('id')
+        user_id: user.id
+      )
+      user.auth = true if links
+    users
 
   render: =>
     template = Handlebars.compile $("#pageTalkTemplate").html()
@@ -24,7 +31,7 @@ class App.Views.pageTalk extends Backbone.View
 
     App.Views.PageUserList = new App.Views.pageUserList(
       el: $("#pageUserList")
-      collection: @page_users()
+      model: @model
     )
     App.Views.PageUserList.render()
 

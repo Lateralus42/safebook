@@ -30,11 +30,12 @@ class Router extends Backbone.Router
       App.Collections.Messages.fetch success: =>
         App.Collections.Users.fetch success: =>
           App.Collections.Pages.fetch success: =>
-            @fetched = true
-            App.Collections.Users.add(App.I)
+            App.Collections.PageUsers.fetch success: =>
+              @fetched = true
+              App.Collections.Users.add(App.I)
 
-            App.Content = new App.Views.home(el: $("#content"))
-            App.Content.render()
+              App.Content = new App.Views.home(el: $("#content"))
+              App.Content.render()
 
   userTalk: (id) =>
     return @show("") unless App.I

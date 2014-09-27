@@ -267,7 +267,7 @@ App.Views.pageList = (function(_super) {
   __extends(pageList, _super);
 
   function pageList() {
-    this.search_page = __bind(this.search_page, this);
+    this.create_page = __bind(this.create_page, this);
     this.render = __bind(this.render, this);
     return pageList.__super__.constructor.apply(this, arguments);
   }
@@ -282,29 +282,29 @@ App.Views.pageList = (function(_super) {
   };
 
   pageList.prototype.events = {
-    'keypress #create_page_input': 'search_page'
+    'keypress #create_page_input': 'create_page'
   };
 
-  pageList.prototype.search_page = function(e) {
+  pageList.prototype.create_page = function(e) {
     var name, page;
     if (e.which === 13) {
       name = $("#create_page_input").val();
       page = new App.Models.Page({
         name: name
       });
-      page.save();
       page.on('error', (function(_this) {
         return function() {
           return alert("Can't save...");
         };
       })(this));
-      return page.on('sync', (function(_this) {
+      page.on('sync', (function(_this) {
         return function() {
           $("#create_page_input").val("");
           App.Collections.Pages.add(page);
           return _this.render();
         };
       })(this));
+      return page.save();
     }
   };
 
@@ -339,7 +339,19 @@ App.Views.pageTalk = (function(_super) {
   };
 
   pageTalk.prototype.page_users = function() {
-    return App.Collections.Users.toJSON();
+    var links, user, users, _i, _len;
+    users = App.Collections.Users.toJSON();
+    for (_i = 0, _len = users.length; _i < _len; _i++) {
+      user = users[_i];
+      links = App.Collections.PageUsers.where({
+        page_id: this.model.get('id'),
+        user_id: user.id
+      });
+      if (links) {
+        user.auth = true;
+      }
+    }
+    return users;
   };
 
   pageTalk.prototype.render = function() {
@@ -356,7 +368,7 @@ App.Views.pageTalk = (function(_super) {
     App.Views.MessageList.render();
     App.Views.PageUserList = new App.Views.pageUserList({
       el: $("#pageUserList"),
-      collection: this.page_users()
+      model: this.model
     });
     return App.Views.PageUserList.render();
   };
@@ -408,17 +420,67 @@ App.Views.pageUserList = (function(_super) {
   __extends(pageUserList, _super);
 
   function pageUserList() {
+    this["delete"] = __bind(this["delete"], this);
+    this.create = __bind(this.create, this);
     this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
     return pageUserList.__super__.constructor.apply(this, arguments);
   }
+
+  pageUserList.prototype.page_users = function() {
+    var links, user, users, _i, _len;
+    users = App.Collections.Users.toJSON();
+    for (_i = 0, _len = users.length; _i < _len; _i++) {
+      user = users[_i];
+      links = App.Collections.PageUsers.findWhere({
+        page_id: this.model.get('id'),
+        user_id: user.id
+      });
+      if (links) {
+        user.auth = true;
+      }
+    }
+    return users;
+  };
 
   pageUserList.prototype.render = function() {
     var template;
     template = Handlebars.compile($("#pageUserListTemplate").html());
     this.$el.html(template({
-      users: this.collection
+      users: this.page_users()
     }));
     return this;
+  };
+
+  pageUserList.prototype.events = {
+    'click .create': 'create',
+    'click .delete': 'delete'
+  };
+
+  pageUserList.prototype.create = function(e) {
+    var pageUser;
+    pageUser = new App.Models.PageUser({
+      page_id: this.model.id,
+      user_id: $(e.target).data('id')
+    });
+    pageUser.on('error', (function(_this) {
+      return function() {
+        return alert("Can't save...");
+      };
+    })(this));
+    pageUser.on('sync', (function(_this) {
+      return function() {
+        App.Collections.PageUsers.add(pageUser);
+        return _this.render();
+      };
+    })(this));
+    pageUser.save();
+    return false;
+  };
+
+  pageUserList.prototype["delete"] = function() {
+    console.log("call delete");
+    return false;
   };
 
   return pageUserList;
@@ -743,7 +805,7 @@ App.Collections.pageUsers = (function(_super) {
     return pageUsers.__super__.constructor.apply(this, arguments);
   }
 
-  pageUsers.prototype.model = App.Models.pageUser;
+  pageUsers.prototype.model = App.Models.PageUser;
 
   pageUsers.prototype.url = '/pageUsers';
 
@@ -854,12 +916,16 @@ Router = (function(_super) {
               success: function() {
                 return App.Collections.Pages.fetch({
                   success: function() {
-                    _this.fetched = true;
-                    App.Collections.Users.add(App.I);
-                    App.Content = new App.Views.home({
-                      el: $("#content")
+                    return App.Collections.PageUsers.fetch({
+                      success: function() {
+                        _this.fetched = true;
+                        App.Collections.Users.add(App.I);
+                        App.Content = new App.Views.home({
+                          el: $("#content")
+                        });
+                        return App.Content.render();
+                      }
                     });
-                    return App.Content.render();
                   }
                 });
               }
