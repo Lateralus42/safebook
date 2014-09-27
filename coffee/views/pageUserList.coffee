@@ -24,17 +24,26 @@ class App.Views.pageUserList extends Backbone.View
     # XXX
     # Sauvegarder le liens
     pageUser = new App.Models.PageUser(
-      page_id: @model.id
+      page_id: @model.get('id')
       user_id: $(e.target).data('id')
     )
     pageUser.on 'error', =>
-      alert("Can't save...")
+      alert("Can't save (create)")
     pageUser.on 'sync', =>
       App.Collections.PageUsers.add(pageUser)
       @render()
     pageUser.save()
     false
 
-  delete: =>
-    console.log "call delete"
+  delete: (e) =>
+    pageUser = App.Collections.PageUsers.findWhere(
+      page_id: @model.get('id')
+      user_id: $(e.target).data('id')
+    )
+    pageUser.on 'error', =>
+      alert("Can't save (delete)")
+    pageUser.on 'sync', =>
+      App.Collections.PageUsers.remove(pageUser)
+      @render()
+    pageUser.destroy()
     false

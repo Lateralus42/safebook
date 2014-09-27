@@ -460,12 +460,12 @@ App.Views.pageUserList = (function(_super) {
   pageUserList.prototype.create = function(e) {
     var pageUser;
     pageUser = new App.Models.PageUser({
-      page_id: this.model.id,
+      page_id: this.model.get('id'),
       user_id: $(e.target).data('id')
     });
     pageUser.on('error', (function(_this) {
       return function() {
-        return alert("Can't save...");
+        return alert("Can't save (create)");
       };
     })(this));
     pageUser.on('sync', (function(_this) {
@@ -478,8 +478,24 @@ App.Views.pageUserList = (function(_super) {
     return false;
   };
 
-  pageUserList.prototype["delete"] = function() {
-    console.log("call delete");
+  pageUserList.prototype["delete"] = function(e) {
+    var pageUser;
+    pageUser = App.Collections.PageUsers.findWhere({
+      page_id: this.model.get('id'),
+      user_id: $(e.target).data('id')
+    });
+    pageUser.on('error', (function(_this) {
+      return function() {
+        return alert("Can't save (delete)");
+      };
+    })(this));
+    pageUser.on('sync', (function(_this) {
+      return function() {
+        App.Collections.PageUsers.remove(pageUser);
+        return _this.render();
+      };
+    })(this));
+    pageUser.destroy();
     return false;
   };
 

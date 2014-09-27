@@ -53,6 +53,7 @@ server.post   '/page', App.Controllers.pages.create
 server.get    '/pages', App.Controllers.pages.findAll
 
 server.post   '/pageUser', App.Controllers.pageUsers.create
+server.delete '/pageUser/:id', App.Controllers.pageUsers.delete
 # A terme a mettre dans /logins
 server.get    '/pageUsers', App.Controllers.pageUsers.findAll
 
