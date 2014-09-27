@@ -323,6 +323,7 @@ App.Views.pageTalk = (function(_super) {
     this.go_home = __bind(this.go_home, this);
     this.talk = __bind(this.talk, this);
     this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
     this.selected_messages = __bind(this.selected_messages, this);
     return pageTalk.__super__.constructor.apply(this, arguments);
   }
@@ -337,6 +338,10 @@ App.Views.pageTalk = (function(_super) {
     return messages;
   };
 
+  pageTalk.prototype.page_users = function() {
+    return App.Collections.Users.toJSON();
+  };
+
   pageTalk.prototype.render = function() {
     var template;
     template = Handlebars.compile($("#pageTalkTemplate").html());
@@ -348,7 +353,12 @@ App.Views.pageTalk = (function(_super) {
       el: $("#messageList"),
       collection: this.selected_messages()
     });
-    return App.Views.MessageList.render();
+    App.Views.MessageList.render();
+    App.Views.PageUserList = new App.Views.pageUserList({
+      el: $("#pageUserList"),
+      collection: this.page_users()
+    });
+    return App.Views.PageUserList.render();
   };
 
   pageTalk.prototype.events = {
@@ -387,6 +397,31 @@ App.Views.pageTalk = (function(_super) {
   };
 
   return pageTalk;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Views.pageUserList = (function(_super) {
+  __extends(pageUserList, _super);
+
+  function pageUserList() {
+    this.render = __bind(this.render, this);
+    return pageUserList.__super__.constructor.apply(this, arguments);
+  }
+
+  pageUserList.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#pageUserListTemplate").html());
+    this.$el.html(template({
+      users: this.collection
+    }));
+    return this;
+  };
+
+  return pageUserList;
 
 })(Backbone.View);
 
@@ -560,6 +595,22 @@ App.Models.Page = (function(_super) {
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+App.Models.PageUser = (function(_super) {
+  __extends(PageUser, _super);
+
+  function PageUser() {
+    return PageUser.__super__.constructor.apply(this, arguments);
+  }
+
+  PageUser.prototype.urlRoot = "/pageUser";
+
+  return PageUser;
+
+})(Backbone.Model);
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
 App.Models.User = (function(_super) {
   __extends(User, _super);
 
@@ -681,6 +732,26 @@ App.Collections.messages = (function(_super) {
 })(Backbone.Collection);
 
 App.Collections.Messages = new App.Collections.messages();
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Collections.pageUsers = (function(_super) {
+  __extends(pageUsers, _super);
+
+  function pageUsers() {
+    return pageUsers.__super__.constructor.apply(this, arguments);
+  }
+
+  pageUsers.prototype.model = App.Models.pageUser;
+
+  pageUsers.prototype.url = '/pageUsers';
+
+  return pageUsers;
+
+})(Backbone.Collection);
+
+App.Collections.PageUsers = new App.Collections.pageUsers();
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };

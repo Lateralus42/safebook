@@ -8,17 +8,25 @@ class App.Views.pageTalk extends Backbone.View
     ))
     messages
 
+  page_users: =>
+    App.Collections.Users.toJSON()
+
   render: =>
     template = Handlebars.compile $("#pageTalkTemplate").html()
     @$el.html(template(page: @model.attributes))
     $("textarea").autosize()
-
 
     App.Views.MessageList = new App.Views.messageList(
       el: $("#messageList")
       collection: @selected_messages()
     )
     App.Views.MessageList.render()
+
+    App.Views.PageUserList = new App.Views.pageUserList(
+      el: $("#pageUserList")
+      collection: @page_users()
+    )
+    App.Views.PageUserList.render()
 
   events:
     'click #send_message': 'talk'

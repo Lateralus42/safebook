@@ -198,6 +198,8 @@
             <p class="text-center">Id: <b>{{page.id}}</b></p>
           </div>
         </div>
+        <div id="pageUserList">
+        </div>
         <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
       </div>
 
@@ -209,6 +211,29 @@
 
         <div id="messageList">
         </div>
+      </div>
+    </script>
+
+    <!-- PageUserList template -->
+    <script type="text/template" id="pageUserListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">
+          Page Users
+        </div>
+        <ul class="list-group">
+          {{#each users}}
+            <li class="text-center list-group-item">
+                <a href="#user/{{id}}">
+                  {{pseudo}}
+                </a>
+              <div class="pull-right">
+                <a href="#">
+                  (Add or remove)
+                </a>
+              </div>
+            </li>
+          {{/each}}
+        </ul>
       </div>
     </script>
 

@@ -52,6 +52,9 @@ server.post   '/page', App.Controllers.pages.create
 # A terme a mettre dans /logins
 server.get    '/pages', App.Controllers.pages.findAll
 
+server.post   '/pageUser', App.Controllers.pageUsers.create
+# A terme a mettre dans /logins
+server.get    '/pageUsers', App.Controllers.pageUsers.findAll
 
 # Sync DB, then start server
 sequelize.sync(force: true).error(->
