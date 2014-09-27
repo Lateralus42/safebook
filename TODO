@@ -1,9 +1,21 @@
-* Utiliser les pubkey pour les messages...
-* Refactor
-* Corriger l'ajax pour simplifier
+# CLIENT
+
+* Refactor et mieux architecturer
+* Lire de la doc backbone
+
+# SERVER
+
+* Security: "return res.(401) if err" => "return res.(401) if err or not something"
+
+* Faire server/load_app.coffee
+* Utiliser les associations et du coup refactor violament avec les url
 * Rendre les pseudos cases insensitifs
 
-# SUR LA CHIFFREMENT
+# CHIFFREMENT
+
+* Faire server/load_app.coffe
+* Utiliser les pubkey pour les messages, les groupes, les membre de groupes
+
 * Each message has a hidden_key and a hidden_content for more security
 * SRP ?
 * Remote salt ?
