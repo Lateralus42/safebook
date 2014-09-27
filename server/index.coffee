@@ -48,9 +48,9 @@ server.post   '/message', App.Controllers.messages.create
 server.get    '/messages', App.Controllers.messages.findAll
 
 
-server.post   '/group', App.Controllers.groups.create
-# A terme a mettre dans /login
-server.get    '/groups', App.Controllers.groups.findAll
+server.post   '/page', App.Controllers.pages.create
+# A terme a mettre dans /logins
+server.get    '/pages', App.Controllers.pages.findAll
 
 
 # Sync DB, then start server

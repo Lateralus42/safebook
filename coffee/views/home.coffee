@@ -12,10 +12,10 @@ class App.Views.home extends Backbone.View
     )
     App.Views.MessageList.render()
 
-    App.Views.GroupList = new App.Views.groupList(
-      el: $("#groupList")
-      collection: App.Collections.Groups
+    App.Views.PageList = new App.Views.pageList(
+      el: $("#pageList")
+      collection: App.Collections.Pages
     )
-    App.Views.GroupList.render()
+    App.Views.PageList.render()
 
     @

@@ -8,8 +8,6 @@ user_name2 = getRandomInt(9999999).toString()
 
 casper.test.begin 'You can use it alone', 5, (test) ->
 
-	console.log "start tests"
-
 	casper.start 'http://0.0.0.0:8000/', ->
 		test.assertTitle "Safebook"
 
@@ -20,7 +18,7 @@ casper.test.begin 'You can use it alone', 5, (test) ->
 
 	casper.waitForUrl('#home').wait 500, ->
 		test.assertExists('#userList')
-		test.assertExists('#groupList')
+		test.assertExists('#pageList')
 		test.assertExists('#messageList')
 		@click "#userList a"
 

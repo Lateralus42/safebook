@@ -75,7 +75,7 @@
       <div class="col-sm-3">
         <div id="userList">
         </div>
-        <div id="groupList">
+        <div id="pageList">
         </div>
       </div>
       <div class="col-sm-9">
@@ -105,20 +105,20 @@
       </div>
     </script>
 
-    <!-- Group list template -->
-    <script type="text/template" id="groupListTemplate">
+    <!-- Page list template -->
+    <script type="text/template" id="pageListTemplate">
       <div class="panel panel-success">
-        <div class="panel-heading text-center">Groups</div>
+        <div class="panel-heading text-center">Pages</div>
         <ul class="list-group">
-          {{#each groups}}
+          {{#each pages}}
             <li class="text-center list-group-item">
-              <a href="#group/{{id}}">
+              <a href="#page/{{id}}">
                 {{name}}
               </a>
             </li>
           {{/each}}
           <li class="list-group-item">
-            <input type="text" id="search_group_input" placeholder="Create a new group" class="form-control text-center"></input>
+            <input type="text" id="create_page_input" placeholder="Create a new group" class="form-control text-center"></input>
           </li>
         </ul>
       </div>
@@ -140,7 +140,7 @@
               </a>
             {{/if}}
             {{#if destination.name}}
-              <a href="#group/{{destination.id}}">
+              <a href="#page/{{destination.id}}">
                 {{destination.name}}
               </a>
             {{/if}}
@@ -183,19 +183,19 @@
       </div>
     </script>
 
-    <!-- GroupTalk template -->
-    <script type="text/template" id="groupTalkTemplate">
+    <!-- PageTalk template -->
+    <script type="text/template" id="pageTalkTemplate">
 
       <div class="col-sm-4">
         <div class="panel panel-success">
           <div class="panel-heading">
             <h3 class="panel-title text-center">
-              Group Talk
+              Page Talk
             </h3>
           </div>
           <div class="panel-body">
-            <p class="text-center">Name: <b>{{group.name}}</b></p>
-            <p class="text-center">Id: <b>{{group.id}}</b></p>
+            <p class="text-center">Name: <b>{{page.name}}</b></p>
+            <p class="text-center">Id: <b>{{page.id}}</b></p>
           </div>
         </div>
         <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>

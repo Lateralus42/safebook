@@ -1,16 +1,16 @@
-class App.Views.groupTalk extends Backbone.View
+class App.Views.pageTalk extends Backbone.View
 
   selected_messages: =>
     messages = new App.Collections.messages()
     messages.push(App.Collections.Messages.where(
-      destination_type: 'group'
+      destination_type: 'page'
       destination_id: @model.get('id')
     ))
     messages
 
   render: =>
-    template = Handlebars.compile $("#groupTalkTemplate").html()
-    @$el.html(template(group: @model.attributes))
+    template = Handlebars.compile $("#pageTalkTemplate").html()
+    @$el.html(template(page: @model.attributes))
     $("textarea").autosize()
 
 
@@ -31,7 +31,7 @@ class App.Views.groupTalk extends Backbone.View
     hidden_content = $("#message_input").val()
 
     message = new App.Models.Message(
-      destination_type: "group"
+      destination_type: "page"
       destination_id: @model.get('id')
       hidden_content: hidden_content
     )

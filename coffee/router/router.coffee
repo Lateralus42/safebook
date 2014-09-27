@@ -4,7 +4,7 @@ class Router extends Backbone.Router
     '': 'index'
     'home': 'home'
     'user/:id': 'userTalk'
-    'group/:id': 'groupTalk'
+    'page/:id': 'pageTalk'
 
   show: (route) =>
     @navigate(route, {trigger: true, replace: true})
@@ -29,7 +29,7 @@ class Router extends Backbone.Router
     else
       App.Collections.Messages.fetch success: =>
         App.Collections.Users.fetch success: =>
-          App.Collections.Groups.fetch success: =>
+          App.Collections.Pages.fetch success: =>
             @fetched = true
             App.Collections.Users.add(App.I)
 
@@ -49,17 +49,17 @@ class Router extends Backbone.Router
       console.log "user not found !"
       @show("home")
 
-  groupTalk: (id) =>
+  pageTalk: (id) =>
     return @show("") unless App.I
     App.Content.undelegateEvents() if App.Content
 
-    model = App.Collections.Groups.findWhere(id: id)
+    model = App.Collections.Pages.findWhere(id: id)
 
     if model
-      App.Content = new App.Views.groupTalk(el: $("#content"), model: model)
+      App.Content = new App.Views.pageTalk(el: $("#content"), model: model)
       App.Content.render()
     else
-      console.log "group not found !"
+      console.log "page not found !"
       @show("home")
 
 

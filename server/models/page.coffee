@@ -2,7 +2,7 @@ Sequelize = require 'sequelize'
 _         = Sequelize.Utils._
 
 module.exports = (sequelize) ->
-  return sequelize.define('Group', {
+  return sequelize.define('Page', {
     id:
       type: Sequelize.STRING
       primaryKey: true
