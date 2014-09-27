@@ -1,13 +1,16 @@
 class App.Views.pageUserList extends Backbone.View
 
+  initialize: =>
+    @listenTo App.Collections.PageUsers, 'add', @render
+    @listenTo App.Collections.PageUsers, 'remove', @render
+
   page_users: =>
     users = App.Collections.Users.toJSON()
     for user in users
-      links = App.Collections.PageUsers.findWhere(
+      if App.Collections.PageUsers.findWhere(
         page_id: @model.get('id')
         user_id: user.id
-      )
-      user.auth = true if links
+      ) then user.auth = true
     users
 
   render: =>
@@ -23,16 +26,10 @@ class App.Views.pageUserList extends Backbone.View
     # Chiffrer la clef de la page, puis
     # XXX
     # Sauvegarder le liens
-    pageUser = new App.Models.PageUser(
+    App.Collections.PageUsers.create(
       page_id: @model.get('id')
       user_id: $(e.target).data('id')
     )
-    pageUser.on 'error', =>
-      alert("Can't save (create)")
-    pageUser.on 'sync', =>
-      App.Collections.PageUsers.add(pageUser)
-      @render()
-    pageUser.save()
     false
 
   delete: (e) =>
@@ -40,10 +37,6 @@ class App.Views.pageUserList extends Backbone.View
       page_id: @model.get('id')
       user_id: $(e.target).data('id')
     )
-    pageUser.on 'error', =>
-      alert("Can't save (delete)")
-    pageUser.on 'sync', =>
-      App.Collections.PageUsers.remove(pageUser)
-      @render()
-    pageUser.destroy()
+    pageUser.destroy()# success: =>
+    # App.Collections.PageUsers.remove(pageUser)
     false

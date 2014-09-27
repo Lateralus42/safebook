@@ -424,19 +424,24 @@ App.Views.pageUserList = (function(_super) {
     this.create = __bind(this.create, this);
     this.render = __bind(this.render, this);
     this.page_users = __bind(this.page_users, this);
+    this.initialize = __bind(this.initialize, this);
     return pageUserList.__super__.constructor.apply(this, arguments);
   }
 
+  pageUserList.prototype.initialize = function() {
+    this.listenTo(App.Collections.PageUsers, 'add', this.render);
+    return this.listenTo(App.Collections.PageUsers, 'remove', this.render);
+  };
+
   pageUserList.prototype.page_users = function() {
-    var links, user, users, _i, _len;
+    var user, users, _i, _len;
     users = App.Collections.Users.toJSON();
     for (_i = 0, _len = users.length; _i < _len; _i++) {
       user = users[_i];
-      links = App.Collections.PageUsers.findWhere({
+      if (App.Collections.PageUsers.findWhere({
         page_id: this.model.get('id'),
         user_id: user.id
-      });
-      if (links) {
+      })) {
         user.auth = true;
       }
     }
@@ -458,23 +463,10 @@ App.Views.pageUserList = (function(_super) {
   };
 
   pageUserList.prototype.create = function(e) {
-    var pageUser;
-    pageUser = new App.Models.PageUser({
+    App.Collections.PageUsers.create({
       page_id: this.model.get('id'),
       user_id: $(e.target).data('id')
     });
-    pageUser.on('error', (function(_this) {
-      return function() {
-        return alert("Can't save (create)");
-      };
-    })(this));
-    pageUser.on('sync', (function(_this) {
-      return function() {
-        App.Collections.PageUsers.add(pageUser);
-        return _this.render();
-      };
-    })(this));
-    pageUser.save();
     return false;
   };
 
@@ -484,17 +476,6 @@ App.Views.pageUserList = (function(_super) {
       page_id: this.model.get('id'),
       user_id: $(e.target).data('id')
     });
-    pageUser.on('error', (function(_this) {
-      return function() {
-        return alert("Can't save (delete)");
-      };
-    })(this));
-    pageUser.on('sync', (function(_this) {
-      return function() {
-        App.Collections.PageUsers.remove(pageUser);
-        return _this.render();
-      };
-    })(this));
     pageUser.destroy();
     return false;
   };
