@@ -344,14 +344,28 @@ App.Views.pageList = (function(_super) {
   function pageList() {
     this.create_page = __bind(this.create_page, this);
     this.render = __bind(this.render, this);
+    this.processed_pages = __bind(this.processed_pages, this);
     return pageList.__super__.constructor.apply(this, arguments);
   }
+
+  pageList.prototype.processed_pages = function() {
+    var page, pages, user, _i, _len;
+    pages = App.Collections.Pages.toJSON();
+    for (_i = 0, _len = pages.length; _i < _len; _i++) {
+      page = pages[_i];
+      user = App.Collections.Users.findWhere({
+        id: page.user_id
+      });
+      page.user_name = user.get('pseudo');
+    }
+    return pages;
+  };
 
   pageList.prototype.render = function() {
     var template;
     template = Handlebars.compile($("#pageListTemplate").html());
     this.$el.html(template({
-      pages: App.Collections.Pages.toJSON()
+      pages: this.processed_pages()
     }));
     return this;
   };

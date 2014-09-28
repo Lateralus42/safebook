@@ -1,8 +1,15 @@
 class App.Views.pageList extends Backbone.View
 
+  processed_pages: =>
+    pages = App.Collections.Pages.toJSON()
+    for page in pages
+      user = App.Collections.Users.findWhere(id: page.user_id)
+      page.user_name = user.get('pseudo')
+    pages
+
   render: =>
     template = Handlebars.compile $("#pageListTemplate").html()
-    @$el.html template(pages: App.Collections.Pages.toJSON())
+    @$el.html template(pages: @processed_pages())
     @
 
   events:
