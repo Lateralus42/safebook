@@ -2,7 +2,7 @@ Sequelize = require 'sequelize'
 _         = Sequelize.Utils._
 
 module.exports = (sequelize) ->
-  return sequelize.define('PageUser', {
+  return sequelize.define('pageLink', {
     id:
       type: Sequelize.STRING
       primaryKey: true

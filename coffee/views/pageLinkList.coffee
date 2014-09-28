@@ -1,20 +1,20 @@
-class App.Views.pageUserList extends Backbone.View
+class App.Views.pageLinkList extends Backbone.View
 
   initialize: =>
-    @listenTo App.Collections.PageUsers, 'add', @render
-    @listenTo App.Collections.PageUsers, 'remove', @render
+    @listenTo App.Collections.PageLinks, 'add', @render
+    @listenTo App.Collections.PageLinks, 'remove', @render
 
   page_users: =>
     users = App.Collections.Users.toJSON()
     for user in users
-      if App.Collections.PageUsers.findWhere(
+      if App.Collections.PageLinks.findWhere(
         page_id: @model.get('id')
         user_id: user.id
       ) then user.auth = true
     users
 
   render: =>
-    template = Handlebars.compile $("#pageUserListTemplate").html()
+    template = Handlebars.compile $("#pageLinkListTemplate").html()
     @$el.html template(users: @page_users())
     @
 
@@ -23,20 +23,18 @@ class App.Views.pageUserList extends Backbone.View
     'click .delete': 'delete'
 
   create: (e) =>
-    # Chiffrer la clef de la page, puis
+    # Encipher the link key
     # XXX
-    # Sauvegarder le liens
-    App.Collections.PageUsers.create(
+    # Save the link
+    App.Collections.PageLinks.create(
       page_id: @model.get('id')
       user_id: $(e.target).data('id')
     )
     false
 
   delete: (e) =>
-    pageUser = App.Collections.PageUsers.findWhere(
+    App.Collections.PageLinks.findWhere(
       page_id: @model.get('id')
       user_id: $(e.target).data('id')
-    )
-    pageUser.destroy()# success: =>
-    # App.Collections.PageUsers.remove(pageUser)
+    ).destroy()
     false

@@ -52,10 +52,10 @@ server.post   '/page', App.Controllers.pages.create
 # A terme a mettre dans /logins
 server.get    '/pages', App.Controllers.pages.findAll
 
-server.post   '/pageUser', App.Controllers.pageUsers.create
-server.delete '/pageUser/:id', App.Controllers.pageUsers.delete
+server.post   '/pageLink', App.Controllers.pageLinks.create
+server.delete '/pageLink/:id', App.Controllers.pageLinks.delete
 # A terme a mettre dans /logins
-server.get    '/pageUsers', App.Controllers.pageUsers.findAll
+server.get    '/pageLinks', App.Controllers.pageLinks.findAll
 
 # Sync DB, then start server
 sequelize.sync(force: true).error(->

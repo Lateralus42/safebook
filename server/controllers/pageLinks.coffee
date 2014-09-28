@@ -5,32 +5,32 @@ module.exports = (App) ->
 
   create: (req, res) ->
     return res.status(401).end() unless req.session.user_id
-    pageUser = req.body
+    pageLink = req.body
     App.Models.page.find(where:
       Sequelize.and(
-        { id: pageUser.page_id },
+        { id: pageLink.page_id },
         { user_id: req.session.user_id }
       )
     ).done (err, page) ->
       return res.status(401).end() if err
       App.Helpers.create_id 16, (id) ->
-        pageUser.id = id
-        App.Models.pageUser.create(pageUser).done (err, page) ->
+        pageLink.id = id
+        App.Models.pageLink.create(pageLink).done (err, page) ->
           return res.status(401).end() if err
-          res.status(201).json(pageUser)
+          res.status(201).json(pageLink)
 
   delete: (req, res) ->
     return res.status(401).end() unless req.session.user_id
-    App.Models.pageUser.find(where: id: req.params.id).done (err, pageUser) ->
+    App.Models.pageLink.find(where: id: req.params.id).done (err, pageLink) ->
       return res.status(401).end() if err
       App.Models.page.find(
         Sequelize.and(
-          { page_id: pageUser.page_id },
+          { page_id: pageLink.page_id },
           { user_id: req.session.user_id }
         )
       ).done (err, page) ->
         return res.status(401).end() if err
-        pageUser.destroy().done (err) ->
+        pageLink.destroy().done (err) ->
           return res.status(401).end() if err
           res.status(200).end()
 
@@ -42,6 +42,6 @@ module.exports = (App) ->
     ).done (err, pages) ->
       return res.status(401).end() if err
       page_ids = (page.id for page in pages)
-      App.Models.pageUser.findAll(where: page_id: page_ids).done (err, pageUsers) ->
+      App.Models.pageLink.findAll(where: page_id: page_ids).done (err, pageLinks) ->
         return res.status(401).end() if err
-        res.status(200).json(pageUsers)
+        res.status(200).json(pageLinks)

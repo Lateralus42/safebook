@@ -11,7 +11,7 @@ class App.Views.pageTalk extends Backbone.View
   page_users: =>
     users = App.Collections.Users.toJSON()
     for user in users
-      links = App.Collections.PageUsers.where( # links au singulier après
+      links = App.Collections.pageLinks.where( # links au singulier après
         page_id: @model.get('id')
         user_id: user.id
       )
@@ -29,11 +29,11 @@ class App.Views.pageTalk extends Backbone.View
     )
     App.Views.MessageList.render()
 
-    App.Views.PageUserList = new App.Views.pageUserList(
-      el: $("#pageUserList")
+    App.Views.PageLinkList = new App.Views.pageLinkList(
+      el: $("#pageLinkList")
       model: @model
     )
-    App.Views.PageUserList.render()
+    App.Views.PageLinkList.render()
 
   events:
     'click #send_message': 'talk'

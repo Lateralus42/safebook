@@ -227,13 +227,13 @@ App.Views.messageList = (function(_super) {
 
   function messageList() {
     this.render = __bind(this.render, this);
+    this.process_collection = __bind(this.process_collection, this);
     return messageList.__super__.constructor.apply(this, arguments);
   }
 
-  messageList.prototype.render = function() {
-    var destination, message, messages, template, user, _i, _len;
-    this.collection.sort();
-    messages = this.collection.toJSON();
+  messageList.prototype.process_collection = function() {
+    var destination, message, messages, user, _i, _len;
+    messages = this.collection.sort().toJSON();
     for (_i = 0, _len = messages.length; _i < _len; _i++) {
       message = messages[_i];
       user = App.Collections.Users.findWhere({
@@ -248,14 +248,89 @@ App.Views.messageList = (function(_super) {
       message.destination = destination.attributes;
       message.createdAt = (new Date(message.createdAt)).toLocaleString();
     }
+    return messages;
+  };
+
+  messageList.prototype.render = function() {
+    var template;
     template = Handlebars.compile($("#messageListTemplate").html());
     this.$el.html(template({
-      messages: messages
+      messages: this.process_collection()
     }));
     return this;
   };
 
   return messageList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Views.pageLinkList = (function(_super) {
+  __extends(pageLinkList, _super);
+
+  function pageLinkList() {
+    this["delete"] = __bind(this["delete"], this);
+    this.create = __bind(this.create, this);
+    this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
+    this.initialize = __bind(this.initialize, this);
+    return pageLinkList.__super__.constructor.apply(this, arguments);
+  }
+
+  pageLinkList.prototype.initialize = function() {
+    this.listenTo(App.Collections.PageLinks, 'add', this.render);
+    return this.listenTo(App.Collections.PageLinks, 'remove', this.render);
+  };
+
+  pageLinkList.prototype.page_users = function() {
+    var user, users, _i, _len;
+    users = App.Collections.Users.toJSON();
+    for (_i = 0, _len = users.length; _i < _len; _i++) {
+      user = users[_i];
+      if (App.Collections.PageLinks.findWhere({
+        page_id: this.model.get('id'),
+        user_id: user.id
+      })) {
+        user.auth = true;
+      }
+    }
+    return users;
+  };
+
+  pageLinkList.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#pageLinkListTemplate").html());
+    this.$el.html(template({
+      users: this.page_users()
+    }));
+    return this;
+  };
+
+  pageLinkList.prototype.events = {
+    'click .create': 'create',
+    'click .delete': 'delete'
+  };
+
+  pageLinkList.prototype.create = function(e) {
+    App.Collections.PageLinks.create({
+      page_id: this.model.get('id'),
+      user_id: $(e.target).data('id')
+    });
+    return false;
+  };
+
+  pageLinkList.prototype["delete"] = function(e) {
+    App.Collections.PageLinks.findWhere({
+      page_id: this.model.get('id'),
+      user_id: $(e.target).data('id')
+    }).destroy();
+    return false;
+  };
+
+  return pageLinkList;
 
 })(Backbone.View);
 
@@ -343,7 +418,7 @@ App.Views.pageTalk = (function(_super) {
     users = App.Collections.Users.toJSON();
     for (_i = 0, _len = users.length; _i < _len; _i++) {
       user = users[_i];
-      links = App.Collections.PageUsers.where({
+      links = App.Collections.pageLinks.where({
         page_id: this.model.get('id'),
         user_id: user.id
       });
@@ -366,11 +441,11 @@ App.Views.pageTalk = (function(_super) {
       collection: this.selected_messages()
     });
     App.Views.MessageList.render();
-    App.Views.PageUserList = new App.Views.pageUserList({
-      el: $("#pageUserList"),
+    App.Views.PageLinkList = new App.Views.pageLinkList({
+      el: $("#pageLinkList"),
       model: this.model
     });
-    return App.Views.PageUserList.render();
+    return App.Views.PageLinkList.render();
   };
 
   pageTalk.prototype.events = {
@@ -409,78 +484,6 @@ App.Views.pageTalk = (function(_super) {
   };
 
   return pageTalk;
-
-})(Backbone.View);
-
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-App.Views.pageUserList = (function(_super) {
-  __extends(pageUserList, _super);
-
-  function pageUserList() {
-    this["delete"] = __bind(this["delete"], this);
-    this.create = __bind(this.create, this);
-    this.render = __bind(this.render, this);
-    this.page_users = __bind(this.page_users, this);
-    this.initialize = __bind(this.initialize, this);
-    return pageUserList.__super__.constructor.apply(this, arguments);
-  }
-
-  pageUserList.prototype.initialize = function() {
-    this.listenTo(App.Collections.PageUsers, 'add', this.render);
-    return this.listenTo(App.Collections.PageUsers, 'remove', this.render);
-  };
-
-  pageUserList.prototype.page_users = function() {
-    var user, users, _i, _len;
-    users = App.Collections.Users.toJSON();
-    for (_i = 0, _len = users.length; _i < _len; _i++) {
-      user = users[_i];
-      if (App.Collections.PageUsers.findWhere({
-        page_id: this.model.get('id'),
-        user_id: user.id
-      })) {
-        user.auth = true;
-      }
-    }
-    return users;
-  };
-
-  pageUserList.prototype.render = function() {
-    var template;
-    template = Handlebars.compile($("#pageUserListTemplate").html());
-    this.$el.html(template({
-      users: this.page_users()
-    }));
-    return this;
-  };
-
-  pageUserList.prototype.events = {
-    'click .create': 'create',
-    'click .delete': 'delete'
-  };
-
-  pageUserList.prototype.create = function(e) {
-    App.Collections.PageUsers.create({
-      page_id: this.model.get('id'),
-      user_id: $(e.target).data('id')
-    });
-    return false;
-  };
-
-  pageUserList.prototype["delete"] = function(e) {
-    var pageUser;
-    pageUser = App.Collections.PageUsers.findWhere({
-      page_id: this.model.get('id'),
-      user_id: $(e.target).data('id')
-    });
-    pageUser.destroy();
-    return false;
-  };
-
-  return pageUserList;
 
 })(Backbone.View);
 
@@ -654,16 +657,16 @@ App.Models.Page = (function(_super) {
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Models.PageUser = (function(_super) {
-  __extends(PageUser, _super);
+App.Models.PageLink = (function(_super) {
+  __extends(PageLink, _super);
 
-  function PageUser() {
-    return PageUser.__super__.constructor.apply(this, arguments);
+  function PageLink() {
+    return PageLink.__super__.constructor.apply(this, arguments);
   }
 
-  PageUser.prototype.urlRoot = "/pageUser";
+  PageLink.prototype.urlRoot = "/pageLink";
 
-  return PageUser;
+  return PageLink;
 
 })(Backbone.Model);
 
@@ -795,22 +798,22 @@ App.Collections.Messages = new App.Collections.messages();
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.pageUsers = (function(_super) {
-  __extends(pageUsers, _super);
+App.Collections.pageLinks = (function(_super) {
+  __extends(pageLinks, _super);
 
-  function pageUsers() {
-    return pageUsers.__super__.constructor.apply(this, arguments);
+  function pageLinks() {
+    return pageLinks.__super__.constructor.apply(this, arguments);
   }
 
-  pageUsers.prototype.model = App.Models.PageUser;
+  pageLinks.prototype.model = App.Models.PageLink;
 
-  pageUsers.prototype.url = '/pageUsers';
+  pageLinks.prototype.url = '/pageLinks';
 
-  return pageUsers;
+  return pageLinks;
 
 })(Backbone.Collection);
 
-App.Collections.PageUsers = new App.Collections.pageUsers();
+App.Collections.PageLinks = new App.Collections.pageLinks();
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -913,7 +916,7 @@ Router = (function(_super) {
               success: function() {
                 return App.Collections.Pages.fetch({
                   success: function() {
-                    return App.Collections.PageUsers.fetch({
+                    return App.Collections.PageLinks.fetch({
                       success: function() {
                         _this.fetched = true;
                         App.Collections.Users.add(App.I);
