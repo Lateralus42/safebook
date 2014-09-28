@@ -11,5 +11,5 @@ module.exports = (sequelize) ->
     user_id:
       type: Sequelize.STRING
   }, {
-    updatedAt: false
+    timestamps: false
   })

@@ -11,5 +11,5 @@ module.exports = (sequelize) ->
     name:
       type: Sequelize.TEXT
   }, {
-    updatedAt: false
+    timestamps: false
   })
