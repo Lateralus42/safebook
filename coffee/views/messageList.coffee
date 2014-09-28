@@ -1,9 +1,7 @@
 class App.Views.messageList extends Backbone.View
 
-  render: =>
-    @collection.sort()
-    messages = @collection.toJSON()
-
+  process_collection: =>
+    messages = @collection.sort().toJSON()
     for message in messages
       user = App.Collections.Users.findWhere(id: message.user_id)
       destination = if message.destination_type == "user"
@@ -13,7 +11,9 @@ class App.Views.messageList extends Backbone.View
       message.source = user.attributes
       message.destination = destination.attributes
       message.createdAt = (new Date(message.createdAt)).toLocaleString()
+    messages
 
+  render: =>
     template = Handlebars.compile $("#messageListTemplate").html()
-    @$el.html template(messages: messages)
+    @$el.html template(messages: @process_collection())
     @
