@@ -21,8 +21,15 @@ module.exports = (App) ->
   # A terme a mettre dans /login
   findAll: (req, res, next) ->
     return res.status(401).end() unless req.session.user_id
-    App.Models.page.findAll(
+    App.Models.pageLink.findAll(
       where: user_id: req.session.user_id
-    ).done (err, pages) ->
-      return res.status(401).end() if err
-      res.status(200).json(pages)
+    ).done (err, pageLinks) ->
+      page_ids = (link.page_id for link in pageLinks)
+      App.Models.page.findAll(
+        where: Sequelize.or(
+          { user_id: req.session.user_id },
+          { id: page_ids }
+        )
+      ).done (err, pages) ->
+        return res.status(401).end() if err
+        res.status(200).json(pages)
