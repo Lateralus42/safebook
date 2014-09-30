@@ -19,29 +19,26 @@ module.exports = (App) ->
       return res.status(401).end() if err or !user
       res.json(user.public())
 
-  login: (req, res) ->
-    App.Models.user.find(where: pseudo: req.params.pseudo).done (err, user) ->
+  ## ###
+  # Login Middleware
+  ## ###
+
+  auth: (req, res, next) ->
+    App.Models.user.find(where: pseudo: req.body.pseudo).done (err, user) ->
       return res.status(401).json(error: "No such pseudo") if err or not user
       return res.status(401).json(error: "Bad password !") unless user.remote_password_hash is App.Helpers.hash(req.body.remote_secret, user.remote_password_salt)
       req.session.user_id = user.id
-      data = user.full()
-      res.json(data)
+      req.data = { I: user.full() }
+      next()
 
-  # A terme a mettre dans /login
-  findAll: (req, res) ->
-    return res.status(401).end() unless req.session.user_id
-    App.Models.message.findAll(
-      where: Sequelize.or(
-        { user_id: req.session.user_id },
-        { destination_id: req.session.user_id }
-      )
-    ).done (err, messages) ->
-      a = (msg.user_id for msg in messages)
-      b = (msg.destination_id for msg in messages)
-      user_contacts = _.union(a, b)
-      App.Models.user.findAll(where: id: user_contacts).done (err, users) ->
-        return res.status(401).end() if err
-        res.status(200).json((user.public() for user in users))
+  fetch: (req, res, next) ->
+    a = (msg.user_id for msg in req.data.messages)
+    b = (msg.destination_id for msg in req.data.messages)
+    user_contacts = _.union(a, b)
+    App.Models.user.findAll(where: id: user_contacts).done (err, users) ->
+      return res.status(401).end() if err
+      req.data.users = (user.public() for user in users)
+      next()
 
 ### Login old pipeline
     data = user_keys = user_contacts = null # old stuff

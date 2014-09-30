@@ -22,20 +22,9 @@ class Router extends Backbone.Router
     return @show("") unless App.I
     App.Content.undelegateEvents() if App.Content
 
-    if @fetched
-      App.Collections.Users.add(App.I)
-      App.Content = new App.Views.home(el: $("#content"))
-      App.Content.render()
-    else
-      App.Collections.Messages.fetch success: =>
-        App.Collections.Users.fetch success: =>
-          App.Collections.Pages.fetch success: =>
-            App.Collections.PageLinks.fetch success: =>
-              @fetched = true
-              App.Collections.Users.add(App.I)
-
-              App.Content = new App.Views.home(el: $("#content"))
-              App.Content.render()
+    App.Collections.Users.add(App.I)
+    App.Content = new App.Views.home(el: $("#content"))
+    App.Content.render()
 
   userTalk: (id) =>
     return @show("") unless App.I

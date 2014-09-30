@@ -34,14 +34,14 @@ module.exports = (App) ->
           return res.status(401).end() if err
           res.status(200).end()
 
-  # A terme a mettre dans /login
-  findAll: (req, res, next) ->
-    return res.status(401).end() unless req.session.user_id
-    App.Models.page.findAll(
-      where: user_id: req.session.user_id
-    ).done (err, pages) ->
+  ## ###
+  # Login Middleware
+  ## ###
+
+  fetch: (req, res, next) ->
+    App.Models.pageLink.findAll(
+      where: user_id: req.data.I.id
+    ).done (err, pageLinks) ->
       return res.status(401).end() if err
-      page_ids = (page.id for page in pages)
-      App.Models.pageLink.findAll(where: page_id: page_ids).done (err, pageLinks) ->
-        return res.status(401).end() if err
-        res.status(200).json(pageLinks)
+      req.data.pageLinks = pageLinks
+      next()

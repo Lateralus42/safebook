@@ -4,32 +4,29 @@ _         = Sequelize.Utils._
 module.exports = (App) ->
 
   create: (req, res) ->
-    console.log "On pages.create"
     return res.status(401).end() unless req.session.user_id
-    console.log "Got session.user_id"
     page = req.body
     page.user_id = req.session.user_id
     App.Helpers.create_id 16, (id) ->
       page.id = id
-      console.log "registering :"
-      console.log JSON.stringify(page)
       App.Models.page.create(page).done (err, page) ->
-        console.log err
         return res.status(401).end() if err
-        res.status(201).json(page)
+        App.Models.pageLink.create(
+          page_id: page.id
+          user_id: req.session.user_id
+        ).done (err, pageLink) ->
+          return res.status(401).end() if err
+          res.status(201).json(page)
 
-  # A terme a mettre dans /login
-  findAll: (req, res, next) ->
-    return res.status(401).end() unless req.session.user_id
-    App.Models.pageLink.findAll(
-      where: user_id: req.session.user_id
-    ).done (err, pageLinks) ->
-      page_ids = (link.page_id for link in pageLinks)
-      App.Models.page.findAll(
-        where: Sequelize.or(
-          { user_id: req.session.user_id },
-          { id: page_ids }
-        )
-      ).done (err, pages) ->
-        return res.status(401).end() if err
-        res.status(200).json(pages)
+  ## ###
+  # Login Middleware
+  ## ###
+
+  fetch: (req, res, next) ->
+    page_ids = (link.page_id for link in req.data.pageLinks)
+    App.Models.page.findAll(
+      where: { id: page_ids }
+    ).done (err, pages) ->
+      return res.status(401).end() if err
+      req.data.pages = pages
+      next()

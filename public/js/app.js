@@ -172,29 +172,15 @@ App.Views.log = (function(_super) {
   };
 
   log.prototype.load_user = function() {
-    var password, sha;
+    var sha;
+    sha = new sjcl.hash.sha256();
+    sha.update($('#file_password_result_input').val());
+    sha.update($('#string_password_input').val());
     App.I = new App.Models.User({
       pseudo: $('#pseudo_input').val(),
-      string_password: $('#string_password_input').val(),
-      file_password: $('#file_password_result_input').val()
+      password: sha.finalize()
     });
-    sha = new sjcl.hash.sha256();
-    sha.update(App.I.get('file_password'));
-    sha.update(App.I.get('string_password'));
-    password = sha.finalize();
-    App.I.set({
-      password: password
-    }).auth();
-    App.I.on('error', (function(_this) {
-      return function() {
-        return alert("Login error...");
-      };
-    })(this));
-    return App.I.on('sync', (function(_this) {
-      return function() {
-        return App.Router.show("home");
-      };
-    })(this));
+    return App.I.auth();
   };
 
   log.prototype.signup = function() {
@@ -203,15 +189,36 @@ App.Views.log = (function(_super) {
     App.I.isNew = function() {
       return true;
     };
+    App.I.on('error', (function(_this) {
+      return function() {
+        return alert("Login error...");
+      };
+    })(this));
+    App.I.on('sync', (function(_this) {
+      return function() {
+        return App.Router.show("home");
+      };
+    })(this));
     return App.I.save();
   };
 
   log.prototype.signin = function() {
     this.load_user();
-    App.I.isNew = function() {
-      return false;
-    };
-    return App.I.save();
+    return $.ajax({
+      type: "POST",
+      url: "/login",
+      data: JSON.stringify(App.I),
+      contentType: 'application/json',
+      dataType: 'json'
+    }).success(function(res) {
+      console.log(res);
+      App.I.set(res.I);
+      App.Collections.Users.push(res.users);
+      App.Collections.PageLinks.push(res.pageLinks);
+      App.Collections.Pages.push(res.pages);
+      App.Collections.Messages.push(res.messages);
+      return App.Router.show("home");
+    });
   };
 
   return log;
@@ -916,38 +923,11 @@ Router = (function(_super) {
     if (App.Content) {
       App.Content.undelegateEvents();
     }
-    if (this.fetched) {
-      App.Collections.Users.add(App.I);
-      App.Content = new App.Views.home({
-        el: $("#content")
-      });
-      return App.Content.render();
-    } else {
-      return App.Collections.Messages.fetch({
-        success: (function(_this) {
-          return function() {
-            return App.Collections.Users.fetch({
-              success: function() {
-                return App.Collections.Pages.fetch({
-                  success: function() {
-                    return App.Collections.PageLinks.fetch({
-                      success: function() {
-                        _this.fetched = true;
-                        App.Collections.Users.add(App.I);
-                        App.Content = new App.Views.home({
-                          el: $("#content")
-                        });
-                        return App.Content.render();
-                      }
-                    });
-                  }
-                });
-              }
-            });
-          };
-        })(this)
-      });
-    }
+    App.Collections.Users.add(App.I);
+    App.Content = new App.Views.home({
+      el: $("#content")
+    });
+    return App.Content.render();
   };
 
   Router.prototype.userTalk = function(id) {

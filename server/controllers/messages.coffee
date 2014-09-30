@@ -3,6 +3,10 @@ _         = Sequelize.Utils._
 
 module.exports = (App) ->
 
+  ## ###
+  # Application end point
+  ## ###
+
   create: (req, res, next) ->
     return res.status(401).end() unless req.session.user_id
     message = req.body
@@ -13,14 +17,35 @@ module.exports = (App) ->
         return res.status(401).end() if err
         res.status(201).json(message)
 
-  # A terme a mettre dans /login
-  findAll: (req, res, next) ->
-    return res.status(401).end() unless req.session.user_id
+  ## ###
+  # Login Middleware
+  ## ###
+
+  fetch: (req, res, next) ->
+    page_ids = (page.id for page in req.data.pages)
     App.Models.message.findAll(
       where: Sequelize.or(
-        { user_id: req.session.user_id },
-        { destination_id: req.session.user_id }
+        { user_id: req.data.I.id },
+        { destination_id: req.data.I.id },
+        { destination_id: page_ids }
       )
     ).done (err, messages) ->
       return res.status(401).end() if err
-      res.status(200).json(messages)
+      req.data.messages = messages
+      next()
+
+#App.Models.message.findAll(
+#  where: Sequelize.or(
+#    Sequelize.and(
+#      { destination_type: 'user' },
+#      Sequelize.or(
+#        { user_id: req.session.user_id },
+#        { destination_id: req.session.user_id }
+#      )
+#    ),
+#    Sequelize.and(
+#      { destination_type: 'page' },
+#      { destination_id: page_ids }
+#    )
+#  )
+#)

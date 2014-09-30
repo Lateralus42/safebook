@@ -50,25 +50,23 @@ server.use express.static(__dirname + '/../public')
 # ###
 
 server.post   '/user', App.Controllers.users.create
-server.put    '/user/:pseudo', App.Controllers.users.login
 server.get    '/user/:pseudo', App.Controllers.users.find
-# A terme a mettre dans /login
-server.get    '/users', App.Controllers.users.findAll
+
+server.post   '/login', [
+    App.Controllers.users.auth,
+    App.Controllers.pageLinks.fetch,
+    App.Controllers.pages.fetch,
+    App.Controllers.messages.fetch,
+    App.Controllers.users.fetch,
+    (req, res) -> res.json(req.data)
+  ]
 
 server.post   '/message', App.Controllers.messages.create
-# A terme a mettre dans /login
-server.get    '/messages', App.Controllers.messages.findAll
-
 server.post   '/page', App.Controllers.pages.create
-# A terme a mettre dans /logins
-server.get    '/pages', App.Controllers.pages.findAll
-
 # Maybe post '/page/:page_id/link'
 server.post   '/pageLink', App.Controllers.pageLinks.create
 # Maybe delete '/page/:page_id/link/:id'
 server.delete '/pageLink/:id', App.Controllers.pageLinks.delete
-# A terme a mettre dans /logins
-server.get    '/pageLinks', App.Controllers.pageLinks.findAll
 
 # Sync DB, then start server
 sequelize.sync(force: true).error(->
