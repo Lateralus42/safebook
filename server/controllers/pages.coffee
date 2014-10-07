@@ -23,10 +23,18 @@ module.exports = (App) ->
   ## ###
 
   fetch: (req, res, next) ->
-    page_ids = (link.page_id for link in req.data.pageLinks)
-    App.Models.page.findAll(
-      where: { id: page_ids }
-    ).done (err, pages) ->
+    App.Models.pageLink.findAll(
+      where: user_id: req.data.I.id
+    ).done (err, pageLinks) ->
       return res.status(401).end() if err
-      req.data.pages = pages
-      next()
+      req.data.pageLinks = pageLinks
+      page_ids = (link.page_id for link in req.data.pageLinks)
+      App.Models.page.findAll(
+        where: Sequelize.or(
+          { id: page_ids },
+          { user_id: req.data.I.id }
+        )
+      ).done (err, pages) ->
+        return res.status(401).end() if err
+        req.data.pages = pages
+        next()

@@ -54,8 +54,8 @@ server.get    '/user/:pseudo', App.Controllers.users.find
 
 server.post   '/login', [
     App.Controllers.users.auth,
-    App.Controllers.pageLinks.fetch,
     App.Controllers.pages.fetch,
+    App.Controllers.pageLinks.fetch,
     App.Controllers.messages.fetch,
     App.Controllers.users.fetch,
     (req, res) -> res.json(req.data)

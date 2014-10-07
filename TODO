@@ -1,7 +1,7 @@
 # CLIENT
 
-* Refactor et mieux architecturer
-* Lire de la doc backbone
+* Refactor
+* Fix roup list
 
 # SERVER
 
@@ -13,9 +13,8 @@
 
 # CHIFFREMENT
 
-* Faire server/load_app.coffe
 * Utiliser les pubkey pour les messages, les groupes, les membre de groupes
 
 * Each message has a hidden_key and a hidden_content for more security
-* SRP ?
 * Remote salt ?
+* SRP ?

@@ -39,8 +39,9 @@ module.exports = (App) ->
   ## ###
 
   fetch: (req, res, next) ->
+    page_ids = (page.id for page in req.data.pages)
     App.Models.pageLink.findAll(
-      where: user_id: req.data.I.id
+      where: page_id: page_ids
     ).done (err, pageLinks) ->
       return res.status(401).end() if err
       req.data.pageLinks = pageLinks

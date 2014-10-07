@@ -34,7 +34,8 @@ module.exports = (App) ->
   fetch: (req, res, next) ->
     a = (msg.user_id for msg in req.data.messages)
     b = (msg.destination_id for msg in req.data.messages)
-    user_contacts = _.union(a, b)
+    c = (page.user_id for page in req.data.pages)
+    user_contacts = _.union(_.union(a, b), c)
     App.Models.user.findAll(where: id: user_contacts).done (err, users) ->
       return res.status(401).end() if err
       req.data.users = (user.public() for user in users)
