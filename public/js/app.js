@@ -374,15 +374,17 @@ App.Views.pageList = (function(_super) {
   }
 
   pageList.prototype.processed_pages = function() {
-    var page, pages, user, _i, _len;
-    pages = App.Collections.Pages.toJSON();
-    for (_i = 0, _len = pages.length; _i < _len; _i++) {
-      page = pages[_i];
+    var pages;
+    pages = [];
+    App.Collections.Pages.each(function(page) {
+      var tmp, user;
+      tmp = page.attributes;
       user = App.Collections.Users.findWhere({
-        id: page.user_id
+        id: tmp.user_id
       });
-      page.user_name = user.get('pseudo');
-    }
+      tmp.user_name = user.get('pseudo');
+      return pages.push(tmp);
+    });
     return pages;
   };
 
@@ -400,11 +402,14 @@ App.Views.pageList = (function(_super) {
   };
 
   pageList.prototype.create_page = function(e) {
-    var name, page;
+    var key, name, page;
     if (e.which === 13) {
       name = $("#create_page_input").val();
+      key = sjcl.random.randomWords(8);
       page = new App.Models.Page({
-        name: name
+        hidden_key: App.S.hide(App.I.get('mainkey'), key),
+        name: name,
+        key: key
       });
       page.on('error', (function(_this) {
         return function() {
@@ -691,6 +696,10 @@ App.Models.Page = (function(_super) {
   }
 
   Page.prototype.urlRoot = "/page";
+
+  Page.prototype.toJSON = function() {
+    return this.pick("name", "hidden_key");
+  };
 
   return Page;
 

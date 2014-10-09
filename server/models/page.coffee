@@ -10,6 +10,8 @@ module.exports = (sequelize) ->
       type: Sequelize.STRING
     name:
       type: Sequelize.TEXT
+    hidden_key:
+      type: Sequelize.STRING
   }, {
     timestamps: false
   })
