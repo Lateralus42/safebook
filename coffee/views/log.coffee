@@ -56,10 +56,24 @@ class App.Views.log extends Backbone.View
       console.log res
 
       App.I.set(res.I)
+      App.I.bare_mainkey().bare_ecdh()
 
+      App.Collections.Users.push App.I
       App.Collections.Users.push res.users
       App.Collections.PageLinks.push res.pageLinks
       App.Collections.Pages.push res.pages
       App.Collections.Messages.push res.messages
+
+      App.Collections.Users.each (user) ->
+        user.shared()
+
+      App.Collections.Messages.each (message) ->
+        user = if message.get('user_id') isnt App.I.get('id')
+          App.Collections.Users.findWhere(id: message.get('user_id'))
+        else
+          App.Collections.Users.findWhere(id: message.get('destination_id'))
+        content = App.S.bare_text(user.get('shared'), message.get('hidden_content'))
+        console.log content
+        message.set content: content
 
       App.Router.show("home")

@@ -213,10 +213,28 @@ App.Views.log = (function(_super) {
     }).success(function(res) {
       console.log(res);
       App.I.set(res.I);
+      App.I.bare_mainkey().bare_ecdh();
+      App.Collections.Users.push(App.I);
       App.Collections.Users.push(res.users);
       App.Collections.PageLinks.push(res.pageLinks);
       App.Collections.Pages.push(res.pages);
       App.Collections.Messages.push(res.messages);
+      App.Collections.Users.each(function(user) {
+        return user.shared();
+      });
+      App.Collections.Messages.each(function(message) {
+        var content, user;
+        user = message.get('user_id') !== App.I.get('id') ? App.Collections.Users.findWhere({
+          id: message.get('user_id')
+        }) : App.Collections.Users.findWhere({
+          id: message.get('destination_id')
+        });
+        content = App.S.bare_text(user.get('shared'), message.get('hidden_content'));
+        console.log(content);
+        return message.set({
+          content: content
+        });
+      });
       return App.Router.show("home");
     });
   };
@@ -550,6 +568,7 @@ App.Views.userList = (function(_super) {
       return user.on('sync', (function(_this) {
         return function() {
           $("#search_user_input").val("");
+          user.shared();
           App.Collections.Users.add(user);
           return _this.render();
         };
@@ -612,12 +631,14 @@ App.Views.userTalk = (function(_super) {
   };
 
   userTalk.prototype.talk = function() {
-    var hidden_content, message;
-    hidden_content = $("#message_input").val();
+    var content, hidden_content, message;
+    content = $("#message_input").val();
+    hidden_content = App.S.hide_text(this.model.get('shared'), content);
     message = new App.Models.Message({
       destination_type: "user",
       destination_id: this.model.get('id'),
-      hidden_content: hidden_content
+      hidden_content: hidden_content,
+      content: content
     });
     message.on('error', (function(_this) {
       return function() {
@@ -756,12 +777,14 @@ App.Models.User = (function(_super) {
     });
   };
 
-  User.prototype.shared = function(user) {
+  User.prototype.shared = function() {
     var point;
     point = App.S.curve.fromBits(from_b64(this.get('pubkey'))).mult(App.I.get('seckey'));
-    return this.set({
+    this.set({
       shared: sjcl.hash.sha256.hash(point.toBits())
     });
+    console.log(this.get('pseudo') + " - " + to_b64(this.get('shared')));
+    return this;
   };
 
   return User;

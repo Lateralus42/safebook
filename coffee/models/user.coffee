@@ -32,9 +32,13 @@ class App.Models.User extends Backbone.Model
   bare_mainkey: ->
     @set mainkey: App.S.bare(@get('local_secret'), @get('hidden_mainkey'))
 
-  shared: (user) ->
+  shared: ->
     point = App.S.curve.fromBits(from_b64(@get('pubkey'))).mult(App.I.get('seckey'))
     @set shared: sjcl.hash.sha256.hash point.toBits()
+
+    # debug
+    console.log(@get('pseudo') + " - " + to_b64(@get('shared')))
+    @
 
 ###
   keys: ->

@@ -30,15 +30,14 @@ class App.Views.userTalk extends Backbone.View
     'click #back_button': 'go_home'
 
   talk: =>
-    # XXX
-    # hidden_content = App.S.hide_text()
-    # @model.get('shared'), $("message_input").val()
-    hidden_content = $("#message_input").val()
+    content = $("#message_input").val()
+    hidden_content = App.S.hide_text(@model.get('shared'), content)
 
     message = new App.Models.Message(
       destination_type: "user"
       destination_id: @model.get('id')
       hidden_content: hidden_content
+      content: content
     )
     message.on 'error', =>
       alert "Sending error"

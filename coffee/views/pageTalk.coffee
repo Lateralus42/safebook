@@ -42,7 +42,7 @@ class App.Views.pageTalk extends Backbone.View
   talk: =>
     # XXX
     # hidden_content = App.S.hide_text()
-    # @model.get('shared'), $("message_input").val()
+    # group_key, $("message_input").val()
     hidden_content = $("#message_input").val()
 
     message = new App.Models.Message(

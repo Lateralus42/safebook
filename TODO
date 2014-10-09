@@ -1,7 +1,7 @@
 # CLIENT
 
 * Refactor
-* Fix roup list
+* Fix group list
 
 # SERVER
 
@@ -13,8 +13,10 @@
 
 # CHIFFREMENT
 
-* Utiliser les pubkey pour les messages, les groupes, les membre de groupes
+* Utiliser les pubkey pour les groupes
+* Utiliser la mainkey
 
 * Each message has a hidden_key and a hidden_content for more security
+
 * Remote salt ?
 * SRP ?
