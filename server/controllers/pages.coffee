@@ -11,12 +11,7 @@ module.exports = (App) ->
       page.id = id
       App.Models.page.create(page).done (err, page) ->
         return res.status(401).end() if err
-        App.Models.pageLink.create(
-          page_id: page.id
-          user_id: req.session.user_id
-        ).done (err, pageLink) ->
-          return res.status(401).end() if err
-          res.status(201).json(page)
+        res.status(201).json(page)
 
   ## ###
   # Login Middleware
