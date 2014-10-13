@@ -3,7 +3,7 @@ class App.Views.pageList extends Backbone.View
   processed_pages: =>
     pages = []
     App.Collections.Pages.each (page) ->
-      tmp  = page.attributes
+      tmp  = _.clone(page.attributes)
       user = App.Collections.Users.findWhere(id: tmp.user_id)
       tmp.user_name = user.get('pseudo')
       pages.push(tmp)
@@ -19,17 +19,18 @@ class App.Views.pageList extends Backbone.View
 
   create_page: (e) =>
     if e.which is 13
-      name = $("#create_page_input").val()
-      key  = sjcl.random.randomWords(8)
-      page = new App.Models.Page(
-        hidden_key: App.S.hide(App.I.get('mainkey'), key)
-        name: name
-        key: key
-      )
-      page.on 'error', =>
-        alert("Can't save...")
+      page = @new_page($("#create_page_input").val())
+      page.on 'error', => alert("Can't save...")
       page.on 'sync', =>
         $("#create_page_input").val("")
         App.Collections.Pages.add(page)
         @render()
       page.save()
+
+  new_page: (name) =>
+    key  = sjcl.random.randomWords(8)
+    new App.Models.Page(
+      hidden_key: App.S.hide(App.I.get('mainkey'), key)
+      name: name
+      key: key
+    )

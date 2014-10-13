@@ -311,18 +311,26 @@ App.Views.pageLinkList = (function(_super) {
   };
 
   pageLinkList.prototype.page_users = function() {
-    var user, users, _i, _len;
-    users = App.Collections.Users.toJSON();
-    for (_i = 0, _len = users.length; _i < _len; _i++) {
-      user = users[_i];
-      if (App.Collections.PageLinks.findWhere({
-        page_id: this.model.get('id'),
-        user_id: user.id
-      })) {
-        user.auth = true;
-      }
-    }
-    return users;
+    var page_users;
+    console.log(this.model);
+    page_users = [];
+    App.Collections.Users.each((function(_this) {
+      return function(user) {
+        var tmp;
+        tmp = _.clone(user.attributes);
+        if (_this.model.get('user_id') === user.get('id')) {
+          tmp.creator = true;
+        }
+        if (App.Collections.PageLinks.findWhere({
+          page_id: _this.model.get('id'),
+          user_id: user.get('id')
+        })) {
+          tmp.auth = true;
+        }
+        return page_users.push(tmp);
+      };
+    })(this));
+    return page_users;
   };
 
   pageLinkList.prototype.render = function() {
@@ -367,6 +375,7 @@ App.Views.pageList = (function(_super) {
   __extends(pageList, _super);
 
   function pageList() {
+    this.new_page = __bind(this.new_page, this);
     this.create_page = __bind(this.create_page, this);
     this.render = __bind(this.render, this);
     this.processed_pages = __bind(this.processed_pages, this);
@@ -378,7 +387,7 @@ App.Views.pageList = (function(_super) {
     pages = [];
     App.Collections.Pages.each(function(page) {
       var tmp, user;
-      tmp = page.attributes;
+      tmp = _.clone(page.attributes);
       user = App.Collections.Users.findWhere({
         id: tmp.user_id
       });
@@ -402,15 +411,9 @@ App.Views.pageList = (function(_super) {
   };
 
   pageList.prototype.create_page = function(e) {
-    var key, name, page;
+    var page;
     if (e.which === 13) {
-      name = $("#create_page_input").val();
-      key = sjcl.random.randomWords(8);
-      page = new App.Models.Page({
-        hidden_key: App.S.hide(App.I.get('mainkey'), key),
-        name: name,
-        key: key
-      });
+      page = this.new_page($("#create_page_input").val());
       page.on('error', (function(_this) {
         return function() {
           return alert("Can't save...");
@@ -425,6 +428,16 @@ App.Views.pageList = (function(_super) {
       })(this));
       return page.save();
     }
+  };
+
+  pageList.prototype.new_page = function(name) {
+    var key;
+    key = sjcl.random.randomWords(8);
+    return new App.Models.Page({
+      hidden_key: App.S.hide(App.I.get('mainkey'), key),
+      name: name,
+      key: key
+    });
   };
 
   return pageList;

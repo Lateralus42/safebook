@@ -31,5 +31,8 @@ module.exports = (App) ->
         )
       ).done (err, pages) ->
         return res.status(401).end() if err
+        #for page in pages
+        #  if page.user_id isnt req.data.I.id
+        #    page.hidden_key = null # = page.link.hidden_key ...
         req.data.pages = pages
         next()

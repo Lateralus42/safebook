@@ -233,14 +233,18 @@
                   {{pseudo}}
                 </a>
               <div class="pull-right">
-                {{#if auth}}
-                  <a class="delete" data-id="{{id}}" href="#">
-                    (Remove)
-                  </a>
+                {{#if creator}}
+                  (Creator)
                 {{else}}
-                  <a class="create" data-id="{{id}}" href="#">
-                    (Add)
-                  </a>
+                  {{#if auth}}
+                    <a class="delete" data-id="{{id}}" href="#">
+                      (Remove)
+                    </a>
+                  {{else}}
+                    <a class="create" data-id="{{id}}" href="#">
+                      (Add)
+                    </a>
+                  {{/if}}
                 {{/if}}
               </div>
             </li>
