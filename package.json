@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "start": "cd server; coffee index.coffee",
+    "start": "cd server; coffee app.coffee",
     "test": "casperjs test test.coffee"
   },
   "author": "",
