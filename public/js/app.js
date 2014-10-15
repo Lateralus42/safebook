@@ -312,26 +312,26 @@ App.Views.pageLinkList = (function(_super) {
   };
 
   pageLinkList.prototype.page_users = function() {
-    var page_users;
-    console.log(this.model);
-    page_users = [];
+    var users;
+    users = [];
     App.Collections.Users.each((function(_this) {
       return function(user) {
-        var tmp;
-        tmp = _.clone(user.attributes);
+        var link, tmp;
+        tmp = user.pick('id', 'pseudo');
         if (_this.model.get('user_id') === user.get('id')) {
           tmp.creator = true;
         }
-        if (App.Collections.PageLinks.findWhere({
+        link = App.Collections.PageLinks.findWhere({
           page_id: _this.model.get('id'),
           user_id: user.get('id')
-        })) {
+        });
+        if (link) {
           tmp.auth = true;
         }
-        return page_users.push(tmp);
+        return users.push(tmp);
       };
     })(this));
-    return page_users;
+    return users;
   };
 
   pageLinkList.prototype.render = function() {

@@ -5,19 +5,16 @@ class App.Views.pageLinkList extends Backbone.View
     @listenTo App.Collections.PageLinks, 'remove', @render
 
   page_users: =>
-    console.log @model
-    page_users = []
+    users = []
     App.Collections.Users.each (user) =>
-      tmp = _.clone(user.attributes)
+      tmp = user.pick('id', 'pseudo')
       if @model.get('user_id') is user.get('id')
         tmp.creator = true
-      if App.Collections.PageLinks.findWhere(
-        page_id: @model.get('id')
-        user_id: user.get('id')
-      )
-        tmp.auth = true
-      page_users.push(tmp)
-    page_users
+      link = App.Collections.PageLinks.findWhere
+        page_id: @model.get('id'), user_id: user.get('id')
+      if link then tmp.auth = true
+      users.push(tmp)
+    users
 
   render: =>
     template = Handlebars.compile $("#pageLinkListTemplate").html()
