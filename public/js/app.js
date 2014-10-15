@@ -217,7 +217,8 @@ App.Views.log = (function(_super) {
       App.Collections.Users.push(App.I);
       App.Collections.Users.push(res.users);
       App.Collections.PageLinks.push(res.pageLinks);
-      App.Collections.Pages.push(res.pages);
+      App.Collections.Pages.push(res.created_pages);
+      App.Collections.Pages.push(res.accessible_pages);
       App.Collections.Messages.push(res.messages);
       App.Collections.Users.each(function(user) {
         return user.shared();

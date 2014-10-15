@@ -54,7 +54,8 @@ server.get    '/user/:pseudo', App.Controllers.users.find
 
 server.post   '/login', [
     App.Controllers.users.auth,
-    App.Controllers.pages.fetch,
+    App.Controllers.pages.fetch_created,
+    App.Controllers.pages.fetch_accessibles,
     App.Controllers.pageLinks.fetch,
     App.Controllers.messages.fetch,
     App.Controllers.users.fetch,

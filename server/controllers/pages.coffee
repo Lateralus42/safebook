@@ -17,22 +17,19 @@ module.exports = (App) ->
   # Login Middleware
   ## ###
 
-  fetch: (req, res, next) ->
-    App.Models.pageLink.findAll(
-      where: user_id: req.data.I.id
-    ).done (err, pageLinks) ->
+  fetch_created: (req, res, next) ->
+    App.Models.page.findAll(where: { user_id: req.data.I.id }).done (err, pages) ->
       return res.status(401).end() if err
-      req.data.pageLinks = pageLinks
-      page_ids = (link.page_id for link in req.data.pageLinks)
-      App.Models.page.findAll(
-        where: Sequelize.or(
-          { id: page_ids },
-          { user_id: req.data.I.id }
-        )
-      ).done (err, pages) ->
+      req.data.created_pages = pages
+      next()
+
+  fetch_accessibles: (req, res, next) ->
+    App.Models.pageLink.findAll(
+      where: user_id: req.data.I.id).done (err, pageLinks) ->
+      return res.status(401).end() if err
+      page_ids = (link.page_id for link in pageLinks)
+      App.Models.page.findAll(where: { id: page_ids }).done (err, pages) ->
         return res.status(401).end() if err
-        #for page in pages
-        #  if page.user_id isnt req.data.I.id
-        #    page.hidden_key = null # = page.link.hidden_key ...
-        req.data.pages = pages
+        # XXX Replace page.key by pageLink.key
+        req.data.accessible_pages = pages
         next()

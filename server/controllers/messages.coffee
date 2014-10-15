@@ -22,7 +22,8 @@ module.exports = (App) ->
   ## ###
 
   fetch: (req, res, next) ->
-    page_ids = (page.id for page in req.data.pages)
+    page_ids = (page.id for page in req.data.created_pages)
+    page_ids.join (page.id for page in req.data.accessible_pages)
     App.Models.message.findAll(
       where: Sequelize.or(
         { user_id: req.data.I.id },
