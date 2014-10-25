@@ -244,15 +244,15 @@ App.Views.log = (function(_super) {
         if (message.get('user_id') === App.I.get('id') && message.get('destination_id') === App.I.get('id')) {
           key = App.I.get('mainkey');
         } else if (message.get('destination_type') === 'user') {
-          user = message.get('user_id') === App.I.get('id') ? App.Collections.Users.findWhere({
-            id: message.get('destination_id')
-          }) : App.Collections.Users.findWhere({
+          user = message.get('user_id') !== App.I.get('id') ? App.Collections.Users.findWhere({
             id: message.get('user_id')
+          }) : App.Collections.Users.findWhere({
+            id: message.get('destination_id')
           });
           key = user.get('shared');
         } else if (message.get('destination_type') === 'page') {
           page = App.Collections.Pages.findWhere({
-            id: message.get('user_id')
+            id: message.get('destination_id')
           });
           key = page.get('key');
         } else {

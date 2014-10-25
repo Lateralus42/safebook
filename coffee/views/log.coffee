@@ -81,13 +81,13 @@ class App.Views.log extends Backbone.View
         if message.get('user_id') is App.I.get('id') and message.get('destination_id') is App.I.get('id')
           key = App.I.get('mainkey')
         else if message.get('destination_type') is 'user'
-          user = if message.get('user_id') is App.I.get('id')
-            App.Collections.Users.findWhere(id: message.get('destination_id'))
-          else
+          user = if message.get('user_id') isnt App.I.get('id')
             App.Collections.Users.findWhere(id: message.get('user_id'))
+          else
+            App.Collections.Users.findWhere(id: message.get('destination_id'))
           key = user.get('shared')
         else if message.get('destination_type') is 'page'
-          page = App.Collections.Pages.findWhere(id: message.get('user_id'))
+          page = App.Collections.Pages.findWhere(id: message.get('destination_id'))
           key = page.get('key')
         else
           console.log('The message type is invalid')

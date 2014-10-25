@@ -30,6 +30,11 @@ module.exports = (App) ->
       page_ids = (link.page_id for link in pageLinks)
       App.Models.page.findAll(where: { id: page_ids }).done (err, pages) ->
         return res.status(401).end() if err
-        # XXX Replace page.key by pageLink.key
+
+        for page in pages
+          for pageLink in pageLinks
+            if pageLink.page_id is page.id
+              page.hidden_key = pageLink.hidden_key
+
         req.data.accessible_pages = pages
         next()
