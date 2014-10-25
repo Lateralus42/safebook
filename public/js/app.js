@@ -223,8 +223,23 @@ App.Views.log = (function(_super) {
       App.Collections.Users.each(function(user) {
         return user.shared();
       });
+      App.Collections.Pages.each(function(page) {
+        var user;
+        if (page.get('user_id') === App.I.get('id')) {
+          return page.set({
+            key: App.S.bare(App.I.get('mainkey'), page.get('hidden_key'))
+          });
+        } else {
+          user = App.Collections.Users.findWhere({
+            id: page.get('user_id')
+          });
+          return page.set({
+            key: App.S.bare(user.get('shared'), page.get('hidden_key'))
+          });
+        }
+      });
       App.Collections.Messages.each(function(message) {
-        var content, key, user;
+        var content, key, page, user;
         key = null;
         if (message.get('user_id') === App.I.get('id') && message.get('destination_id') === App.I.get('id')) {
           key = App.I.get('mainkey');
@@ -235,8 +250,13 @@ App.Views.log = (function(_super) {
             id: message.get('user_id')
           });
           key = user.get('shared');
+        } else if (message.get('destination_type') === 'page') {
+          page = App.Collections.Pages.findWhere({
+            id: message.get('user_id')
+          });
+          key = page.get('key');
         } else {
-          console.log("We don't decypher page message yet !");
+          console.log('The message type is invalid');
           return;
         }
         content = App.S.bare_text(key, message.get('hidden_content'));
@@ -533,12 +553,14 @@ App.Views.pageTalk = (function(_super) {
   };
 
   pageTalk.prototype.talk = function() {
-    var hidden_content, message;
-    hidden_content = $("#message_input").val();
+    var content, hidden_content, message;
+    content = $("#message_input").val();
+    hidden_content = App.S.hide_text(this.model.get('key'), content);
     message = new App.Models.Message({
       destination_type: "page",
       destination_id: this.model.get('id'),
-      hidden_content: hidden_content
+      hidden_content: hidden_content,
+      content: content
     });
     message.on('error', (function(_this) {
       return function() {

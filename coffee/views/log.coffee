@@ -66,8 +66,14 @@ class App.Views.log extends Backbone.View
       App.Collections.Pages.push res.accessible_pages
       App.Collections.Messages.push res.messages
 
-      App.Collections.Users.each (user) ->
-        user.shared()
+      App.Collections.Users.each (user) -> user.shared()
+
+      App.Collections.Pages.each (page) ->
+        if page.get('user_id') is App.I.get('id')
+          page.set key: App.S.bare(App.I.get('mainkey'), page.get('hidden_key'))
+        else
+          user = App.Collections.Users.findWhere(id: page.get('user_id'))
+          page.set key: App.S.bare(user.get('shared'), page.get('hidden_key'))
 
       App.Collections.Messages.each (message) ->
         key = null
@@ -80,8 +86,11 @@ class App.Views.log extends Backbone.View
           else
             App.Collections.Users.findWhere(id: message.get('user_id'))
           key = user.get('shared')
+        else if message.get('destination_type') is 'page'
+          page = App.Collections.Pages.findWhere(id: message.get('user_id'))
+          key = page.get('key')
         else
-          console.log "We don't decypher page message yet !"
+          console.log('The message type is invalid')
           return
 
         content = App.S.bare_text(key, message.get('hidden_content'))

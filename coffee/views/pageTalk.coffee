@@ -40,15 +40,14 @@ class App.Views.pageTalk extends Backbone.View
     'click #back_button': 'go_home'
 
   talk: =>
-    # XXX
-    # hidden_content = App.S.hide_text()
-    # group_key, $("message_input").val()
-    hidden_content = $("#message_input").val()
+    content = $("#message_input").val()
+    hidden_content = App.S.hide_text @model.get('key'), content
 
     message = new App.Models.Message(
       destination_type: "page"
       destination_id: @model.get('id')
       hidden_content: hidden_content
+      content: content
     )
     message.on 'error', => alert "Sending error"
     message.on 'sync', =>
