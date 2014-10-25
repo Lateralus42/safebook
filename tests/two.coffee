@@ -11,12 +11,12 @@ user_name2 = getRandomString()
 
 casper.test.begin 'You can use it with someone else', 5, (test) ->
 
-  casper.start 'http://0.0.0.0:8000/', ->
+  casper.start('http://0.0.0.0:8000/').wait 100, ->
     @sendKeys "#pseudo_input", user_name1
     @sendKeys "#string_password_input", user_name1
     @click "#signup"
 
-  casper.waitForUrl('#home').thenOpen 'http://0.0.0.0:8000/', ->
+  casper.waitForUrl('#home').thenOpen('http://0.0.0.0:8000/').wait 100, ->
     @sendKeys "#pseudo_input", user_name2
     @sendKeys "#string_password_input", user_name2
     @click "#signup"
