@@ -5,8 +5,6 @@ getRandomString = -> getRandomInt(9999999).toString()
 
 user_name = getRandomString()
 
-#messages_count = -> $("#messageList > div").size()
-
 casper.test.begin 'You can use it alone', 3, (test) ->
 
   casper.start 'http://0.0.0.0:8000/', ->
@@ -23,7 +21,6 @@ casper.test.begin 'You can use it alone', 3, (test) ->
 
   casper.wait 500, ->
     test.assertElementCount("#messageList > div", 1)
-    #test.assertEqual(@evaluate(messages_count), 1, "We see our message")
 
   casper.thenOpen 'http://0.0.0.0:8000/', ->
     @sendKeys("#pseudo_input", user_name)
@@ -36,9 +33,5 @@ casper.test.begin 'You can use it alone', 3, (test) ->
   casper.waitForUrl /#user\/.*/, ->
     test.assertElementCount("#messageList > div", 1)
     test.assertSelectorHasText("#messageList", "Secret message")
-    #test.assertEqual(@evaluate(messages_count), 1, "We see our message again")
 
-  casper.then ->
-    test.done()
-
-  casper.run()
+  casper.then(-> test.done()).run()
