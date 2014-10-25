@@ -50,11 +50,8 @@ class App.Views.pageTalk extends Backbone.View
       destination_id: @model.get('id')
       hidden_content: hidden_content
     )
-    message.on 'error', =>
-      alert "Sending error"
+    message.on 'error', => alert "Sending error"
     message.on 'sync', =>
-      console.log "sync"
-      console.log message
       App.Collections.Messages.add(message)
       App.Views.MessageList.collection.push(message)
       App.Views.MessageList.render()

@@ -10,6 +10,8 @@ module.exports = (sequelize) ->
       type: Sequelize.STRING
     user_id:
       type: Sequelize.STRING
+    hidden_key:
+      type: Sequelize.STRING
   }, {
     timestamps: false
   })

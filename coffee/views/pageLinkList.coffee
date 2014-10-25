@@ -26,12 +26,18 @@ class App.Views.pageLinkList extends Backbone.View
     'click .delete': 'delete'
 
   create: (e) =>
-    # Encipher the link key
-    # XXX
-    # Save the link
+    page_id = @model.get('id')
+    user_id = $(e.target).data('id')
+
+    user = App.Collections.Users.findWhere(id: user_id)
+    page = App.Collections.Pages.findWhere(id: page_id)
+
+    hidden_key = App.S.hide user.get('shared'), page.get('key')
+
     App.Collections.PageLinks.create(
-      page_id: @model.get('id')
-      user_id: $(e.target).data('id')
+      page_id: page_id
+      user_id: user_id
+      hidden_key: hidden_key
     )
     false
 

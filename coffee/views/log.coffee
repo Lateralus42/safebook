@@ -70,12 +70,24 @@ class App.Views.log extends Backbone.View
         user.shared()
 
       App.Collections.Messages.each (message) ->
-        user = if message.get('user_id') isnt App.I.get('id')
-          App.Collections.Users.findWhere(id: message.get('user_id'))
+        key = null
+
+        if message.get('user_id') is App.I.get('id') and message.get('destination_id') is App.I.get('id')
+          key = App.I.get('mainkey')
+        else if message.get('destination_type') is 'user'
+          user = if message.get('user_id') is App.I.get('id')
+            App.Collections.Users.findWhere(id: message.get('destination_id'))
+          else
+            App.Collections.Users.findWhere(id: message.get('user_id'))
+          key = user.get('shared')
         else
-          App.Collections.Users.findWhere(id: message.get('destination_id'))
-        content = App.S.bare_text(user.get('shared'), message.get('hidden_content'))
-        console.log content
+          console.log "We don't decypher page message yet !"
+          return
+
+        content = App.S.bare_text(key, message.get('hidden_content'))
         message.set content: content
+
+        console.log message.get 'hidden_content'
+        console.log message.get 'content'
 
       App.Router.show("home")

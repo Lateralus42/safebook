@@ -31,7 +31,10 @@ class App.Views.userTalk extends Backbone.View
 
   talk: =>
     content = $("#message_input").val()
-    hidden_content = App.S.hide_text(@model.get('shared'), content)
+    hidden_content = if @model.get('id') is App.I.get('id')
+      App.S.hide_text(App.I.get('mainkey'), content)
+    else
+      App.S.hide_text(@model.get('shared'), content)
 
     message = new App.Models.Message(
       destination_type: "user"
@@ -39,8 +42,7 @@ class App.Views.userTalk extends Backbone.View
       hidden_content: hidden_content
       content: content
     )
-    message.on 'error', =>
-      alert "Sending error"
+    message.on 'error', => alert "Sending error"
     message.on 'sync', =>
       App.Collections.Messages.add(message)
       App.Views.MessageList.collection.push(message)

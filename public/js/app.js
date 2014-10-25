@@ -224,17 +224,27 @@ App.Views.log = (function(_super) {
         return user.shared();
       });
       App.Collections.Messages.each(function(message) {
-        var content, user;
-        user = message.get('user_id') !== App.I.get('id') ? App.Collections.Users.findWhere({
-          id: message.get('user_id')
-        }) : App.Collections.Users.findWhere({
-          id: message.get('destination_id')
-        });
-        content = App.S.bare_text(user.get('shared'), message.get('hidden_content'));
-        console.log(content);
-        return message.set({
+        var content, key, user;
+        key = null;
+        if (message.get('user_id') === App.I.get('id') && message.get('destination_id') === App.I.get('id')) {
+          key = App.I.get('mainkey');
+        } else if (message.get('destination_type') === 'user') {
+          user = message.get('user_id') === App.I.get('id') ? App.Collections.Users.findWhere({
+            id: message.get('destination_id')
+          }) : App.Collections.Users.findWhere({
+            id: message.get('user_id')
+          });
+          key = user.get('shared');
+        } else {
+          console.log("We don't decypher page message yet !");
+          return;
+        }
+        content = App.S.bare_text(key, message.get('hidden_content'));
+        message.set({
           content: content
         });
+        console.log(message.get('hidden_content'));
+        return console.log(message.get('content'));
       });
       return App.Router.show("home");
     });
@@ -349,9 +359,20 @@ App.Views.pageLinkList = (function(_super) {
   };
 
   pageLinkList.prototype.create = function(e) {
+    var hidden_key, page, page_id, user, user_id;
+    page_id = this.model.get('id');
+    user_id = $(e.target).data('id');
+    user = App.Collections.Users.findWhere({
+      id: user_id
+    });
+    page = App.Collections.Pages.findWhere({
+      id: page_id
+    });
+    hidden_key = App.S.hide(user.get('shared'), page.get('key'));
     App.Collections.PageLinks.create({
-      page_id: this.model.get('id'),
-      user_id: $(e.target).data('id')
+      page_id: page_id,
+      user_id: user_id,
+      hidden_key: hidden_key
     });
     return false;
   };
@@ -526,8 +547,6 @@ App.Views.pageTalk = (function(_super) {
     })(this));
     message.on('sync', (function(_this) {
       return function() {
-        console.log("sync");
-        console.log(message);
         App.Collections.Messages.add(message);
         App.Views.MessageList.collection.push(message);
         App.Views.MessageList.render();
@@ -652,7 +671,7 @@ App.Views.userTalk = (function(_super) {
   userTalk.prototype.talk = function() {
     var content, hidden_content, message;
     content = $("#message_input").val();
-    hidden_content = App.S.hide_text(this.model.get('shared'), content);
+    hidden_content = this.model.get('id') === App.I.get('id') ? App.S.hide_text(App.I.get('mainkey'), content) : App.S.hide_text(this.model.get('shared'), content);
     message = new App.Models.Message({
       destination_type: "user",
       destination_id: this.model.get('id'),
