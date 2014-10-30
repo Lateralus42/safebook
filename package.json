@@ -14,5 +14,10 @@
     "express-session": "^1.0.0",
     "sequelize": "^1.7.10",
     "sqlite3": "^2.2.7"
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-contrib-coffee": "*"
   }
 }
