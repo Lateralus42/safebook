@@ -9,14 +9,16 @@ getRandomString = ->
 user_name1 = getRandomString()
 user_name2 = getRandomString()
 
-casper.test.begin 'You can use it with someone else', 5, (test) ->
+casper.test.begin 'You can use it with someone else', 4, (test) ->
 
-  casper.start('http://0.0.0.0:8000/').wait 100, ->
+  casper.start('http://0.0.0.0:8000/').waitForSelector '#pseudo_input', ->
     @sendKeys "#pseudo_input", user_name1
     @sendKeys "#string_password_input", user_name1
     @click "#signup"
 
-  casper.waitForUrl('#home').thenOpen('http://0.0.0.0:8000/').wait 100, ->
+  casper.waitForUrl('#home').thenOpen 'http://0.0.0.0:8000/'
+
+  casper.waitForSelector '#pseudo_input', ->
     @sendKeys "#pseudo_input", user_name2
     @sendKeys "#string_password_input", user_name2
     @click "#signup"
@@ -25,7 +27,7 @@ casper.test.begin 'You can use it with someone else', 5, (test) ->
     @sendKeys "#search_user_input", user_name1
     @sendKeys "#search_user_input", casper.page.event.key.Enter
 
-  casper.wait 200, ->
+  casper.waitForSelectorTextChange "#userList", ->
     test.assertElementCount("#userList li a", 2)
     @clickLabel user_name1
 
@@ -33,15 +35,14 @@ casper.test.begin 'You can use it with someone else', 5, (test) ->
     @sendKeys "#message_input", "Secret message"
     @click "#send_message"
 
-  casper.wait 200, ->
-    test.assertElementCount("#messageList > div", 1)
+  casper.waitForSelector '#messageList > div'
 
-  casper.thenOpen('http://0.0.0.0:8000/').wait 200, ->
+  casper.thenOpen('http://0.0.0.0:8000/').waitForSelector '#pseudo_input', ->
     @sendKeys "#pseudo_input", user_name1
     @sendKeys "#string_password_input", user_name1
     @click "#signin"
 
-  casper.waitForUrl('#home').wait 200, ->
+  casper.waitForUrl '#home', ->
     test.assertElementCount("#userList li a", 2)
     @clickLabel user_name2
 

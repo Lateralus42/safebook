@@ -5,7 +5,7 @@ getRandomString = -> getRandomInt(9999999).toString()
 
 user_name = getRandomString()
 
-casper.test.begin 'You can use it alone', 3, (test) ->
+casper.test.begin 'You can use it alone', 2, (test) ->
 
   casper.start 'http://0.0.0.0:8000/', ->
     @sendKeys("#pseudo_input", user_name)
@@ -19,15 +19,14 @@ casper.test.begin 'You can use it alone', 3, (test) ->
     @sendKeys("#message_input", "Secret message")
     @click("#send_message")
 
-  casper.wait 500, ->
-    test.assertElementCount("#messageList > div", 1)
+  casper.waitForSelector '#messageList > div'
 
   casper.thenOpen 'http://0.0.0.0:8000/', ->
     @sendKeys("#pseudo_input", user_name)
     @sendKeys("#string_password_input", user_name)
     @click("#signin")
 
-  casper.waitForUrl('#home').wait 500, ->
+  casper.waitForUrl '#home', ->
     @click("#userList a")
 
   casper.waitForUrl /#user\/.*/, ->
