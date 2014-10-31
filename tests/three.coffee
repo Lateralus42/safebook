@@ -34,7 +34,7 @@ casper.test.begin 'You can use it with several people', 4, (test) ->
   casper.then ->
     @sendKeys "#create_page_input", "my page"
     @sendKeys "#create_page_input", casper.page.event.key.Enter
-  casper.wait(500, -> @click("#pageList a"))
+  casper.wait(1000, -> @click("#pageList a"))
 
   # Send a message and add User 2
   casper.waitForUrl /#page\/.*/, ->
@@ -43,7 +43,7 @@ casper.test.begin 'You can use it with several people', 4, (test) ->
     @clickLabel "(Add)"
 
   # User 2 can see the page and the message
-  casper.thenOpen('http://0.0.0.0:8000/').wait 100, ->
+  casper.thenOpen('http://0.0.0.0:8000/').wait 300, ->
     @sendKeys "#pseudo_input", user_name2
     @sendKeys "#string_password_input", user_name2
     @click "#signin"

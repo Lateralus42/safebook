@@ -7,6 +7,13 @@ class App.Models.User extends Backbone.Model
   toJSON: ->
     @pick "id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey"
 
+  shared: ->
+    public_point = App.S.curve.fromBits(from_b64(@get('pubkey')))
+    shared_point = public_point.mult(App.I.get('seckey'))
+    @set shared: sjcl.hash.sha256.hash(shared_point)
+
+class App.Models.I extends App.Models.User
+
   auth: ->
     key    = sjcl.misc.pbkdf2(@get('password'), @get('pseudo'))
     cipher = new sjcl.cipher.aes(key)
@@ -31,32 +38,3 @@ class App.Models.User extends Backbone.Model
 
   bare_mainkey: ->
     @set mainkey: App.S.bare(@get('local_secret'), @get('hidden_mainkey'))
-
-  shared: ->
-    point = App.S.curve.fromBits(from_b64(@get('pubkey'))).mult(App.I.get('seckey'))
-    @set shared: sjcl.hash.sha256.hash point.toBits()
-
-    # debug
-    console.log(@get('pseudo') + " - " + to_b64(@get('shared')))
-    @
-
-###
-  keys: ->
-    keys = App.M.Keys.filter((o)=> o.user_id == @get('id') || App.M.Keys.where(dest_id: @get('id')))
-
-  constructor: ->
-    super
-    unless @isNew()
-      @load()
-    else
-      @on 'sync', @load
-    @
-
-  load: =>
-    @bare_ecdh() if not @has('seckey') and @has('hidden_seckey')
-    @bare_mainkey() if not @has('mainkey') and @has('hidden_mainkey')
-    @shared() if not @has('shared') and @has('pubkey')
-
-  log: =>
-    shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
-###

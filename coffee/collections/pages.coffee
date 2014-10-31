@@ -1,6 +1,5 @@
-class App.Collections.pages extends Backbone.Collection
+class App.Collections.Pages extends Backbone.Collection
   model: App.Models.Page
-
   url: '/pages'
 
-App.Collections.Pages = new App.Collections.pages()
+App.Pages = new App.Collections.Pages()

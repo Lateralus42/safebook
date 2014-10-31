@@ -1,16 +1,16 @@
 class App.Views.pageLinkList extends Backbone.View
 
   initialize: =>
-    @listenTo App.Collections.PageLinks, 'add', @render
-    @listenTo App.Collections.PageLinks, 'remove', @render
+    @listenTo App.PageLinks, 'add', @render
+    @listenTo App.PageLinks, 'remove', @render
 
   page_users: =>
     users = []
-    App.Collections.Users.each (user) =>
+    App.Users.each (user) =>
       tmp = user.pick('id', 'pseudo')
       if @model.get('user_id') is user.get('id')
         tmp.creator = true
-      link = App.Collections.PageLinks.findWhere
+      link = App.PageLinks.findWhere
         page_id: @model.get('id'), user_id: user.get('id')
       if link then tmp.auth = true
       users.push(tmp)
@@ -29,12 +29,12 @@ class App.Views.pageLinkList extends Backbone.View
     page_id = @model.get('id')
     user_id = $(e.target).data('id')
 
-    user = App.Collections.Users.findWhere(id: user_id)
-    page = App.Collections.Pages.findWhere(id: page_id)
+    user = App.Users.findWhere(id: user_id)
+    page = App.Pages.findWhere(id: page_id)
 
     hidden_key = App.S.hide user.get('shared'), page.get('key')
 
-    App.Collections.PageLinks.create(
+    App.PageLinks.create(
       page_id: page_id
       user_id: user_id
       hidden_key: hidden_key
@@ -42,7 +42,7 @@ class App.Views.pageLinkList extends Backbone.View
     false
 
   delete: (e) =>
-    App.Collections.PageLinks.findWhere(
+    App.PageLinks.findWhere(
       page_id: @model.get('id')
       user_id: $(e.target).data('id')
     ).destroy()

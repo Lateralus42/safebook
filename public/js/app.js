@@ -1,10 +1,12 @@
-var App, from_b64, from_hex, from_utf8, to_b64, to_hex, to_utf8;
+var App;
 
 App = {
   Models: {},
   Collections: {},
   Views: {}
 };
+
+var from_b64, from_hex, from_utf8, to_b64, to_hex, to_utf8;
 
 to_b64 = function(bin) {
   return sjcl.codec.base64.fromBits(bin).replace(/\//g, '_').replace(/\+/g, '-');
@@ -116,12 +118,12 @@ App.Views.home = (function(_super) {
     App.Views.UserList.render();
     App.Views.MessageList = new App.Views.messageList({
       el: $("#messageList"),
-      collection: App.Collections.Messages
+      collection: App.Messages
     });
     App.Views.MessageList.render();
     App.Views.PageList = new App.Views.pageList({
       el: $("#pageList"),
-      collection: App.Collections.Pages
+      collection: App.Pages
     });
     App.Views.PageList.render();
     return this;
@@ -174,9 +176,9 @@ App.Views.log = (function(_super) {
   log.prototype.load_user = function() {
     var sha;
     sha = new sjcl.hash.sha256();
-    sha.update($('#file_password_result_input').val());
     sha.update($('#string_password_input').val());
-    App.I = new App.Models.User({
+    sha.update($('#file_password_result_input').val());
+    App.I = new App.Models.I({
       pseudo: $('#pseudo_input').val(),
       password: sha.finalize()
     });
@@ -214,23 +216,23 @@ App.Views.log = (function(_super) {
       console.log(res);
       App.I.set(res.I);
       App.I.bare_mainkey().bare_ecdh();
-      App.Collections.Users.push(App.I);
-      App.Collections.Users.push(res.users);
-      App.Collections.PageLinks.push(res.pageLinks);
-      App.Collections.Pages.push(res.created_pages);
-      App.Collections.Pages.push(res.accessible_pages);
-      App.Collections.Messages.push(res.messages);
-      App.Collections.Users.each(function(user) {
+      App.Users.push(App.I);
+      App.Users.push(res.users);
+      App.PageLinks.push(res.pageLinks);
+      App.Pages.push(res.created_pages);
+      App.Pages.push(res.accessible_pages);
+      App.Messages.push(res.messages);
+      App.Users.each(function(user) {
         return user.shared();
       });
-      App.Collections.Pages.each(function(page) {
+      App.Pages.each(function(page) {
         var user;
         if (page.get('user_id') === App.I.get('id')) {
           return page.set({
             key: App.S.bare(App.I.get('mainkey'), page.get('hidden_key'))
           });
         } else {
-          user = App.Collections.Users.findWhere({
+          user = App.Users.findWhere({
             id: page.get('user_id')
           });
           return page.set({
@@ -238,20 +240,20 @@ App.Views.log = (function(_super) {
           });
         }
       });
-      App.Collections.Messages.each(function(message) {
+      App.Messages.each(function(message) {
         var content, key, page, user;
         key = null;
         if (message.get('user_id') === App.I.get('id') && message.get('destination_id') === App.I.get('id')) {
           key = App.I.get('mainkey');
         } else if (message.get('destination_type') === 'user') {
-          user = message.get('user_id') !== App.I.get('id') ? App.Collections.Users.findWhere({
+          user = message.get('user_id') !== App.I.get('id') ? App.Users.findWhere({
             id: message.get('user_id')
-          }) : App.Collections.Users.findWhere({
+          }) : App.Users.findWhere({
             id: message.get('destination_id')
           });
           key = user.get('shared');
         } else if (message.get('destination_type') === 'page') {
-          page = App.Collections.Pages.findWhere({
+          page = App.Pages.findWhere({
             id: message.get('destination_id')
           });
           key = page.get('key');
@@ -292,12 +294,12 @@ App.Views.messageList = (function(_super) {
     messages = this.collection.sort().toJSON();
     for (_i = 0, _len = messages.length; _i < _len; _i++) {
       message = messages[_i];
-      user = App.Collections.Users.findWhere({
+      user = App.Users.findWhere({
         id: message.user_id
       });
-      destination = message.destination_type === "user" ? App.Collections.Users.findWhere({
+      destination = message.destination_type === "user" ? App.Users.findWhere({
         id: message.destination_id
-      }) : App.Collections.Pages.findWhere({
+      }) : App.Pages.findWhere({
         id: message.destination_id
       });
       message.source = user.attributes;
@@ -337,21 +339,21 @@ App.Views.pageLinkList = (function(_super) {
   }
 
   pageLinkList.prototype.initialize = function() {
-    this.listenTo(App.Collections.PageLinks, 'add', this.render);
-    return this.listenTo(App.Collections.PageLinks, 'remove', this.render);
+    this.listenTo(App.PageLinks, 'add', this.render);
+    return this.listenTo(App.PageLinks, 'remove', this.render);
   };
 
   pageLinkList.prototype.page_users = function() {
     var users;
     users = [];
-    App.Collections.Users.each((function(_this) {
+    App.Users.each((function(_this) {
       return function(user) {
         var link, tmp;
         tmp = user.pick('id', 'pseudo');
         if (_this.model.get('user_id') === user.get('id')) {
           tmp.creator = true;
         }
-        link = App.Collections.PageLinks.findWhere({
+        link = App.PageLinks.findWhere({
           page_id: _this.model.get('id'),
           user_id: user.get('id')
         });
@@ -382,14 +384,14 @@ App.Views.pageLinkList = (function(_super) {
     var hidden_key, page, page_id, user, user_id;
     page_id = this.model.get('id');
     user_id = $(e.target).data('id');
-    user = App.Collections.Users.findWhere({
+    user = App.Users.findWhere({
       id: user_id
     });
-    page = App.Collections.Pages.findWhere({
+    page = App.Pages.findWhere({
       id: page_id
     });
     hidden_key = App.S.hide(user.get('shared'), page.get('key'));
-    App.Collections.PageLinks.create({
+    App.PageLinks.create({
       page_id: page_id,
       user_id: user_id,
       hidden_key: hidden_key
@@ -398,7 +400,7 @@ App.Views.pageLinkList = (function(_super) {
   };
 
   pageLinkList.prototype["delete"] = function(e) {
-    App.Collections.PageLinks.findWhere({
+    App.PageLinks.findWhere({
       page_id: this.model.get('id'),
       user_id: $(e.target).data('id')
     }).destroy();
@@ -427,10 +429,10 @@ App.Views.pageList = (function(_super) {
   pageList.prototype.processed_pages = function() {
     var pages;
     pages = [];
-    App.Collections.Pages.each(function(page) {
+    App.Pages.each(function(page) {
       var tmp, user;
       tmp = _.clone(page.attributes);
-      user = App.Collections.Users.findWhere({
+      user = App.Users.findWhere({
         id: tmp.user_id
       });
       tmp.user_name = user.get('pseudo');
@@ -464,7 +466,7 @@ App.Views.pageList = (function(_super) {
       page.on('sync', (function(_this) {
         return function() {
           $("#create_page_input").val("");
-          App.Collections.Pages.add(page);
+          App.Pages.add(page);
           return _this.render();
         };
       })(this));
@@ -498,34 +500,21 @@ App.Views.pageTalk = (function(_super) {
     this.talk = __bind(this.talk, this);
     this.render = __bind(this.render, this);
     this.page_users = __bind(this.page_users, this);
-    this.selected_messages = __bind(this.selected_messages, this);
     return pageTalk.__super__.constructor.apply(this, arguments);
   }
 
-  pageTalk.prototype.selected_messages = function() {
-    var messages;
-    messages = new App.Collections.messages();
-    messages.push(App.Collections.Messages.where({
-      destination_type: 'page',
-      destination_id: this.model.get('id')
-    }));
-    return messages;
-  };
-
   pageTalk.prototype.page_users = function() {
-    var links, user, users, _i, _len;
-    users = App.Collections.Users.toJSON();
-    for (_i = 0, _len = users.length; _i < _len; _i++) {
-      user = users[_i];
-      links = App.Collections.pageLinks.where({
+    return _.map(App.Users.toJSON(), function(user) {
+      var link;
+      link = App.pageLinks.where({
         page_id: this.model.get('id'),
         user_id: user.id
       });
-      if (links) {
+      if (link) {
         user.auth = true;
       }
-    }
-    return users;
+      return user;
+    });
   };
 
   pageTalk.prototype.render = function() {
@@ -535,16 +524,16 @@ App.Views.pageTalk = (function(_super) {
       page: this.model.attributes
     }));
     $("textarea").autosize();
-    App.Views.MessageList = new App.Views.messageList({
+    this.messageList = new App.Views.messageList({
       el: $("#messageList"),
-      collection: this.selected_messages()
+      collection: App.Messages.where_page(this.model.get('id'))
     });
-    App.Views.MessageList.render();
-    App.Views.PageLinkList = new App.Views.pageLinkList({
+    this.pageLinkList = new App.Views.pageLinkList({
       el: $("#pageLinkList"),
       model: this.model
     });
-    return App.Views.PageLinkList.render();
+    this.messageList.render();
+    return this.pageLinkList.render();
   };
 
   pageTalk.prototype.events = {
@@ -562,20 +551,18 @@ App.Views.pageTalk = (function(_super) {
       hidden_content: hidden_content,
       content: content
     });
-    message.on('error', (function(_this) {
+    return message.on('error', (function(_this) {
       return function() {
         return alert("Sending error");
       };
-    })(this));
-    message.on('sync', (function(_this) {
+    })(this)).on('sync', (function(_this) {
       return function() {
-        App.Collections.Messages.add(message);
-        App.Views.MessageList.collection.push(message);
-        App.Views.MessageList.render();
+        App.Messages.add(message);
+        _this.messageList.collection.push(message);
+        _this.messageList.render();
         return $("#message_input").val("");
       };
-    })(this));
-    return message.save();
+    })(this)).save();
   };
 
   pageTalk.prototype.go_home = function() {
@@ -595,6 +582,7 @@ App.Views.userList = (function(_super) {
 
   function userList() {
     this.search_user = __bind(this.search_user, this);
+    this.keypress = __bind(this.keypress, this);
     this.render = __bind(this.render, this);
     return userList.__super__.constructor.apply(this, arguments);
   }
@@ -603,37 +591,38 @@ App.Views.userList = (function(_super) {
     var template;
     template = Handlebars.compile($("#userListTemplate").html());
     this.$el.html(template({
-      users: App.Collections.Users.toJSON()
+      users: App.Users.toJSON()
     }));
     return this;
   };
 
   userList.prototype.events = {
-    'keypress #search_user_input': 'search_user'
+    'keypress #search_user_input': 'keypress'
   };
 
-  userList.prototype.search_user = function(e) {
-    var pseudo, user;
+  userList.prototype.keypress = function(e) {
     if (e.which === 13) {
-      pseudo = $("#search_user_input").val();
-      user = new App.Models.User({
-        pseudo: pseudo
-      });
-      user.fetch();
-      user.on('error', (function(_this) {
-        return function() {
-          return alert("Not found...");
-        };
-      })(this));
-      return user.on('sync', (function(_this) {
-        return function() {
-          $("#search_user_input").val("");
-          user.shared();
-          App.Collections.Users.add(user);
-          return _this.render();
-        };
-      })(this));
+      return this.search_user($("#search_user_input").val());
     }
+  };
+
+  userList.prototype.search_user = function(pseudo) {
+    var user;
+    user = new App.Models.User({
+      pseudo: pseudo
+    });
+    return user.on('error', (function(_this) {
+      return function() {
+        return alert("Not found...");
+      };
+    })(this)).on('sync', (function(_this) {
+      return function() {
+        $("#search_user_input").val("");
+        user.shared();
+        App.Users.add(user);
+        return _this.render();
+      };
+    })(this)).fetch();
   };
 
   return userList;
@@ -648,27 +637,52 @@ App.Views.userTalk = (function(_super) {
   __extends(userTalk, _super);
 
   function userTalk() {
-    this.go_home = __bind(this.go_home, this);
-    this.talk = __bind(this.talk, this);
     this.render = __bind(this.render, this);
-    this.selected_messages = __bind(this.selected_messages, this);
+    this.go_home = __bind(this.go_home, this);
+    this.hide_message = __bind(this.hide_message, this);
+    this.send_message = __bind(this.send_message, this);
     return userTalk.__super__.constructor.apply(this, arguments);
   }
 
-  userTalk.prototype.selected_messages = function() {
-    var messages;
-    messages = new App.Collections.messages();
-    messages.push(App.Collections.Messages.where({
-      destination_type: 'user',
-      user_id: App.I.get('id'),
-      destination_id: this.model.get('id')
-    }));
-    messages.push(App.Collections.Messages.where({
-      destination_type: 'user',
-      user_id: this.model.get('id'),
-      destination_id: App.I.get('id')
-    }));
-    return messages;
+  userTalk.prototype.events = {
+    'click #send_message': 'send_message',
+    'click #back_button': 'go_home'
+  };
+
+  userTalk.prototype.send_message = function() {
+    var content, hidden_content, message;
+    content = $("#message_input").val();
+    hidden_content = this.hide_message(content);
+    message = new App.Models.Message({
+      destination_type: "user",
+      destination_id: this.model.get('id'),
+      hidden_content: hidden_content,
+      content: content
+    });
+    return message.on('error', (function(_this) {
+      return function() {
+        return alert("Sending error");
+      };
+    })(this)).on('sync', (function(_this) {
+      return function() {
+        App.Messages.add(message);
+        _this.messageList.collection.push(message);
+        _this.messageList.render();
+        return $("#message_input").val("");
+      };
+    })(this)).save();
+  };
+
+  userTalk.prototype.hide_message = function(content) {
+    if (this.model.get('id') === App.I.get('id')) {
+      return App.S.hide_text(App.I.get('mainkey'), content);
+    } else {
+      return App.S.hide_text(this.model.get('shared'), content);
+    }
+  };
+
+  userTalk.prototype.go_home = function() {
+    return App.Router.show("home");
   };
 
   userTalk.prototype.render = function() {
@@ -678,46 +692,11 @@ App.Views.userTalk = (function(_super) {
       user: this.model.attributes
     }));
     $("textarea").autosize();
-    App.Views.MessageList = new App.Views.messageList({
+    this.messageList = new App.Views.messageList({
       el: $("#messageList"),
-      collection: this.selected_messages()
+      collection: App.Messages.where_user(this.model.get('id'))
     });
-    return App.Views.MessageList.render();
-  };
-
-  userTalk.prototype.events = {
-    'click #send_message': 'talk',
-    'click #back_button': 'go_home'
-  };
-
-  userTalk.prototype.talk = function() {
-    var content, hidden_content, message;
-    content = $("#message_input").val();
-    hidden_content = this.model.get('id') === App.I.get('id') ? App.S.hide_text(App.I.get('mainkey'), content) : App.S.hide_text(this.model.get('shared'), content);
-    message = new App.Models.Message({
-      destination_type: "user",
-      destination_id: this.model.get('id'),
-      hidden_content: hidden_content,
-      content: content
-    });
-    message.on('error', (function(_this) {
-      return function() {
-        return alert("Sending error");
-      };
-    })(this));
-    message.on('sync', (function(_this) {
-      return function() {
-        App.Collections.Messages.add(message);
-        App.Views.MessageList.collection.push(message);
-        App.Views.MessageList.render();
-        return $("#message_input").val("");
-      };
-    })(this));
-    return message.save();
-  };
-
-  userTalk.prototype.go_home = function() {
-    return App.Router.show("home");
+    return this.messageList.render();
   };
 
   return userTalk;
@@ -794,7 +773,27 @@ App.Models.User = (function(_super) {
     return this.pick("id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey");
   };
 
-  User.prototype.auth = function() {
+  User.prototype.shared = function() {
+    var public_point, shared_point;
+    public_point = App.S.curve.fromBits(from_b64(this.get('pubkey')));
+    shared_point = public_point.mult(App.I.get('seckey'));
+    return this.set({
+      shared: sjcl.hash.sha256.hash(shared_point)
+    });
+  };
+
+  return User;
+
+})(Backbone.Model);
+
+App.Models.I = (function(_super) {
+  __extends(I, _super);
+
+  function I() {
+    return I.__super__.constructor.apply(this, arguments);
+  }
+
+  I.prototype.auth = function() {
     var cipher, key;
     key = sjcl.misc.pbkdf2(this.get('password'), this.get('pseudo'));
     cipher = new sjcl.cipher.aes(key);
@@ -802,7 +801,7 @@ App.Models.User = (function(_super) {
     return this.set('remote_secret', to_b64(sjcl.bitArray.concat(cipher.encrypt(App.S.x02), cipher.encrypt(App.S.x03))));
   };
 
-  User.prototype.create_ecdh = function() {
+  I.prototype.create_ecdh = function() {
     this.set({
       seckey: sjcl.bn.random(App.S.curve.r, 6)
     });
@@ -811,157 +810,149 @@ App.Models.User = (function(_super) {
     });
   };
 
-  User.prototype.hide_ecdh = function() {
+  I.prototype.hide_ecdh = function() {
     return this.set({
       hidden_seckey: App.S.hide_seckey(this.get('local_secret'), this.get('seckey'))
     });
   };
 
-  User.prototype.bare_ecdh = function() {
+  I.prototype.bare_ecdh = function() {
     return this.set({
       seckey: App.S.bare_seckey(this.get('local_secret'), this.get('hidden_seckey'))
     });
   };
 
-  User.prototype.create_mainkey = function() {
+  I.prototype.create_mainkey = function() {
     return this.set({
       mainkey: sjcl.random.randomWords(8)
     });
   };
 
-  User.prototype.hide_mainkey = function() {
+  I.prototype.hide_mainkey = function() {
     return this.set({
       hidden_mainkey: App.S.hide(this.get('local_secret'), this.get('mainkey'))
     });
   };
 
-  User.prototype.bare_mainkey = function() {
+  I.prototype.bare_mainkey = function() {
     return this.set({
       mainkey: App.S.bare(this.get('local_secret'), this.get('hidden_mainkey'))
     });
   };
 
-  User.prototype.shared = function() {
-    var point;
-    point = App.S.curve.fromBits(from_b64(this.get('pubkey'))).mult(App.I.get('seckey'));
-    this.set({
-      shared: sjcl.hash.sha256.hash(point.toBits())
-    });
-    console.log(this.get('pseudo') + " - " + to_b64(this.get('shared')));
-    return this;
-  };
+  return I;
 
-  return User;
-
-})(Backbone.Model);
-
-
-/*
-  keys: ->
-    keys = App.M.Keys.filter((o)=> o.user_id == @get('id') || App.M.Keys.where(dest_id: @get('id')))
-
-  constructor: ->
-    super
-    unless @isNew()
-      @load()
-    else
-      @on 'sync', @load
-    @
-
-  load: =>
-    @bare_ecdh() if not @has('seckey') and @has('hidden_seckey')
-    @bare_mainkey() if not @has('mainkey') and @has('hidden_mainkey')
-    @shared() if not @has('shared') and @has('pubkey')
-
-  log: =>
-    shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
- */
+})(App.Models.User);
 
 var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.messages = (function(_super) {
-  __extends(messages, _super);
+App.Collections.Messages = (function(_super) {
+  __extends(Messages, _super);
 
-  function messages() {
+  function Messages() {
     this.comparator = __bind(this.comparator, this);
-    return messages.__super__.constructor.apply(this, arguments);
+    return Messages.__super__.constructor.apply(this, arguments);
   }
 
-  messages.prototype.model = App.Models.Message;
+  Messages.prototype.url = '/messages';
 
-  messages.prototype.url = '/messages';
+  Messages.prototype.model = App.Models.Message;
 
-  messages.prototype.comparator = function(a, b) {
+  Messages.prototype.comparator = function(a, b) {
     return (new Date(a.get('createdAt'))) < (new Date(b.get('createdAt')));
   };
 
-  return messages;
+  Messages.prototype.where_user = function(id) {
+    var messages;
+    messages = new App.Collections.Messages();
+    messages.push(this.where({
+      destination_type: 'user',
+      destination_id: id
+    }));
+    messages.push(App.Messages.where({
+      destination_type: 'user',
+      user_id: id
+    }));
+    return messages;
+  };
+
+  Messages.prototype.where_page = function(id) {
+    var messages;
+    messages = new App.Collections.Messages();
+    messages.push(this.where({
+      destination_type: 'page',
+      destination_id: id
+    }));
+    return messages;
+  };
+
+  return Messages;
 
 })(Backbone.Collection);
 
-App.Collections.Messages = new App.Collections.messages();
+App.Messages = new App.Collections.Messages();
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.pageLinks = (function(_super) {
-  __extends(pageLinks, _super);
+App.Collections.PageLinks = (function(_super) {
+  __extends(PageLinks, _super);
 
-  function pageLinks() {
-    return pageLinks.__super__.constructor.apply(this, arguments);
+  function PageLinks() {
+    return PageLinks.__super__.constructor.apply(this, arguments);
   }
 
-  pageLinks.prototype.model = App.Models.PageLink;
+  PageLinks.prototype.model = App.Models.PageLink;
 
-  pageLinks.prototype.url = '/pageLinks';
+  PageLinks.prototype.url = '/pageLinks';
 
-  return pageLinks;
+  return PageLinks;
 
 })(Backbone.Collection);
 
-App.Collections.PageLinks = new App.Collections.pageLinks();
+App.PageLinks = new App.Collections.PageLinks();
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.pages = (function(_super) {
-  __extends(pages, _super);
+App.Collections.Pages = (function(_super) {
+  __extends(Pages, _super);
 
-  function pages() {
-    return pages.__super__.constructor.apply(this, arguments);
+  function Pages() {
+    return Pages.__super__.constructor.apply(this, arguments);
   }
 
-  pages.prototype.model = App.Models.Page;
+  Pages.prototype.model = App.Models.Page;
 
-  pages.prototype.url = '/pages';
+  Pages.prototype.url = '/pages';
 
-  return pages;
+  return Pages;
 
 })(Backbone.Collection);
 
-App.Collections.Pages = new App.Collections.pages();
+App.Pages = new App.Collections.Pages();
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.users = (function(_super) {
-  __extends(users, _super);
+App.Collections.Users = (function(_super) {
+  __extends(Users, _super);
 
-  function users() {
-    return users.__super__.constructor.apply(this, arguments);
+  function Users() {
+    return Users.__super__.constructor.apply(this, arguments);
   }
 
-  users.prototype.model = App.Models.User;
+  Users.prototype.model = App.Models.User;
 
-  users.prototype.url = '/users';
+  Users.prototype.url = '/users';
 
-  return users;
+  return Users;
 
 })(Backbone.Collection);
 
-App.Collections.Users = new App.Collections.users();
+App.Users = new App.Collections.Users();
 
 var Router,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -1010,7 +1001,7 @@ Router = (function(_super) {
     if (App.Content) {
       App.Content.undelegateEvents();
     }
-    App.Collections.Users.add(App.I);
+    App.Users.add(App.I);
     App.Content = new App.Views.home({
       el: $("#content")
     });
@@ -1025,7 +1016,7 @@ Router = (function(_super) {
     if (App.Content) {
       App.Content.undelegateEvents();
     }
-    model = App.Collections.Users.findWhere({
+    model = App.Users.findWhere({
       id: id
     });
     if (model) {
@@ -1048,7 +1039,7 @@ Router = (function(_super) {
     if (App.Content) {
       App.Content.undelegateEvents();
     }
-    model = App.Collections.Pages.findWhere({
+    model = App.Pages.findWhere({
       id: id
     });
     if (model) {

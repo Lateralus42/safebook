@@ -1,5 +1,5 @@
-class App.Collections.pageLinks extends Backbone.Collection
+class App.Collections.PageLinks extends Backbone.Collection
   model: App.Models.PageLink
   url: '/pageLinks'
 
-App.Collections.PageLinks = new App.Collections.pageLinks()
+App.PageLinks = new App.Collections.PageLinks()

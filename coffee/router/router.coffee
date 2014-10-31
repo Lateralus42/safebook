@@ -15,14 +15,13 @@ class Router extends Backbone.Router
     App.Content = new App.Views.log(el: $("#content"))
     App.Content.render()
 
-    # Dans le futur:
-    # Faire des trucs si on a un bon cookie :)
+    # XXX Si localstorage -> reconnexion
 
   home: =>
     return @show("") unless App.I
     App.Content.undelegateEvents() if App.Content
 
-    App.Collections.Users.add(App.I)
+    App.Users.add(App.I)
     App.Content = new App.Views.home(el: $("#content"))
     App.Content.render()
 
@@ -30,7 +29,7 @@ class Router extends Backbone.Router
     return @show("") unless App.I
     App.Content.undelegateEvents() if App.Content
 
-    model = App.Collections.Users.findWhere(id: id)
+    model = App.Users.findWhere(id: id)
 
     if model
       App.Content = new App.Views.userTalk(el: $("#content"), model: model)
@@ -43,7 +42,7 @@ class Router extends Backbone.Router
     return @show("") unless App.I
     App.Content.undelegateEvents() if App.Content
 
-    model = App.Collections.Pages.findWhere(id: id)
+    model = App.Pages.findWhere(id: id)
 
     if model
       App.Content = new App.Views.pageTalk(el: $("#content"), model: model)
