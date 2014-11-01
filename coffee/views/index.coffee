@@ -44,18 +44,33 @@ class App.Views.Index extends Backbone.View
     App.Pages.each (page) -> page.bare()
     App.Messages.each (message) -> message.bare()
 
+  store_login: =>
+    localStorage.setItem "pseudo", App.I.get "pseudo"
+    localStorage.setItem "local_secret", to_b64(App.I.get("local_secret"))
+    localStorage.setItem "remote_secret", App.I.get "remote_secret"
+
   signup: =>
     @init_user()
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey()
     App.I.isNew = -> true
-
-    App.I.on 'error', => alert("Login error...")
-    App.I.on 'sync', => App.Router.show("home") # !
-    App.I.save()
+    App.I
+      .on 'error', => alert("Login error...")
+      .on 'sync', =>
+        @store_login() if $("#remember_input")[0].checked
+        App.Router.show("home")
+      .save()
 
   signin: =>
     @init_user()
     App.I.login (res) =>
+      @store_login() if $("#remember_input")[0].checked
+      @load_data(res)
+      @bare_data()
+      App.Router.show("home")
+
+  auto_signin: =>
+    App.I.login (res) =>
+      @store_login() if $("#remember_input")[0].checked
       @load_data(res)
       @bare_data()
       App.Router.show("home")

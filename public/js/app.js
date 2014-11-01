@@ -141,8 +141,10 @@ App.Views.Index = (function(_super) {
   __extends(Index, _super);
 
   function Index() {
+    this.auto_signin = __bind(this.auto_signin, this);
     this.signin = __bind(this.signin, this);
     this.signup = __bind(this.signup, this);
+    this.store_login = __bind(this.store_login, this);
     this.load_data = __bind(this.load_data, this);
     this.init_user = __bind(this.init_user, this);
     this.hash_file = __bind(this.hash_file, this);
@@ -207,29 +209,52 @@ App.Views.Index = (function(_super) {
     });
   };
 
+  Index.prototype.store_login = function() {
+    localStorage.setItem("pseudo", App.I.get("pseudo"));
+    localStorage.setItem("local_secret", to_b64(App.I.get("local_secret")));
+    return localStorage.setItem("remote_secret", App.I.get("remote_secret"));
+  };
+
   Index.prototype.signup = function() {
     this.init_user();
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
     App.I.isNew = function() {
       return true;
     };
-    App.I.on('error', (function(_this) {
+    return App.I.on('error', (function(_this) {
       return function() {
         return alert("Login error...");
       };
-    })(this));
-    App.I.on('sync', (function(_this) {
+    })(this)).on('sync', (function(_this) {
       return function() {
+        if ($("#remember_input")[0].checked) {
+          _this.store_login();
+        }
         return App.Router.show("home");
       };
-    })(this));
-    return App.I.save();
+    })(this)).save();
   };
 
   Index.prototype.signin = function() {
     this.init_user();
     return App.I.login((function(_this) {
       return function(res) {
+        if ($("#remember_input")[0].checked) {
+          _this.store_login();
+        }
+        _this.load_data(res);
+        _this.bare_data();
+        return App.Router.show("home");
+      };
+    })(this));
+  };
+
+  Index.prototype.auto_signin = function() {
+    return App.I.login((function(_this) {
+      return function(res) {
+        if ($("#remember_input")[0].checked) {
+          _this.store_login();
+        }
         _this.load_data(res);
         _this.bare_data();
         return App.Router.show("home");
@@ -1007,7 +1032,14 @@ Router = (function(_super) {
     this.view = new App.Views.Index({
       el: $("#content")
     });
-    return this.view.render();
+    this.view.render();
+    if (localStorage.length !== 0) {
+      return App.I = new App.Models.I({
+        pseudo: localStorage.getItem("pseudo"),
+        local_secret: from_b64(localStorage.getItem("local_secret")),
+        remote_secret: localStorage.getItem("remote_secret")
+      });
+    }
   };
 
   Router.prototype.home = function() {

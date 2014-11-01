@@ -13,7 +13,12 @@ class Router extends Backbone.Router
     @view = new App.Views.Index(el: $("#content"))
     @view.render()
 
-    # XXX Si localstorage -> reconnexion
+    if localStorage.length isnt 0
+      App.I = new App.Models.I
+        pseudo: localStorage.getItem "pseudo"
+        local_secret: from_b64(localStorage.getItem("local_secret"))
+        remote_secret: localStorage.getItem "remote_secret"
+      # @view.auto_signin()
 
   home: =>
     return @show("") unless App.I
