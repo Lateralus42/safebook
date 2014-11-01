@@ -137,35 +137,35 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.log = (function(_super) {
-  __extends(log, _super);
+App.Views.Index = (function(_super) {
+  __extends(Index, _super);
 
-  function log() {
+  function Index() {
     this.signin = __bind(this.signin, this);
     this.signup = __bind(this.signup, this);
-    this.load_user = __bind(this.load_user, this);
+    this.load_data = __bind(this.load_data, this);
+    this.init_user = __bind(this.init_user, this);
     this.hash_file = __bind(this.hash_file, this);
     this.render = __bind(this.render, this);
-    return log.__super__.constructor.apply(this, arguments);
+    return Index.__super__.constructor.apply(this, arguments);
   }
 
-  log.prototype.render = function() {
+  Index.prototype.render = function() {
     this.$el.html($("#logViewTemplate").html());
     return this;
   };
 
-  log.prototype.events = {
+  Index.prototype.events = {
     'change #file_password_input': 'hash_file',
     'click #signin': 'signin',
     'click #signup': 'signup'
   };
 
-  log.prototype.hash_file = function(e) {
-    var file, template;
+  Index.prototype.hash_file = function(e) {
+    var template;
     template = $("#StartHashFileTemplate").html();
     this.$("#file_password_input").replaceWith(_.template(template));
-    file = e.target.files[0];
-    return FileHasher(file, function(result) {
+    return FileHasher(e.target.files[0], function(result) {
       template = $("#EndHashFileTemplate").html();
       this.$(".progress").replaceWith(_.template(template));
       this.$(".progress").addClass("progress-bar-success");
@@ -173,7 +173,7 @@ App.Views.log = (function(_super) {
     });
   };
 
-  log.prototype.load_user = function() {
+  Index.prototype.init_user = function() {
     var sha;
     sha = new sjcl.hash.sha256();
     sha.update($('#string_password_input').val());
@@ -182,11 +182,33 @@ App.Views.log = (function(_super) {
       pseudo: $('#pseudo_input').val(),
       password: sha.finalize()
     });
-    return App.I.auth();
+    return App.I.compute_secrets();
   };
 
-  log.prototype.signup = function() {
-    this.load_user();
+  Index.prototype.load_data = function(res) {
+    App.I.set(res.I).bare_mainkey().bare_ecdh();
+    App.Users.push(App.I);
+    App.Users.push(res.users);
+    App.PageLinks.push(res.pageLinks);
+    App.Pages.push(res.created_pages);
+    App.Pages.push(res.accessible_pages);
+    return App.Messages.push(res.messages);
+  };
+
+  Index.prototype.bare_data = function() {
+    App.Users.each(function(user) {
+      return user.shared();
+    });
+    App.Pages.each(function(page) {
+      return page.bare();
+    });
+    return App.Messages.each(function(message) {
+      return message.bare();
+    });
+  };
+
+  Index.prototype.signup = function() {
+    this.init_user();
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
     App.I.isNew = function() {
       return true;
@@ -204,75 +226,18 @@ App.Views.log = (function(_super) {
     return App.I.save();
   };
 
-  log.prototype.signin = function() {
-    this.load_user();
-    return $.ajax({
-      type: "POST",
-      url: "/login",
-      data: JSON.stringify(App.I),
-      contentType: 'application/json',
-      dataType: 'json'
-    }).success(function(res) {
-      console.log(res);
-      App.I.set(res.I);
-      App.I.bare_mainkey().bare_ecdh();
-      App.Users.push(App.I);
-      App.Users.push(res.users);
-      App.PageLinks.push(res.pageLinks);
-      App.Pages.push(res.created_pages);
-      App.Pages.push(res.accessible_pages);
-      App.Messages.push(res.messages);
-      App.Users.each(function(user) {
-        return user.shared();
-      });
-      App.Pages.each(function(page) {
-        var user;
-        if (page.get('user_id') === App.I.get('id')) {
-          return page.set({
-            key: App.S.bare(App.I.get('mainkey'), page.get('hidden_key'))
-          });
-        } else {
-          user = App.Users.findWhere({
-            id: page.get('user_id')
-          });
-          return page.set({
-            key: App.S.bare(user.get('shared'), page.get('hidden_key'))
-          });
-        }
-      });
-      App.Messages.each(function(message) {
-        var content, key, page, user;
-        key = null;
-        if (message.get('user_id') === App.I.get('id') && message.get('destination_id') === App.I.get('id')) {
-          key = App.I.get('mainkey');
-        } else if (message.get('destination_type') === 'user') {
-          user = message.get('user_id') !== App.I.get('id') ? App.Users.findWhere({
-            id: message.get('user_id')
-          }) : App.Users.findWhere({
-            id: message.get('destination_id')
-          });
-          key = user.get('shared');
-        } else if (message.get('destination_type') === 'page') {
-          page = App.Pages.findWhere({
-            id: message.get('destination_id')
-          });
-          key = page.get('key');
-        } else {
-          console.log('The message type is invalid');
-          return;
-        }
-        content = App.S.bare_text(key, message.get('hidden_content'));
-        message.set({
-          content: content
-        });
-        console.log(message.get('hidden_content'));
-        return console.log(message.get('content'));
-      });
-      return App.Router.show("home");
-    });
+  Index.prototype.signin = function() {
+    this.init_user();
+    return App.I.login((function(_this) {
+      return function(res) {
+        _this.load_data(res);
+        _this.bare_data();
+        return App.Router.show("home");
+      };
+    })(this));
   };
 
-  return log;
+  return Index;
 
 })(Backbone.View);
 
@@ -703,17 +668,44 @@ App.Views.userTalk = (function(_super) {
 
 })(Backbone.View);
 
-var __hasProp = {}.hasOwnProperty,
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 App.Models.Message = (function(_super) {
   __extends(Message, _super);
 
   function Message() {
+    this.bare = __bind(this.bare, this);
     return Message.__super__.constructor.apply(this, arguments);
   }
 
   Message.prototype.urlRoot = "/message";
+
+  Message.prototype.bare = function() {
+    var key, page, user;
+    key = null;
+    if (this.get('user_id') === App.I.get('id') && this.get('destination_id') === App.I.get('id')) {
+      key = App.I.get('mainkey');
+    } else if (this.get('destination_type') === 'user') {
+      user = this.get('user_id') !== App.I.get('id') ? App.Users.findWhere({
+        id: this.get('user_id')
+      }) : App.Users.findWhere({
+        id: this.get('destination_id')
+      });
+      key = user.get('shared');
+    } else if (this.get('destination_type') === 'page') {
+      page = App.Pages.findWhere({
+        id: this.get('destination_id')
+      });
+      key = page.get('key');
+    } else {
+      return console.log('The message type is invalid');
+    }
+    return this.set({
+      content: App.S.bare_text(key, this.get('hidden_content'))
+    });
+  };
 
   return Message;
 
@@ -733,6 +725,22 @@ App.Models.Page = (function(_super) {
 
   Page.prototype.toJSON = function() {
     return this.pick("name", "hidden_key");
+  };
+
+  Page.prototype.bare = function() {
+    var user;
+    if (this.get('user_id') === App.I.get('id')) {
+      return this.set({
+        key: App.S.bare(App.I.get('mainkey'), this.get('hidden_key'))
+      });
+    } else {
+      user = App.Users.findWhere({
+        id: this.get('user_id')
+      });
+      return this.set({
+        key: App.S.bare(user.get('shared'), this.get('hidden_key'))
+      });
+    }
   };
 
   return Page;
@@ -769,10 +777,6 @@ App.Models.User = (function(_super) {
 
   User.prototype.idAttribute = "pseudo";
 
-  User.prototype.toJSON = function() {
-    return this.pick("id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey");
-  };
-
   User.prototype.shared = function() {
     var public_point, shared_point;
     public_point = App.S.curve.fromBits(from_b64(this.get('pubkey')));
@@ -793,7 +797,11 @@ App.Models.I = (function(_super) {
     return I.__super__.constructor.apply(this, arguments);
   }
 
-  I.prototype.auth = function() {
+  I.prototype.toJSON = function() {
+    return this.pick("id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey");
+  };
+
+  I.prototype.compute_secrets = function() {
     var cipher, key;
     key = sjcl.misc.pbkdf2(this.get('password'), this.get('pseudo'));
     cipher = new sjcl.cipher.aes(key);
@@ -838,6 +846,16 @@ App.Models.I = (function(_super) {
     return this.set({
       mainkey: App.S.bare(this.get('local_secret'), this.get('hidden_mainkey'))
     });
+  };
+
+  I.prototype.login = function(cb) {
+    return $.ajax({
+      url: "/login",
+      type: "POST",
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify(this)
+    }).success(cb);
   };
 
   return I;
@@ -985,27 +1003,25 @@ Router = (function(_super) {
     });
   };
 
-  Router.prototype.fetched = false;
-
   Router.prototype.index = function() {
-    App.Content = new App.Views.log({
+    this.view = new App.Views.Index({
       el: $("#content")
     });
-    return App.Content.render();
+    return this.view.render();
   };
 
   Router.prototype.home = function() {
     if (!App.I) {
       return this.show("");
     }
-    if (App.Content) {
-      App.Content.undelegateEvents();
+    if (this.view) {
+      this.view.undelegateEvents();
     }
     App.Users.add(App.I);
-    App.Content = new App.Views.home({
+    this.view = new App.Views.home({
       el: $("#content")
     });
-    return App.Content.render();
+    return this.view.render();
   };
 
   Router.prototype.userTalk = function(id) {
@@ -1013,18 +1029,18 @@ Router = (function(_super) {
     if (!App.I) {
       return this.show("");
     }
-    if (App.Content) {
-      App.Content.undelegateEvents();
+    if (this.view) {
+      this.view.undelegateEvents();
     }
     model = App.Users.findWhere({
       id: id
     });
     if (model) {
-      App.Content = new App.Views.userTalk({
+      this.view = new App.Views.userTalk({
         el: $("#content"),
         model: model
       });
-      return App.Content.render();
+      return this.view.render();
     } else {
       console.log("user not found !");
       return this.show("home");
@@ -1036,22 +1052,17 @@ Router = (function(_super) {
     if (!App.I) {
       return this.show("");
     }
-    if (App.Content) {
-      App.Content.undelegateEvents();
+    if (this.view) {
+      this.view.undelegateEvents();
     }
     model = App.Pages.findWhere({
       id: id
     });
-    if (model) {
-      App.Content = new App.Views.pageTalk({
-        el: $("#content"),
-        model: model
-      });
-      return App.Content.render();
-    } else {
-      console.log("page not found !");
-      return this.show("home");
-    }
+    this.view = new App.Views.pageTalk({
+      el: $("#content"),
+      model: model
+    });
+    return this.view.render();
   };
 
   return Router;

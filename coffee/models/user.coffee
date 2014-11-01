@@ -4,9 +4,6 @@ class App.Models.User extends Backbone.Model
 
   idAttribute: "pseudo"
 
-  toJSON: ->
-    @pick "id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey"
-
   shared: ->
     public_point = App.S.curve.fromBits(from_b64(@get('pubkey')))
     shared_point = public_point.mult(App.I.get('seckey'))
@@ -14,7 +11,10 @@ class App.Models.User extends Backbone.Model
 
 class App.Models.I extends App.Models.User
 
-  auth: ->
+  toJSON: ->
+    @pick "id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey"
+
+  compute_secrets: ->
     key    = sjcl.misc.pbkdf2(@get('password'), @get('pseudo'))
     cipher = new sjcl.cipher.aes(key)
     @set 'local_secret', sjcl.bitArray.concat(cipher.encrypt(App.S.x00), cipher.encrypt(App.S.x01))
@@ -38,3 +38,12 @@ class App.Models.I extends App.Models.User
 
   bare_mainkey: ->
     @set mainkey: App.S.bare(@get('local_secret'), @get('hidden_mainkey'))
+
+  login: (cb) ->
+    $.ajax(
+      url: "/login"
+      type: "POST"
+      contentType: 'application/json'
+      dataType: 'json'
+      data: JSON.stringify(@)
+    ).success(cb)

@@ -9,47 +9,40 @@ class Router extends Backbone.Router
   show: (route) =>
     @navigate(route, {trigger: true, replace: true})
 
-  fetched: false
-
   index: =>
-    App.Content = new App.Views.log(el: $("#content"))
-    App.Content.render()
+    @view = new App.Views.Index(el: $("#content"))
+    @view.render()
 
     # XXX Si localstorage -> reconnexion
 
   home: =>
     return @show("") unless App.I
-    App.Content.undelegateEvents() if App.Content
+    @view.undelegateEvents() if @view
 
     App.Users.add(App.I)
-    App.Content = new App.Views.home(el: $("#content"))
-    App.Content.render()
+    @view = new App.Views.home(el: $("#content"))
+    @view.render()
 
   userTalk: (id) =>
     return @show("") unless App.I
-    App.Content.undelegateEvents() if App.Content
+    @view.undelegateEvents() if @view
 
     model = App.Users.findWhere(id: id)
 
     if model
-      App.Content = new App.Views.userTalk(el: $("#content"), model: model)
-      App.Content.render()
+      @view = new App.Views.userTalk(el: $("#content"), model: model)
+      @view.render()
     else
       console.log "user not found !"
       @show("home")
 
   pageTalk: (id) =>
     return @show("") unless App.I
-    App.Content.undelegateEvents() if App.Content
+    @view.undelegateEvents() if @view
 
     model = App.Pages.findWhere(id: id)
-
-    if model
-      App.Content = new App.Views.pageTalk(el: $("#content"), model: model)
-      App.Content.render()
-    else
-      console.log "page not found !"
-      @show("home")
+    @view = new App.Views.pageTalk(el: $("#content"), model: model)
+    @view.render()
 
 
 App.Router = new Router
