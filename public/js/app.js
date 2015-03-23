@@ -1,10 +1,12 @@
-var App, from_b64, from_hex, from_utf8, to_b64, to_hex, to_utf8;
+var App;
 
 App = {
   Models: {},
   Collections: {},
   Views: {}
 };
+
+var from_b64, from_hex, from_utf8, to_b64, to_hex, to_utf8;
 
 to_b64 = function(bin) {
   return sjcl.codec.base64.fromBits(bin).replace(/\//g, '_').replace(/\+/g, '-');
@@ -100,137 +102,6 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.groupList = (function(_super) {
-  __extends(groupList, _super);
-
-  function groupList() {
-    this.search_group = __bind(this.search_group, this);
-    this.render = __bind(this.render, this);
-    return groupList.__super__.constructor.apply(this, arguments);
-  }
-
-  groupList.prototype.render = function() {
-    var template;
-    template = Handlebars.compile($("#groupListTemplate").html());
-    this.$el.html(template({
-      groups: App.Collections.Groups.toJSON()
-    }));
-    return this;
-  };
-
-  groupList.prototype.events = {
-    'keypress #search_group_input': 'search_group'
-  };
-
-  groupList.prototype.search_group = function(e) {
-    var group, name;
-    if (e.which === 13) {
-      name = $("#search_group_input").val();
-      group = new App.Models.Group({
-        name: name
-      });
-      group.save();
-      group.on('error', (function(_this) {
-        return function() {
-          return alert("Can't save...");
-        };
-      })(this));
-      return group.on('sync', (function(_this) {
-        return function() {
-          $("#search_group_input").val("");
-          App.Collections.Groups.add(group);
-          return _this.render();
-        };
-      })(this));
-    }
-  };
-
-  return groupList;
-
-})(Backbone.View);
-
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-App.Views.groupTalk = (function(_super) {
-  __extends(groupTalk, _super);
-
-  function groupTalk() {
-    this.go_home = __bind(this.go_home, this);
-    this.talk = __bind(this.talk, this);
-    this.render = __bind(this.render, this);
-    this.selected_messages = __bind(this.selected_messages, this);
-    return groupTalk.__super__.constructor.apply(this, arguments);
-  }
-
-  groupTalk.prototype.selected_messages = function() {
-    var messages;
-    messages = new App.Collections.messages();
-    messages.push(App.Collections.Messages.where({
-      destination_type: 'group',
-      destination_id: this.model.get('id')
-    }));
-    return messages;
-  };
-
-  groupTalk.prototype.render = function() {
-    var template;
-    template = Handlebars.compile($("#groupTalkTemplate").html());
-    this.$el.html(template({
-      group: this.model.attributes
-    }));
-    $("textarea").autosize();
-    App.Views.MessageList = new App.Views.messageList({
-      el: $("#messageList"),
-      collection: this.selected_messages()
-    });
-    return App.Views.MessageList.render();
-  };
-
-  groupTalk.prototype.events = {
-    'click #send_message': 'talk',
-    'click #back_button': 'go_home'
-  };
-
-  groupTalk.prototype.talk = function() {
-    var hidden_content, message;
-    hidden_content = $("#message_input").val();
-    message = new App.Models.Message({
-      destination_type: "group",
-      destination_id: this.model.get('id'),
-      hidden_content: hidden_content
-    });
-    message.on('error', (function(_this) {
-      return function() {
-        return alert("Sending error");
-      };
-    })(this));
-    message.on('sync', (function(_this) {
-      return function() {
-        console.log("sync");
-        console.log(message);
-        App.Collections.Messages.add(message);
-        App.Views.MessageList.collection.push(message);
-        App.Views.MessageList.render();
-        return $("#message_input").val("");
-      };
-    })(this));
-    return message.save();
-  };
-
-  groupTalk.prototype.go_home = function() {
-    return App.Router.show("home");
-  };
-
-  return groupTalk;
-
-})(Backbone.View);
-
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
 App.Views.home = (function(_super) {
   __extends(home, _super);
 
@@ -247,14 +118,14 @@ App.Views.home = (function(_super) {
     App.Views.UserList.render();
     App.Views.MessageList = new App.Views.messageList({
       el: $("#messageList"),
-      collection: App.Collections.Messages
+      collection: App.Messages
     });
     App.Views.MessageList.render();
-    App.Views.GroupList = new App.Views.groupList({
-      el: $("#groupList"),
-      collection: App.Collections.Groups
+    App.Views.PageList = new App.Views.pageList({
+      el: $("#pageList"),
+      collection: App.Pages
     });
-    App.Views.GroupList.render();
+    App.Views.PageList.render();
     return this;
   };
 
@@ -266,35 +137,37 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.log = (function(_super) {
-  __extends(log, _super);
+App.Views.Index = (function(_super) {
+  __extends(Index, _super);
 
-  function log() {
+  function Index() {
+    this.auto_signin = __bind(this.auto_signin, this);
     this.signin = __bind(this.signin, this);
     this.signup = __bind(this.signup, this);
-    this.load_user = __bind(this.load_user, this);
+    this.store_login = __bind(this.store_login, this);
+    this.load_data = __bind(this.load_data, this);
+    this.init_user = __bind(this.init_user, this);
     this.hash_file = __bind(this.hash_file, this);
     this.render = __bind(this.render, this);
-    return log.__super__.constructor.apply(this, arguments);
+    return Index.__super__.constructor.apply(this, arguments);
   }
 
-  log.prototype.render = function() {
+  Index.prototype.render = function() {
     this.$el.html($("#logViewTemplate").html());
     return this;
   };
 
-  log.prototype.events = {
+  Index.prototype.events = {
     'change #file_password_input': 'hash_file',
     'click #signin': 'signin',
     'click #signup': 'signup'
   };
 
-  log.prototype.hash_file = function(e) {
-    var file, template;
+  Index.prototype.hash_file = function(e) {
+    var template;
     template = $("#StartHashFileTemplate").html();
     this.$("#file_password_input").replaceWith(_.template(template));
-    file = e.target.files[0];
-    return FileHasher(file, function(result) {
+    return FileHasher(e.target.files[0], function(result) {
       template = $("#EndHashFileTemplate").html();
       this.$(".progress").replaceWith(_.template(template));
       this.$(".progress").addClass("progress-bar-success");
@@ -302,50 +175,94 @@ App.Views.log = (function(_super) {
     });
   };
 
-  log.prototype.load_user = function() {
-    var password, sha;
-    App.I = new App.Models.User({
-      pseudo: $('#pseudo_input').val(),
-      string_password: $('#string_password_input').val(),
-      file_password: $('#file_password_result_input').val()
-    });
+  Index.prototype.init_user = function() {
+    var sha;
     sha = new sjcl.hash.sha256();
-    sha.update(App.I.get('file_password'));
-    sha.update(App.I.get('string_password'));
-    password = sha.finalize();
-    App.I.set({
-      password: password
-    }).auth();
-    App.I.on('error', (function(_this) {
+    sha.update($('#string_password_input').val());
+    sha.update($('#file_password_result_input').val());
+    App.I = new App.Models.I({
+      pseudo: $('#pseudo_input').val(),
+      password: sha.finalize()
+    });
+    return App.I.compute_secrets();
+  };
+
+  Index.prototype.load_data = function(res) {
+    App.I.set(res.I).bare_mainkey().bare_ecdh();
+    App.Users.push(App.I);
+    App.Users.push(res.users);
+    App.PageLinks.push(res.pageLinks);
+    App.Pages.push(res.created_pages);
+    App.Pages.push(res.accessible_pages);
+    return App.Messages.push(res.messages);
+  };
+
+  Index.prototype.bare_data = function() {
+    App.Users.each(function(user) {
+      return user.shared();
+    });
+    App.Pages.each(function(page) {
+      return page.bare();
+    });
+    return App.Messages.each(function(message) {
+      return message.bare();
+    });
+  };
+
+  Index.prototype.store_login = function() {
+    localStorage.setItem("pseudo", App.I.get("pseudo"));
+    localStorage.setItem("local_secret", to_b64(App.I.get("local_secret")));
+    return localStorage.setItem("remote_secret", App.I.get("remote_secret"));
+  };
+
+  Index.prototype.signup = function() {
+    this.init_user();
+    App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
+    App.I.isNew = function() {
+      return true;
+    };
+    return App.I.on('error', (function(_this) {
       return function() {
         return alert("Login error...");
       };
-    })(this));
-    return App.I.on('sync', (function(_this) {
+    })(this)).on('sync', (function(_this) {
       return function() {
+        if ($("#remember_input")[0].checked) {
+          _this.store_login();
+        }
+        return App.Router.show("home");
+      };
+    })(this)).save();
+  };
+
+  Index.prototype.signin = function() {
+    this.init_user();
+    return App.I.login((function(_this) {
+      return function(res) {
+        if ($("#remember_input")[0].checked) {
+          _this.store_login();
+        }
+        _this.load_data(res);
+        _this.bare_data();
         return App.Router.show("home");
       };
     })(this));
   };
 
-  log.prototype.signup = function() {
-    this.load_user();
-    App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
-    App.I.isNew = function() {
-      return true;
-    };
-    return App.I.save();
+  Index.prototype.auto_signin = function() {
+    return App.I.login((function(_this) {
+      return function(res) {
+        if ($("#remember_input")[0].checked) {
+          _this.store_login();
+        }
+        _this.load_data(res);
+        _this.bare_data();
+        return App.Router.show("home");
+      };
+    })(this));
   };
 
-  log.prototype.signin = function() {
-    this.load_user();
-    App.I.isNew = function() {
-      return false;
-    };
-    return App.I.save();
-  };
-
-  return log;
+  return Index;
 
 })(Backbone.View);
 
@@ -358,32 +275,35 @@ App.Views.messageList = (function(_super) {
 
   function messageList() {
     this.render = __bind(this.render, this);
+    this.process_collection = __bind(this.process_collection, this);
     return messageList.__super__.constructor.apply(this, arguments);
   }
 
-  messageList.prototype.render = function() {
-    var destination, message, messages, template, user, _i, _len;
-    this.collection.sort();
-    messages = this.collection.toJSON();
+  messageList.prototype.process_collection = function() {
+    var destination, message, messages, user, _i, _len;
+    messages = this.collection.sort().toJSON();
     for (_i = 0, _len = messages.length; _i < _len; _i++) {
       message = messages[_i];
-      console.log(message);
-      user = App.Collections.Users.findWhere({
+      user = App.Users.findWhere({
         id: message.user_id
       });
-      destination = message.destination_type === "user" ? App.Collections.Users.findWhere({
+      destination = message.destination_type === "user" ? App.Users.findWhere({
         id: message.destination_id
-      }) : (console.log("find group"), App.Collections.Groups.findWhere({
+      }) : App.Pages.findWhere({
         id: message.destination_id
-      }));
-      console.log(destination);
+      });
       message.source = user.attributes;
       message.destination = destination.attributes;
       message.createdAt = (new Date(message.createdAt)).toLocaleString();
     }
+    return messages;
+  };
+
+  messageList.prototype.render = function() {
+    var template;
     template = Handlebars.compile($("#messageListTemplate").html());
     this.$el.html(template({
-      messages: messages
+      messages: this.process_collection()
     }));
     return this;
   };
@@ -396,11 +316,263 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+App.Views.pageLinkList = (function(_super) {
+  __extends(pageLinkList, _super);
+
+  function pageLinkList() {
+    this["delete"] = __bind(this["delete"], this);
+    this.create = __bind(this.create, this);
+    this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
+    this.initialize = __bind(this.initialize, this);
+    return pageLinkList.__super__.constructor.apply(this, arguments);
+  }
+
+  pageLinkList.prototype.initialize = function() {
+    this.listenTo(App.PageLinks, 'add', this.render);
+    return this.listenTo(App.PageLinks, 'remove', this.render);
+  };
+
+  pageLinkList.prototype.page_users = function() {
+    var users;
+    users = [];
+    App.Users.each((function(_this) {
+      return function(user) {
+        var link, tmp;
+        tmp = user.pick('id', 'pseudo');
+        if (_this.model.get('user_id') === user.get('id')) {
+          tmp.creator = true;
+        }
+        link = App.PageLinks.findWhere({
+          page_id: _this.model.get('id'),
+          user_id: user.get('id')
+        });
+        if (link) {
+          tmp.auth = true;
+        }
+        return users.push(tmp);
+      };
+    })(this));
+    return users;
+  };
+
+  pageLinkList.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#pageLinkListTemplate").html());
+    this.$el.html(template({
+      users: this.page_users()
+    }));
+    return this;
+  };
+
+  pageLinkList.prototype.events = {
+    'click .create': 'create',
+    'click .delete': 'delete'
+  };
+
+  pageLinkList.prototype.create = function(e) {
+    var hidden_key, page, page_id, user, user_id;
+    page_id = this.model.get('id');
+    user_id = $(e.target).data('id');
+    user = App.Users.findWhere({
+      id: user_id
+    });
+    page = App.Pages.findWhere({
+      id: page_id
+    });
+    hidden_key = App.S.hide(user.get('shared'), page.get('key'));
+    App.PageLinks.create({
+      page_id: page_id,
+      user_id: user_id,
+      hidden_key: hidden_key
+    });
+    return false;
+  };
+
+  pageLinkList.prototype["delete"] = function(e) {
+    App.PageLinks.findWhere({
+      page_id: this.model.get('id'),
+      user_id: $(e.target).data('id')
+    }).destroy();
+    return false;
+  };
+
+  return pageLinkList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Views.pageList = (function(_super) {
+  __extends(pageList, _super);
+
+  function pageList() {
+    this.new_page = __bind(this.new_page, this);
+    this.create_page = __bind(this.create_page, this);
+    this.render = __bind(this.render, this);
+    this.processed_pages = __bind(this.processed_pages, this);
+    return pageList.__super__.constructor.apply(this, arguments);
+  }
+
+  pageList.prototype.processed_pages = function() {
+    var pages;
+    pages = [];
+    App.Pages.each(function(page) {
+      var tmp, user;
+      tmp = _.clone(page.attributes);
+      user = App.Users.findWhere({
+        id: tmp.user_id
+      });
+      tmp.user_name = user.get('pseudo');
+      return pages.push(tmp);
+    });
+    return pages;
+  };
+
+  pageList.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#pageListTemplate").html());
+    this.$el.html(template({
+      pages: this.processed_pages()
+    }));
+    return this;
+  };
+
+  pageList.prototype.events = {
+    'keypress #create_page_input': 'create_page'
+  };
+
+  pageList.prototype.create_page = function(e) {
+    var page;
+    if (e.which === 13) {
+      page = this.new_page($("#create_page_input").val());
+      page.on('error', (function(_this) {
+        return function() {
+          return alert("Can't save...");
+        };
+      })(this));
+      page.on('sync', (function(_this) {
+        return function() {
+          $("#create_page_input").val("");
+          App.Pages.add(page);
+          return _this.render();
+        };
+      })(this));
+      return page.save();
+    }
+  };
+
+  pageList.prototype.new_page = function(name) {
+    var key;
+    key = sjcl.random.randomWords(8);
+    return new App.Models.Page({
+      hidden_key: App.S.hide(App.I.get('mainkey'), key),
+      name: name,
+      key: key
+    });
+  };
+
+  return pageList;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Views.pageTalk = (function(_super) {
+  __extends(pageTalk, _super);
+
+  function pageTalk() {
+    this.go_home = __bind(this.go_home, this);
+    this.talk = __bind(this.talk, this);
+    this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
+    return pageTalk.__super__.constructor.apply(this, arguments);
+  }
+
+  pageTalk.prototype.page_users = function() {
+    return _.map(App.Users.toJSON(), function(user) {
+      var link;
+      link = App.pageLinks.where({
+        page_id: this.model.get('id'),
+        user_id: user.id
+      });
+      if (link) {
+        user.auth = true;
+      }
+      return user;
+    });
+  };
+
+  pageTalk.prototype.render = function() {
+    var template;
+    template = Handlebars.compile($("#pageTalkTemplate").html());
+    this.$el.html(template({
+      page: this.model.attributes
+    }));
+    $("textarea").autosize();
+    this.messageList = new App.Views.messageList({
+      el: $("#messageList"),
+      collection: App.Messages.where_page(this.model.get('id'))
+    });
+    this.pageLinkList = new App.Views.pageLinkList({
+      el: $("#pageLinkList"),
+      model: this.model
+    });
+    this.messageList.render();
+    return this.pageLinkList.render();
+  };
+
+  pageTalk.prototype.events = {
+    'click #send_message': 'talk',
+    'click #back_button': 'go_home'
+  };
+
+  pageTalk.prototype.talk = function() {
+    var content, hidden_content, message;
+    content = $("#message_input").val();
+    hidden_content = App.S.hide_text(this.model.get('key'), content);
+    message = new App.Models.Message({
+      destination_type: "page",
+      destination_id: this.model.get('id'),
+      hidden_content: hidden_content,
+      content: content
+    });
+    return message.on('error', (function(_this) {
+      return function() {
+        return alert("Sending error");
+      };
+    })(this)).on('sync', (function(_this) {
+      return function() {
+        App.Messages.add(message);
+        _this.messageList.collection.push(message);
+        _this.messageList.render();
+        return $("#message_input").val("");
+      };
+    })(this)).save();
+  };
+
+  pageTalk.prototype.go_home = function() {
+    return App.Router.show("home");
+  };
+
+  return pageTalk;
+
+})(Backbone.View);
+
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
 App.Views.userList = (function(_super) {
   __extends(userList, _super);
 
   function userList() {
     this.search_user = __bind(this.search_user, this);
+    this.keypress = __bind(this.keypress, this);
     this.render = __bind(this.render, this);
     return userList.__super__.constructor.apply(this, arguments);
   }
@@ -409,36 +581,38 @@ App.Views.userList = (function(_super) {
     var template;
     template = Handlebars.compile($("#userListTemplate").html());
     this.$el.html(template({
-      users: App.Collections.Users.toJSON()
+      users: App.Users.toJSON()
     }));
     return this;
   };
 
   userList.prototype.events = {
-    'keypress #search_user_input': 'search_user'
+    'keypress #search_user_input': 'keypress'
   };
 
-  userList.prototype.search_user = function(e) {
-    var pseudo, user;
+  userList.prototype.keypress = function(e) {
     if (e.which === 13) {
-      pseudo = $("#search_user_input").val();
-      user = new App.Models.User({
-        pseudo: pseudo
-      });
-      user.fetch();
-      user.on('error', (function(_this) {
-        return function() {
-          return alert("Not found...");
-        };
-      })(this));
-      return user.on('sync', (function(_this) {
-        return function() {
-          $("#search_user_input").val("");
-          App.Collections.Users.add(user);
-          return _this.render();
-        };
-      })(this));
+      return this.search_user($("#search_user_input").val());
     }
+  };
+
+  userList.prototype.search_user = function(pseudo) {
+    var user;
+    user = new App.Models.User({
+      pseudo: pseudo
+    });
+    return user.on('error', (function(_this) {
+      return function() {
+        return alert("Not found...");
+      };
+    })(this)).on('sync', (function(_this) {
+      return function() {
+        $("#search_user_input").val("");
+        user.shared();
+        App.Users.add(user);
+        return _this.render();
+      };
+    })(this)).fetch();
   };
 
   return userList;
@@ -453,27 +627,52 @@ App.Views.userTalk = (function(_super) {
   __extends(userTalk, _super);
 
   function userTalk() {
-    this.go_home = __bind(this.go_home, this);
-    this.talk = __bind(this.talk, this);
     this.render = __bind(this.render, this);
-    this.selected_messages = __bind(this.selected_messages, this);
+    this.go_home = __bind(this.go_home, this);
+    this.hide_message = __bind(this.hide_message, this);
+    this.send_message = __bind(this.send_message, this);
     return userTalk.__super__.constructor.apply(this, arguments);
   }
 
-  userTalk.prototype.selected_messages = function() {
-    var messages;
-    messages = new App.Collections.messages();
-    messages.push(App.Collections.Messages.where({
-      destination_type: 'user',
-      user_id: App.I.get('id'),
-      destination_id: this.model.get('id')
-    }));
-    messages.push(App.Collections.Messages.where({
-      destination_type: 'user',
-      user_id: this.model.get('id'),
-      destination_id: App.I.get('id')
-    }));
-    return messages;
+  userTalk.prototype.events = {
+    'click #send_message': 'send_message',
+    'click #back_button': 'go_home'
+  };
+
+  userTalk.prototype.send_message = function() {
+    var content, hidden_content, message;
+    content = $("#message_input").val();
+    hidden_content = this.hide_message(content);
+    message = new App.Models.Message({
+      destination_type: "user",
+      destination_id: this.model.get('id'),
+      hidden_content: hidden_content,
+      content: content
+    });
+    return message.on('error', (function(_this) {
+      return function() {
+        return alert("Sending error");
+      };
+    })(this)).on('sync', (function(_this) {
+      return function() {
+        App.Messages.add(message);
+        _this.messageList.collection.push(message);
+        _this.messageList.render();
+        return $("#message_input").val("");
+      };
+    })(this)).save();
+  };
+
+  userTalk.prototype.hide_message = function(content) {
+    if (this.model.get('id') === App.I.get('id')) {
+      return App.S.hide_text(App.I.get('mainkey'), content);
+    } else {
+      return App.S.hide_text(this.model.get('shared'), content);
+    }
+  };
+
+  userTalk.prototype.go_home = function() {
+    return App.Router.show("home");
   };
 
   userTalk.prototype.render = function() {
@@ -483,79 +682,109 @@ App.Views.userTalk = (function(_super) {
       user: this.model.attributes
     }));
     $("textarea").autosize();
-    App.Views.MessageList = new App.Views.messageList({
+    this.messageList = new App.Views.messageList({
       el: $("#messageList"),
-      collection: this.selected_messages()
+      collection: App.Messages.where_user(this.model.get('id'))
     });
-    return App.Views.MessageList.render();
-  };
-
-  userTalk.prototype.events = {
-    'click #send_message': 'talk',
-    'click #back_button': 'go_home'
-  };
-
-  userTalk.prototype.talk = function() {
-    var hidden_content, message;
-    hidden_content = $("#message_input").val();
-    message = new App.Models.Message({
-      destination_type: "user",
-      destination_id: this.model.get('id'),
-      hidden_content: hidden_content
-    });
-    message.on('error', (function(_this) {
-      return function() {
-        return alert("Sending error");
-      };
-    })(this));
-    message.on('sync', (function(_this) {
-      return function() {
-        App.Collections.Messages.add(message);
-        App.Views.MessageList.collection.push(message);
-        App.Views.MessageList.render();
-        return $("#message_input").val("");
-      };
-    })(this));
-    return message.save();
-  };
-
-  userTalk.prototype.go_home = function() {
-    return App.Router.show("home");
+    return this.messageList.render();
   };
 
   return userTalk;
 
 })(Backbone.View);
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-App.Models.Group = (function(_super) {
-  __extends(Group, _super);
-
-  function Group() {
-    return Group.__super__.constructor.apply(this, arguments);
-  }
-
-  Group.prototype.urlRoot = "/group";
-
-  return Group;
-
-})(Backbone.Model);
-
-var __hasProp = {}.hasOwnProperty,
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
 App.Models.Message = (function(_super) {
   __extends(Message, _super);
 
   function Message() {
+    this.bare = __bind(this.bare, this);
     return Message.__super__.constructor.apply(this, arguments);
   }
 
   Message.prototype.urlRoot = "/message";
 
+  Message.prototype.bare = function() {
+    var key, page, user;
+    key = null;
+    if (this.get('user_id') === App.I.get('id') && this.get('destination_id') === App.I.get('id')) {
+      key = App.I.get('mainkey');
+    } else if (this.get('destination_type') === 'user') {
+      user = this.get('user_id') !== App.I.get('id') ? App.Users.findWhere({
+        id: this.get('user_id')
+      }) : App.Users.findWhere({
+        id: this.get('destination_id')
+      });
+      key = user.get('shared');
+    } else if (this.get('destination_type') === 'page') {
+      page = App.Pages.findWhere({
+        id: this.get('destination_id')
+      });
+      key = page.get('key');
+    } else {
+      return console.log('The message type is invalid');
+    }
+    return this.set({
+      content: App.S.bare_text(key, this.get('hidden_content'))
+    });
+  };
+
   return Message;
+
+})(Backbone.Model);
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Models.Page = (function(_super) {
+  __extends(Page, _super);
+
+  function Page() {
+    return Page.__super__.constructor.apply(this, arguments);
+  }
+
+  Page.prototype.urlRoot = "/page";
+
+  Page.prototype.toJSON = function() {
+    return this.pick("name", "hidden_key");
+  };
+
+  Page.prototype.bare = function() {
+    var user;
+    if (this.get('user_id') === App.I.get('id')) {
+      return this.set({
+        key: App.S.bare(App.I.get('mainkey'), this.get('hidden_key'))
+      });
+    } else {
+      user = App.Users.findWhere({
+        id: this.get('user_id')
+      });
+      return this.set({
+        key: App.S.bare(user.get('shared'), this.get('hidden_key'))
+      });
+    }
+  };
+
+  return Page;
+
+})(Backbone.Model);
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Models.PageLink = (function(_super) {
+  __extends(PageLink, _super);
+
+  function PageLink() {
+    return PageLink.__super__.constructor.apply(this, arguments);
+  }
+
+  PageLink.prototype.urlRoot = "/pageLink";
+
+  return PageLink;
 
 })(Backbone.Model);
 
@@ -573,11 +802,31 @@ App.Models.User = (function(_super) {
 
   User.prototype.idAttribute = "pseudo";
 
-  User.prototype.toJSON = function() {
+  User.prototype.shared = function() {
+    var public_point, shared_point;
+    public_point = App.S.curve.fromBits(from_b64(this.get('pubkey')));
+    shared_point = public_point.mult(App.I.get('seckey'));
+    return this.set({
+      shared: sjcl.hash.sha256.hash(shared_point)
+    });
+  };
+
+  return User;
+
+})(Backbone.Model);
+
+App.Models.I = (function(_super) {
+  __extends(I, _super);
+
+  function I() {
+    return I.__super__.constructor.apply(this, arguments);
+  }
+
+  I.prototype.toJSON = function() {
     return this.pick("id", "pseudo", "pubkey", "remote_secret", "hidden_seckey", "hidden_mainkey");
   };
 
-  User.prototype.auth = function() {
+  I.prototype.compute_secrets = function() {
     var cipher, key;
     key = sjcl.misc.pbkdf2(this.get('password'), this.get('pseudo'));
     cipher = new sjcl.cipher.aes(key);
@@ -585,7 +834,7 @@ App.Models.User = (function(_super) {
     return this.set('remote_secret', to_b64(sjcl.bitArray.concat(cipher.encrypt(App.S.x02), cipher.encrypt(App.S.x03))));
   };
 
-  User.prototype.create_ecdh = function() {
+  I.prototype.create_ecdh = function() {
     this.set({
       seckey: sjcl.bn.random(App.S.curve.r, 6)
     });
@@ -594,135 +843,159 @@ App.Models.User = (function(_super) {
     });
   };
 
-  User.prototype.hide_ecdh = function() {
+  I.prototype.hide_ecdh = function() {
     return this.set({
       hidden_seckey: App.S.hide_seckey(this.get('local_secret'), this.get('seckey'))
     });
   };
 
-  User.prototype.bare_ecdh = function() {
+  I.prototype.bare_ecdh = function() {
     return this.set({
       seckey: App.S.bare_seckey(this.get('local_secret'), this.get('hidden_seckey'))
     });
   };
 
-  User.prototype.create_mainkey = function() {
+  I.prototype.create_mainkey = function() {
     return this.set({
       mainkey: sjcl.random.randomWords(8)
     });
   };
 
-  User.prototype.hide_mainkey = function() {
+  I.prototype.hide_mainkey = function() {
     return this.set({
       hidden_mainkey: App.S.hide(this.get('local_secret'), this.get('mainkey'))
     });
   };
 
-  User.prototype.bare_mainkey = function() {
+  I.prototype.bare_mainkey = function() {
     return this.set({
       mainkey: App.S.bare(this.get('local_secret'), this.get('hidden_mainkey'))
     });
   };
 
-  User.prototype.shared = function(user) {
-    var point;
-    point = App.S.curve.fromBits(from_b64(this.get('pubkey'))).mult(App.I.get('seckey'));
-    return this.set({
-      shared: sjcl.hash.sha256.hash(point.toBits())
-    });
+  I.prototype.login = function(cb) {
+    return $.ajax({
+      url: "/login",
+      type: "POST",
+      contentType: 'application/json',
+      dataType: 'json',
+      data: JSON.stringify(this)
+    }).success(cb);
   };
 
-  return User;
+  return I;
 
-})(Backbone.Model);
-
-
-/*
-  keys: ->
-    keys = App.M.Keys.filter((o)=> o.user_id == @get('id') || App.M.Keys.where(dest_id: @get('id')))
-
-  constructor: ->
-    super
-    unless @isNew()
-      @load()
-    else
-      @on 'sync', @load
-    @
-
-  load: =>
-    @bare_ecdh() if not @has('seckey') and @has('hidden_seckey')
-    @bare_mainkey() if not @has('mainkey') and @has('hidden_mainkey')
-    @shared() if not @has('shared') and @has('pubkey')
-
-  log: =>
-    shared = if @has('shared') then to_b64(@get('shared')) else "(null)"
- */
-
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-App.Collections.groups = (function(_super) {
-  __extends(groups, _super);
-
-  function groups() {
-    return groups.__super__.constructor.apply(this, arguments);
-  }
-
-  groups.prototype.model = App.Models.Group;
-
-  groups.prototype.url = '/groups';
-
-  return groups;
-
-})(Backbone.Collection);
-
-App.Collections.Groups = new App.Collections.groups();
+})(App.Models.User);
 
 var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.messages = (function(_super) {
-  __extends(messages, _super);
+App.Collections.Messages = (function(_super) {
+  __extends(Messages, _super);
 
-  function messages() {
+  function Messages() {
     this.comparator = __bind(this.comparator, this);
-    return messages.__super__.constructor.apply(this, arguments);
+    return Messages.__super__.constructor.apply(this, arguments);
   }
 
-  messages.prototype.model = App.Models.Message;
+  Messages.prototype.url = '/messages';
 
-  messages.prototype.url = '/messages';
+  Messages.prototype.model = App.Models.Message;
 
-  messages.prototype.comparator = function(a, b) {
+  Messages.prototype.comparator = function(a, b) {
     return (new Date(a.get('createdAt'))) < (new Date(b.get('createdAt')));
   };
 
-  return messages;
+  Messages.prototype.where_user = function(id) {
+    var messages;
+    messages = new App.Collections.Messages();
+    messages.push(this.where({
+      destination_type: 'user',
+      destination_id: id
+    }));
+    messages.push(App.Messages.where({
+      destination_type: 'user',
+      user_id: id
+    }));
+    return messages;
+  };
+
+  Messages.prototype.where_page = function(id) {
+    var messages;
+    messages = new App.Collections.Messages();
+    messages.push(this.where({
+      destination_type: 'page',
+      destination_id: id
+    }));
+    return messages;
+  };
+
+  return Messages;
 
 })(Backbone.Collection);
 
-App.Collections.Messages = new App.Collections.messages();
+App.Messages = new App.Collections.Messages();
 
 var __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.users = (function(_super) {
-  __extends(users, _super);
+App.Collections.PageLinks = (function(_super) {
+  __extends(PageLinks, _super);
 
-  function users() {
-    return users.__super__.constructor.apply(this, arguments);
+  function PageLinks() {
+    return PageLinks.__super__.constructor.apply(this, arguments);
   }
 
-  users.prototype.model = App.Models.User;
+  PageLinks.prototype.model = App.Models.PageLink;
 
-  users.prototype.url = '/users';
+  PageLinks.prototype.url = '/pageLinks';
 
-  return users;
+  return PageLinks;
 
 })(Backbone.Collection);
 
-App.Collections.Users = new App.Collections.users();
+App.PageLinks = new App.Collections.PageLinks();
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Collections.Pages = (function(_super) {
+  __extends(Pages, _super);
+
+  function Pages() {
+    return Pages.__super__.constructor.apply(this, arguments);
+  }
+
+  Pages.prototype.model = App.Models.Page;
+
+  Pages.prototype.url = '/pages';
+
+  return Pages;
+
+})(Backbone.Collection);
+
+App.Pages = new App.Collections.Pages();
+
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+App.Collections.Users = (function(_super) {
+  __extends(Users, _super);
+
+  function Users() {
+    return Users.__super__.constructor.apply(this, arguments);
+  }
+
+  Users.prototype.model = App.Models.User;
+
+  Users.prototype.url = '/users';
+
+  return Users;
+
+})(Backbone.Collection);
+
+App.Users = new App.Collections.Users();
 
 var Router,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -733,7 +1006,7 @@ Router = (function(_super) {
   __extends(Router, _super);
 
   function Router() {
-    this.groupTalk = __bind(this.groupTalk, this);
+    this.pageTalk = __bind(this.pageTalk, this);
     this.userTalk = __bind(this.userTalk, this);
     this.home = __bind(this.home, this);
     this.index = __bind(this.index, this);
@@ -745,7 +1018,7 @@ Router = (function(_super) {
     '': 'index',
     'home': 'home',
     'user/:id': 'userTalk',
-    'group/:id': 'groupTalk'
+    'page/:id': 'pageTalk'
   };
 
   Router.prototype.show = function(route) {
@@ -755,50 +1028,32 @@ Router = (function(_super) {
     });
   };
 
-  Router.prototype.fetched = false;
-
   Router.prototype.index = function() {
-    App.Content = new App.Views.log({
+    this.view = new App.Views.Index({
       el: $("#content")
     });
-    return App.Content.render();
+    this.view.render();
+    if (localStorage.length !== 0) {
+      return App.I = new App.Models.I({
+        pseudo: localStorage.getItem("pseudo"),
+        local_secret: from_b64(localStorage.getItem("local_secret")),
+        remote_secret: localStorage.getItem("remote_secret")
+      });
+    }
   };
 
   Router.prototype.home = function() {
     if (!App.I) {
       return this.show("");
     }
-    if (App.Content) {
-      App.Content.undelegateEvents();
+    if (this.view) {
+      this.view.undelegateEvents();
     }
-    if (this.fetched) {
-      App.Collections.Users.add(App.I);
-      App.Content = new App.Views.home({
-        el: $("#content")
-      });
-      return App.Content.render();
-    } else {
-      return App.Collections.Messages.fetch({
-        success: (function(_this) {
-          return function() {
-            return App.Collections.Users.fetch({
-              success: function() {
-                return App.Collections.Groups.fetch({
-                  success: function() {
-                    _this.fetched = true;
-                    App.Collections.Users.add(App.I);
-                    App.Content = new App.Views.home({
-                      el: $("#content")
-                    });
-                    return App.Content.render();
-                  }
-                });
-              }
-            });
-          };
-        })(this)
-      });
-    }
+    App.Users.add(App.I);
+    this.view = new App.Views.home({
+      el: $("#content")
+    });
+    return this.view.render();
   };
 
   Router.prototype.userTalk = function(id) {
@@ -806,45 +1061,40 @@ Router = (function(_super) {
     if (!App.I) {
       return this.show("");
     }
-    if (App.Content) {
-      App.Content.undelegateEvents();
+    if (this.view) {
+      this.view.undelegateEvents();
     }
-    model = App.Collections.Users.findWhere({
+    model = App.Users.findWhere({
       id: id
     });
     if (model) {
-      App.Content = new App.Views.userTalk({
+      this.view = new App.Views.userTalk({
         el: $("#content"),
         model: model
       });
-      return App.Content.render();
+      return this.view.render();
     } else {
       console.log("user not found !");
       return this.show("home");
     }
   };
 
-  Router.prototype.groupTalk = function(id) {
+  Router.prototype.pageTalk = function(id) {
     var model;
     if (!App.I) {
       return this.show("");
     }
-    if (App.Content) {
-      App.Content.undelegateEvents();
+    if (this.view) {
+      this.view.undelegateEvents();
     }
-    model = App.Collections.Groups.findWhere({
+    model = App.Pages.findWhere({
       id: id
     });
-    if (model) {
-      App.Content = new App.Views.groupTalk({
-        el: $("#content"),
-        model: model
-      });
-      return App.Content.render();
-    } else {
-      console.log("group not found !");
-      return this.show("home");
-    }
+    this.view = new App.Views.pageTalk({
+      el: $("#content"),
+      model: model
+    });
+    return this.view.render();
   };
 
   return Router;

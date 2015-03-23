@@ -37,21 +37,37 @@ server.use express.static(__dirname + '/../public')
 # Server routes
 # ###
 
+# ###
+# /login draft
+# [
+#   App.Controller.Users.auth,  // finish with req.data = {}; req.data.user = user
+#   App.Controller.Links.fetch,
+#   App.Controller.Pages.fetch,
+#   App.Controller.Messages.fetch,
+#   App.Controller.Users.fetch,
+#   App.Middleware.send_req_data
+# ]
+# ###
+
 server.post   '/user', App.Controllers.users.create
-server.put    '/user/:pseudo', App.Controllers.users.login
 server.get    '/user/:pseudo', App.Controllers.users.find
-# A terme a mettre dans /login
-server.get    '/users', App.Controllers.users.findAll
+
+server.post   '/login', [
+    App.Controllers.users.auth,
+    App.Controllers.pages.fetch_created,
+    App.Controllers.pages.fetch_accessibles,
+    App.Controllers.pageLinks.fetch,
+    App.Controllers.messages.fetch,
+    App.Controllers.users.fetch,
+    (req, res) -> res.json(req.data)
+  ]
 
 server.post   '/message', App.Controllers.messages.create
-# A terme a mettre dans /login
-server.get    '/messages', App.Controllers.messages.findAll
-
-
-server.post   '/group', App.Controllers.groups.create
-# A terme a mettre dans /login
-server.get    '/groups', App.Controllers.groups.findAll
-
+server.post   '/page', App.Controllers.pages.create
+# Maybe post '/page/:page_id/link'
+server.post   '/pageLink', App.Controllers.pageLinks.create
+# Maybe delete '/page/:page_id/link/:id'
+server.delete '/pageLink/:id', App.Controllers.pageLinks.delete
 
 # Sync DB, then start server
 sequelize.sync(force: true).error(->

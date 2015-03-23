@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.html",
   "scripts": {
-    "start": "cd server; coffee index.coffee",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cd server; coffee app.coffee",
+    "test": "casperjs test tests/{1,2,3}.coffee"
   },
   "author": "",
   "license": "ISC",

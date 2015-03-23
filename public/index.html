@@ -1,6 +1,7 @@
 <html lang="en">
 	<head>
     <meta charset="utf8">
+    <title>Safebook</title>
 
     <!-- CSS files -->
 		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
@@ -42,6 +43,10 @@
             You can use any file (picture, document, ...) but <b>make sure that you are the only owner of this file</b>
           </p>
         </div>
+        <div class="form-group">
+          <input type="checkbox" id="remember_input"></input>
+          <span>Remember me</span>
+        </div>
         <div class="col-sm-6">
           <button type="submit" id="signin" class="btn btn-block btn-success">Sign In</button>
         </div>
@@ -74,7 +79,7 @@
       <div class="col-sm-3">
         <div id="userList">
         </div>
-        <div id="groupList">
+        <div id="pageList">
         </div>
       </div>
       <div class="col-sm-9">
@@ -87,13 +92,11 @@
     <!-- User list template -->
     <script type="text/template" id="userListTemplate">
       <div class="panel panel-success">
-        <div class="panel-heading text-center">Users</div>
+        <div class="panel-heading text-center">Talks</div>
         <ul class="list-group">
           {{#each users}}
             <li class="text-center list-group-item">
-              <a href="#user/{{id}}">
-                {{pseudo}}
-              </a>
+              <a href="#user/{{id}}">{{pseudo}}</a>
               <span class="badge">0</span>
             </li>
           {{/each}}
@@ -104,20 +107,26 @@
       </div>
     </script>
 
-    <!-- Group list template -->
-    <script type="text/template" id="groupListTemplate">
+    <!-- Page list template -->
+    <script type="text/template" id="pageListTemplate">
       <div class="panel panel-success">
-        <div class="panel-heading text-center">Groups</div>
+        <div class="panel-heading text-center">Pages</div>
         <ul class="list-group">
-          {{#each groups}}
+          {{#each pages}}
             <li class="text-center list-group-item">
-              <a href="#group/{{id}}">
+              <a href="#page/{{id}}">
                 {{name}}
               </a>
+              (
+              <a href="#user/{{user_id}}">
+                {{user_name}}
+              </a>
+              )
+              <span class="badge">0</span>
             </li>
           {{/each}}
           <li class="list-group-item">
-            <input type="text" id="search_group_input" placeholder="Create a new group" class="form-control text-center"></input>
+            <input type="text" id="create_page_input" placeholder="Create a new group" class="form-control text-center"></input>
           </li>
         </ul>
       </div>
@@ -139,7 +148,7 @@
               </a>
             {{/if}}
             {{#if destination.name}}
-              <a href="#group/{{destination.id}}">
+              <a href="#page/{{destination.id}}">
                 {{destination.name}}
               </a>
             {{/if}}
@@ -147,7 +156,7 @@
             {{createdAt}}
           </div>
           <div class="panel-body">
-            {{hidden_content}}
+            {{content}}
           </div>
         </div>
       {{/each}}
@@ -182,20 +191,22 @@
       </div>
     </script>
 
-    <!-- GroupTalk template -->
-    <script type="text/template" id="groupTalkTemplate">
+    <!-- PageTalk template -->
+    <script type="text/template" id="pageTalkTemplate">
 
       <div class="col-sm-4">
         <div class="panel panel-success">
           <div class="panel-heading">
             <h3 class="panel-title text-center">
-              Group Talk
+              Page Talk
             </h3>
           </div>
           <div class="panel-body">
-            <p class="text-center">Name: <b>{{group.name}}</b></p>
-            <p class="text-center">Id: <b>{{group.id}}</b></p>
+            <p class="text-center">Name: <b>{{page.name}}</b></p>
+            <p class="text-center">Id: <b>{{page.id}}</b></p>
           </div>
+        </div>
+        <div id="pageLinkList">
         </div>
         <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
       </div>
@@ -208,6 +219,35 @@
 
         <div id="messageList">
         </div>
+      </div>
+    </script>
+
+    <!-- PageUserList template -->
+    <script type="text/template" id="pageLinkListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">
+          Page Users
+        </div>
+        <ul class="list-group">
+          {{#each users}}
+            <li class="text-center list-group-item">
+                <a href="#user/{{id}}">
+                  {{pseudo}}
+                </a>
+              <div class="pull-right">
+                {{#if creator}}
+                  (Creator)
+                {{else}}
+                  {{#if auth}}
+                    <a class="delete" data-id="{{id}}" href="#">(Remove)</a>
+                  {{else}}
+                    <a class="create" data-id="{{id}}" href="#">(Add)</a>
+                  {{/if}}
+                {{/if}}
+              </div>
+            </li>
+          {{/each}}
+        </ul>
       </div>
     </script>
 
