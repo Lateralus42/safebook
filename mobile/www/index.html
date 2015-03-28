@@ -1,0 +1,273 @@
+<html lang="en">
+	<head>
+    <meta charset="utf8">
+    <title>Safebook</title>
+
+    <!-- CSS files -->
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <!-- JS files -->
+    <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="js/jquery.autosize.js"></script>
+    <script type="text/javascript" src="js/handlebars-v2.0.0.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript" src="js/backbone.js"></script>
+    <script type="text/javascript" src="js/sjcl.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+
+    <!-- Login template -->
+    <script type="text/template" id="logViewTemplate">
+      <div class="col-sm-6 col-sm-offset-3">
+        <div class="form-group">
+          <label for="pseudo_input">
+            <u>A-Side</u>: Pseudo
+          </label>
+          <input type="text" id="pseudo_input" placeholder="Your Pseudo" class="form-control" autofocus></input>
+        </div>
+        <div class="form-group">
+          <label for="string_password_input">
+            <u>B-Side (1)</u>: Use a string as a password
+          </label>
+          <input type="password" id="string_password_input" placeholder="Password" class="form-control"></input>
+          <p class="help-block">
+            You need something random with at least <b>12 characters</b>, numbers and <b>other characters</b>
+          </p>
+        </div>
+        <div class="form-group">
+          <label for="file_password_input">
+            <u>B-Side (2)</u>: And/Or use a file as a password
+          </label>
+          <input type="file" id="file_password_input"></input>
+          <input type="hidden" id="file_password_result_input"></input>
+          <p class="help-block">
+            You can use any file (picture, document, ...) but <b>make sure that you are the only owner of this file</b>
+          </p>
+        </div>
+        <div class="form-group">
+          <input type="checkbox" id="remember_input"></input>
+          <span>Remember me</span>
+        </div>
+        <div class="col-sm-6">
+          <button type="submit" id="signin" class="btn btn-block btn-success">Sign In</button>
+        </div>
+        <div class="col-sm-6">
+          <button type="submit" id="signup" class="btn btn-block btn-warning">Sign Up</button>
+        </div>
+      </div>
+    </script>
+
+    <!-- Login file progress bar template 1 -->
+    <script type="text/template" id="StartHashFileTemplate">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+          0%
+        </div>
+      </div>
+    </script>
+
+    <!-- Login file progress bar template 2 -->
+    <script type="text/template" id="EndHashFileTemplate">
+      <div class="progress">
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+          100%
+        </div>
+      </div>
+    </script>
+
+    <!-- Home template -->
+    <script type="text/template" id="homeViewTemplate">
+      <div class="col-sm-3">
+        <div id="userList">
+        </div>
+        <div id="pageList">
+        </div>
+      </div>
+      <div class="col-sm-9">
+        <h2 class="text-center">Welcome Home !</h2>
+        <div id="messageList">
+        </div>
+      </div>
+    </script>
+
+    <!-- User list template -->
+    <script type="text/template" id="userListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Talks</div>
+        <ul class="list-group">
+          {{#each users}}
+            <li class="text-center list-group-item">
+              <a href="#user/{{id}}">{{pseudo}}</a>
+              <span class="badge">0</span>
+            </li>
+          {{/each}}
+          <li class="list-group-item">
+            <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
+          </li>
+        </ul>
+      </div>
+    </script>
+
+    <!-- Page list template -->
+    <script type="text/template" id="pageListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Pages</div>
+        <ul class="list-group">
+          {{#each pages}}
+            <li class="text-center list-group-item">
+              <a href="#page/{{id}}">
+                {{name}}
+              </a>
+              (
+              <a href="#user/{{user_id}}">
+                {{user_name}}
+              </a>
+              )
+              <span class="badge">0</span>
+            </li>
+          {{/each}}
+          <li class="list-group-item">
+            <input type="text" id="create_page_input" placeholder="Create a new group" class="form-control text-center"></input>
+          </li>
+        </ul>
+      </div>
+    </script>
+
+    <!-- Message list template -->
+    <script type="text/template" id="messageListTemplate">
+      {{#each messages}}
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            From
+            <a href="#user/{{source.id}}">
+              {{source.pseudo}}
+            </a>
+            to
+            {{#if destination.pseudo}}
+              <a href="#user/{{destination.id}}">
+                {{destination.pseudo}}
+              </a>
+            {{/if}}
+            {{#if destination.name}}
+              <a href="#page/{{destination.id}}">
+                {{destination.name}}
+              </a>
+            {{/if}}
+            at
+            {{createdAt}}
+          </div>
+          <div class="panel-body">
+            {{content}}
+          </div>
+        </div>
+      {{/each}}
+    </script>
+
+    <!-- UserTalk template -->
+    <script type="text/template" id="userTalkTemplate">
+
+      <div class="col-sm-4">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title text-center">
+              User Talk
+            </h3>
+          </div>
+          <div class="panel-body">
+            <p class="text-center">Pseudo: <b>{{user.pseudo}}</b></p>
+            <p class="text-center">Id: <b>{{user.id}}</b></p>
+          </div>
+        </div>
+        <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
+      </div>
+
+      <div class="col-sm-8">
+        <div class="well">
+          <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
+          <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
+        </div>
+
+        <div id="messageList">
+        </div>
+      </div>
+    </script>
+
+    <!-- PageTalk template -->
+    <script type="text/template" id="pageTalkTemplate">
+
+      <div class="col-sm-4">
+        <div class="panel panel-success">
+          <div class="panel-heading">
+            <h3 class="panel-title text-center">
+              Page Talk
+            </h3>
+          </div>
+          <div class="panel-body">
+            <p class="text-center">Name: <b>{{page.name}}</b></p>
+            <p class="text-center">Id: <b>{{page.id}}</b></p>
+          </div>
+        </div>
+        <div id="pageLinkList">
+        </div>
+        <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
+      </div>
+
+      <div class="col-sm-8">
+        <div class="well">
+          <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
+          <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
+        </div>
+
+        <div id="messageList">
+        </div>
+      </div>
+    </script>
+
+    <!-- PageUserList template -->
+    <script type="text/template" id="pageLinkListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">
+          Page Users
+        </div>
+        <ul class="list-group">
+          {{#each users}}
+            <li class="text-center list-group-item">
+                <a href="#user/{{id}}">
+                  {{pseudo}}
+                </a>
+              <div class="pull-right">
+                {{#if creator}}
+                  (Creator)
+                {{else}}
+                  {{#if auth}}
+                    <a class="delete" data-id="{{id}}" href="#">(Remove)</a>
+                  {{else}}
+                    <a class="create" data-id="{{id}}" href="#">(Add)</a>
+                  {{/if}}
+                {{/if}}
+              </div>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    </script>
+
+
+	</head>
+	<body class="container">
+
+    <div id="header" class="row">
+      <div class="col-sm-4">
+        <a href="#home">
+          <img src="logo.png" class="col-sm-offset-1" style="margin-bottom: 10px; margin-top: 10px">
+        </a>
+      </div>
+      <div class="col-sm-8">
+        <h1>This is the header !</h1>
+      </div>
+    </div>
+
+    <div id="content" class="row">
+    </div>
+
+  </body>
+</html>
