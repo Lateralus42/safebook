@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "grunt": "*",
+    "grunt-contrib-coffee": "*",
     "grunt-contrib-watch": "*",
-    "grunt-contrib-coffee": "*"
+    "grunt-shell": "^1.1.2"
   }
 }
