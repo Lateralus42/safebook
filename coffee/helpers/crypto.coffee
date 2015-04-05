@@ -34,8 +34,8 @@ App.S =
     iv = sjcl.random.randomWords(4)
     to_b64 sjcl.bitArray.concat(iv, App.S.encrypt(key, data, iv))
 
-  bare: (key, data) -> # (bin, b64) -> bin
-    data = from_b64(data)
+  bare: (key, data) -> # (bin, bin) -> bin
+    data = (data)
     iv = sjcl.bitArray.bitSlice(data, 0, 128)
     hidden_data = sjcl.bitArray.bitSlice(data, 128)
     App.S.decrypt(key, hidden_data, iv)
@@ -44,10 +44,10 @@ App.S =
     App.S.hide(key, from_utf8(text))
 
   bare_text: (key, data) -> # (bin, b64) -> utf8
-    to_utf8(App.S.bare(key, data))
+    to_utf8(App.S.bare(key, from_b64(data)))
 
   hide_seckey: (key, seckey) -> # (bin, sec) -> b64
     App.S.hide(key, seckey.toBits())
 
   bare_seckey: (key, data) -> # (bin, b64) -> sec
-    sjcl.bn.fromBits App.S.bare(key, data)
+    sjcl.bn.fromBits App.S.bare(key, from_b64(data))

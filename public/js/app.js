@@ -49,7 +49,7 @@ App.S = {
   },
   bare: function(key, data) {
     var hidden_data, iv;
-    data = from_b64(data);
+    data = data;
     iv = sjcl.bitArray.bitSlice(data, 0, 128);
     hidden_data = sjcl.bitArray.bitSlice(data, 128);
     return App.S.decrypt(key, hidden_data, iv);
@@ -58,13 +58,13 @@ App.S = {
     return App.S.hide(key, from_utf8(text));
   },
   bare_text: function(key, data) {
-    return to_utf8(App.S.bare(key, data));
+    return to_utf8(App.S.bare(key, from_b64(data)));
   },
   hide_seckey: function(key, seckey) {
     return App.S.hide(key, seckey.toBits());
   },
   bare_seckey: function(key, data) {
-    return sjcl.bn.fromBits(App.S.bare(key, data));
+    return sjcl.bn.fromBits(App.S.bare(key, from_b64(data)));
   }
 };
 
@@ -281,9 +281,13 @@ App.Views.messageList = (function(superClass) {
 
   messageList.prototype.process_collection = function() {
     var destination, i, len, message, messages, user;
+<<<<<<< HEAD
     messages = this.collection.sort().map(function(e) {
       return e.attributes;
     });
+=======
+    messages = this.collection.sort().toJSON();
+>>>>>>> modifs by Max
     for (i = 0, len = messages.length; i < len; i++) {
       message = messages[i];
       user = App.Users.findWhere({
@@ -704,7 +708,10 @@ App.Models.Message = (function(superClass) {
 
   function Message() {
     this.bare = bind(this.bare, this);
+<<<<<<< HEAD
     this.toJSON = bind(this.toJSON, this);
+=======
+>>>>>>> modifs by Max
     return Message.__super__.constructor.apply(this, arguments);
   }
 
