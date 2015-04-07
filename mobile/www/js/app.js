@@ -49,7 +49,7 @@ App.S = {
   },
   bare: function(key, data) {
     var hidden_data, iv;
-    data = data;
+    data = from_b64(data);
     iv = sjcl.bitArray.bitSlice(data, 0, 128);
     hidden_data = sjcl.bitArray.bitSlice(data, 128);
     return App.S.decrypt(key, hidden_data, iv);
@@ -58,13 +58,13 @@ App.S = {
     return App.S.hide(key, from_utf8(text));
   },
   bare_text: function(key, data) {
-    return to_utf8(App.S.bare(key, from_b64(data)));
+    return to_utf8(App.S.bare(key, data));
   },
   hide_seckey: function(key, seckey) {
     return App.S.hide(key, seckey.toBits());
   },
   bare_seckey: function(key, data) {
-    return sjcl.bn.fromBits(App.S.bare(key, from_b64(data)));
+    return sjcl.bn.fromBits(App.S.bare(key, data));
   }
 };
 

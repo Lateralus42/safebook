@@ -49,7 +49,7 @@ App.S = {
   },
   bare: function(key, data) {
     var hidden_data, iv;
-    data = data;
+    data = from_b64(data);
     iv = sjcl.bitArray.bitSlice(data, 0, 128);
     hidden_data = sjcl.bitArray.bitSlice(data, 128);
     return App.S.decrypt(key, hidden_data, iv);
@@ -58,13 +58,13 @@ App.S = {
     return App.S.hide(key, from_utf8(text));
   },
   bare_text: function(key, data) {
-    return to_utf8(App.S.bare(key, from_b64(data)));
+    return to_utf8(App.S.bare(key, data));
   },
   hide_seckey: function(key, seckey) {
     return App.S.hide(key, seckey.toBits());
   },
   bare_seckey: function(key, data) {
-    return sjcl.bn.fromBits(App.S.bare(key, from_b64(data)));
+    return sjcl.bn.fromBits(App.S.bare(key, data));
   }
 };
 
@@ -98,15 +98,15 @@ FileHasher = function(file, callback) {
   return hash_slice(i, j);
 };
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.home = (function(superClass) {
-  extend(home, superClass);
+App.Views.home = (function(_super) {
+  __extends(home, _super);
 
   function home() {
-    this.render = bind(this.render, this);
+    this.render = __bind(this.render, this);
     return home.__super__.constructor.apply(this, arguments);
   }
 
@@ -133,22 +133,22 @@ App.Views.home = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.Index = (function(superClass) {
-  extend(Index, superClass);
+App.Views.Index = (function(_super) {
+  __extends(Index, _super);
 
   function Index() {
-    this.auto_signin = bind(this.auto_signin, this);
-    this.signin = bind(this.signin, this);
-    this.signup = bind(this.signup, this);
-    this.store_login = bind(this.store_login, this);
-    this.load_data = bind(this.load_data, this);
-    this.init_user = bind(this.init_user, this);
-    this.hash_file = bind(this.hash_file, this);
-    this.render = bind(this.render, this);
+    this.auto_signin = __bind(this.auto_signin, this);
+    this.signin = __bind(this.signin, this);
+    this.signup = __bind(this.signup, this);
+    this.store_login = __bind(this.store_login, this);
+    this.load_data = __bind(this.load_data, this);
+    this.init_user = __bind(this.init_user, this);
+    this.hash_file = __bind(this.hash_file, this);
+    this.render = __bind(this.render, this);
     return Index.__super__.constructor.apply(this, arguments);
   }
 
@@ -266,20 +266,21 @@ App.Views.Index = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.messageList = (function(superClass) {
-  extend(messageList, superClass);
+App.Views.messageList = (function(_super) {
+  __extends(messageList, _super);
 
   function messageList() {
-    this.render = bind(this.render, this);
-    this.process_collection = bind(this.process_collection, this);
+    this.render = __bind(this.render, this);
+    this.process_collection = __bind(this.process_collection, this);
     return messageList.__super__.constructor.apply(this, arguments);
   }
 
   messageList.prototype.process_collection = function() {
+<<<<<<< HEAD
     var destination, i, len, message, messages, user;
 <<<<<<< HEAD
     messages = this.collection.sort().map(function(e) {
@@ -290,6 +291,12 @@ App.Views.messageList = (function(superClass) {
 >>>>>>> modifs by Max
     for (i = 0, len = messages.length; i < len; i++) {
       message = messages[i];
+=======
+    var destination, message, messages, user, _i, _len;
+    messages = this.collection.sort().toJSON();
+    for (_i = 0, _len = messages.length; _i < _len; _i++) {
+      message = messages[_i];
+>>>>>>> Revert "modifs by Max"
       user = App.Users.findWhere({
         id: message.user_id
       });
@@ -318,19 +325,19 @@ App.Views.messageList = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.pageLinkList = (function(superClass) {
-  extend(pageLinkList, superClass);
+App.Views.pageLinkList = (function(_super) {
+  __extends(pageLinkList, _super);
 
   function pageLinkList() {
-    this["delete"] = bind(this["delete"], this);
-    this.create = bind(this.create, this);
-    this.render = bind(this.render, this);
-    this.page_users = bind(this.page_users, this);
-    this.initialize = bind(this.initialize, this);
+    this["delete"] = __bind(this["delete"], this);
+    this.create = __bind(this.create, this);
+    this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
+    this.initialize = __bind(this.initialize, this);
     return pageLinkList.__super__.constructor.apply(this, arguments);
   }
 
@@ -407,18 +414,18 @@ App.Views.pageLinkList = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.pageList = (function(superClass) {
-  extend(pageList, superClass);
+App.Views.pageList = (function(_super) {
+  __extends(pageList, _super);
 
   function pageList() {
-    this.new_page = bind(this.new_page, this);
-    this.create_page = bind(this.create_page, this);
-    this.render = bind(this.render, this);
-    this.processed_pages = bind(this.processed_pages, this);
+    this.new_page = __bind(this.new_page, this);
+    this.create_page = __bind(this.create_page, this);
+    this.render = __bind(this.render, this);
+    this.processed_pages = __bind(this.processed_pages, this);
     return pageList.__super__.constructor.apply(this, arguments);
   }
 
@@ -484,18 +491,18 @@ App.Views.pageList = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.pageTalk = (function(superClass) {
-  extend(pageTalk, superClass);
+App.Views.pageTalk = (function(_super) {
+  __extends(pageTalk, _super);
 
   function pageTalk() {
-    this.go_home = bind(this.go_home, this);
-    this.talk = bind(this.talk, this);
-    this.render = bind(this.render, this);
-    this.page_users = bind(this.page_users, this);
+    this.go_home = __bind(this.go_home, this);
+    this.talk = __bind(this.talk, this);
+    this.render = __bind(this.render, this);
+    this.page_users = __bind(this.page_users, this);
     return pageTalk.__super__.constructor.apply(this, arguments);
   }
 
@@ -569,17 +576,17 @@ App.Views.pageTalk = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.userList = (function(superClass) {
-  extend(userList, superClass);
+App.Views.userList = (function(_super) {
+  __extends(userList, _super);
 
   function userList() {
-    this.search_user = bind(this.search_user, this);
-    this.keypress = bind(this.keypress, this);
-    this.render = bind(this.render, this);
+    this.search_user = __bind(this.search_user, this);
+    this.keypress = __bind(this.keypress, this);
+    this.render = __bind(this.render, this);
     return userList.__super__.constructor.apply(this, arguments);
   }
 
@@ -625,18 +632,18 @@ App.Views.userList = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Views.userTalk = (function(superClass) {
-  extend(userTalk, superClass);
+App.Views.userTalk = (function(_super) {
+  __extends(userTalk, _super);
 
   function userTalk() {
-    this.render = bind(this.render, this);
-    this.go_home = bind(this.go_home, this);
-    this.hide_message = bind(this.hide_message, this);
-    this.send_message = bind(this.send_message, this);
+    this.render = __bind(this.render, this);
+    this.go_home = __bind(this.go_home, this);
+    this.hide_message = __bind(this.hide_message, this);
+    this.send_message = __bind(this.send_message, this);
     return userTalk.__super__.constructor.apply(this, arguments);
   }
 
@@ -699,19 +706,23 @@ App.Views.userTalk = (function(superClass) {
 
 })(Backbone.View);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Models.Message = (function(superClass) {
-  extend(Message, superClass);
+App.Models.Message = (function(_super) {
+  __extends(Message, _super);
 
   function Message() {
+<<<<<<< HEAD
     this.bare = bind(this.bare, this);
 <<<<<<< HEAD
     this.toJSON = bind(this.toJSON, this);
 =======
 >>>>>>> modifs by Max
+=======
+    this.bare = __bind(this.bare, this);
+>>>>>>> Revert "modifs by Max"
     return Message.__super__.constructor.apply(this, arguments);
   }
 
@@ -750,11 +761,11 @@ App.Models.Message = (function(superClass) {
 
 })(Backbone.Model);
 
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Models.Page = (function(superClass) {
-  extend(Page, superClass);
+App.Models.Page = (function(_super) {
+  __extends(Page, _super);
 
   function Page() {
     return Page.__super__.constructor.apply(this, arguments);
@@ -786,11 +797,11 @@ App.Models.Page = (function(superClass) {
 
 })(Backbone.Model);
 
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Models.PageLink = (function(superClass) {
-  extend(PageLink, superClass);
+App.Models.PageLink = (function(_super) {
+  __extends(PageLink, _super);
 
   function PageLink() {
     return PageLink.__super__.constructor.apply(this, arguments);
@@ -802,11 +813,11 @@ App.Models.PageLink = (function(superClass) {
 
 })(Backbone.Model);
 
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Models.User = (function(superClass) {
-  extend(User, superClass);
+App.Models.User = (function(_super) {
+  __extends(User, _super);
 
   function User() {
     return User.__super__.constructor.apply(this, arguments);
@@ -829,8 +840,8 @@ App.Models.User = (function(superClass) {
 
 })(Backbone.Model);
 
-App.Models.I = (function(superClass) {
-  extend(I, superClass);
+App.Models.I = (function(_super) {
+  __extends(I, _super);
 
   function I() {
     return I.__super__.constructor.apply(this, arguments);
@@ -901,15 +912,15 @@ App.Models.I = (function(superClass) {
 
 })(App.Models.User);
 
-var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.Messages = (function(superClass) {
-  extend(Messages, superClass);
+App.Collections.Messages = (function(_super) {
+  __extends(Messages, _super);
 
   function Messages() {
-    this.comparator = bind(this.comparator, this);
+    this.comparator = __bind(this.comparator, this);
     return Messages.__super__.constructor.apply(this, arguments);
   }
 
@@ -951,11 +962,11 @@ App.Collections.Messages = (function(superClass) {
 
 App.Messages = new App.Collections.Messages();
 
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.PageLinks = (function(superClass) {
-  extend(PageLinks, superClass);
+App.Collections.PageLinks = (function(_super) {
+  __extends(PageLinks, _super);
 
   function PageLinks() {
     return PageLinks.__super__.constructor.apply(this, arguments);
@@ -971,11 +982,11 @@ App.Collections.PageLinks = (function(superClass) {
 
 App.PageLinks = new App.Collections.PageLinks();
 
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.Pages = (function(superClass) {
-  extend(Pages, superClass);
+App.Collections.Pages = (function(_super) {
+  __extends(Pages, _super);
 
   function Pages() {
     return Pages.__super__.constructor.apply(this, arguments);
@@ -991,11 +1002,11 @@ App.Collections.Pages = (function(superClass) {
 
 App.Pages = new App.Collections.Pages();
 
-var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+var __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-App.Collections.Users = (function(superClass) {
-  extend(Users, superClass);
+App.Collections.Users = (function(_super) {
+  __extends(Users, _super);
 
   function Users() {
     return Users.__super__.constructor.apply(this, arguments);
@@ -1012,19 +1023,19 @@ App.Collections.Users = (function(superClass) {
 App.Users = new App.Collections.Users();
 
 var Router,
-  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-Router = (function(superClass) {
-  extend(Router, superClass);
+Router = (function(_super) {
+  __extends(Router, _super);
 
   function Router() {
-    this.pageTalk = bind(this.pageTalk, this);
-    this.userTalk = bind(this.userTalk, this);
-    this.home = bind(this.home, this);
-    this.index = bind(this.index, this);
-    this.show = bind(this.show, this);
+    this.pageTalk = __bind(this.pageTalk, this);
+    this.userTalk = __bind(this.userTalk, this);
+    this.home = __bind(this.home, this);
+    this.index = __bind(this.index, this);
+    this.show = __bind(this.show, this);
     return Router.__super__.constructor.apply(this, arguments);
   }
 
