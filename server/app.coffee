@@ -1,6 +1,7 @@
 fs        = require 'fs'
 express   = require 'express'
 Sequelize = require 'sequelize'
+http      = require 'http'
 _         = Sequelize.Utils._
 
 
@@ -14,6 +15,28 @@ App =
 
 App.Helpers = require("#{__dirname}/helpers")(App)
 
+# Loading server and middlewares
+app = express()
+server = http.createServer(app)
+app.use require('express-session')(secret: "XXX SET THIS IN CONFIG XXX")
+app.use require('body-parser').json()
+app.use (req, res, next) ->
+  console.log('%s %s', req.method, req.url)
+  console.log req.body
+  next()
+app.use express.static(__dirname + '/../public')
+
+
+
+# tests with socket.io
+io = App.io = require('socket.io')(server)
+
+io.on 'connection', (socket) =>
+  socket.on 'join', (name, id) =>
+    console.log(name + ' joined')
+    socket.join('id')
+    
+
 # Load all App.Models in models/
 sequelize = new Sequelize(null, null, null, dialect: 'sqlite', storage: 'db.sqlite')
 for model in _.map(fs.readdirSync("#{__dirname}/models"), (f)-> f.split('.')[0])
@@ -23,15 +46,6 @@ for model in _.map(fs.readdirSync("#{__dirname}/models"), (f)-> f.split('.')[0])
 for ctrl in _.map(fs.readdirSync("#{__dirname}/controllers"), (f)-> f.split('.')[0])
   App.Controllers[ctrl] = require("#{__dirname}/controllers/#{ctrl}")(App)
 
-# Loading server and middlewares
-server = express()
-server.use require('express-session')(secret: "XXX SET THIS IN CONFIG XXX")
-server.use require('body-parser').json()
-server.use (req, res, next) ->
-  console.log('%s %s', req.method, req.url)
-  console.log req.body
-  next()
-server.use express.static(__dirname + '/../public')
 
 # ###
 # Server routes
@@ -49,10 +63,10 @@ server.use express.static(__dirname + '/../public')
 # ]
 # ###
 
-server.post   '/user', App.Controllers.users.create
-server.get    '/user/:pseudo', App.Controllers.users.find
+app.post   '/user', App.Controllers.users.create
+app.get    '/user/:pseudo', App.Controllers.users.find
 
-server.post   '/login', [
+app.post   '/login', [
     App.Controllers.users.auth,
     App.Controllers.pages.fetch_created,
     App.Controllers.pages.fetch_accessibles,
@@ -62,12 +76,12 @@ server.post   '/login', [
     (req, res) -> res.json(req.data)
   ]
 
-server.post   '/message', App.Controllers.messages.create
-server.post   '/page', App.Controllers.pages.create
+app.post   '/message', App.Controllers.messages.create
+app.post   '/page', App.Controllers.pages.create
 # Maybe post '/page/:page_id/link'
-server.post   '/pageLink', App.Controllers.pageLinks.create
+app.post   '/pageLink', App.Controllers.pageLinks.create
 # Maybe delete '/page/:page_id/link/:id'
-server.delete '/pageLink/:id', App.Controllers.pageLinks.delete
+app.delete '/pageLink/:id', App.Controllers.pageLinks.delete
 
 # Sync DB, then start server
 sequelize.sync(force: true).error(->

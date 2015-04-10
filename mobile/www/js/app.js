@@ -1,10 +1,12 @@
-var App;
+var App, socket;
 
 App = {
   Models: {},
   Collections: {},
   Views: {}
 };
+
+socket = null;
 
 var from_b64, from_hex, from_utf8, to_b64, to_hex, to_utf8;
 
@@ -239,11 +241,17 @@ App.Views.Index = (function(superClass) {
     this.init_user();
     return App.I.login((function(_this) {
       return function(res) {
+        var socket;
         if ($("#remember_input")[0].checked) {
           _this.store_login();
         }
         _this.load_data(res);
         _this.bare_data();
+        socket = io();
+        socket.emit('join', App.I.id, App.I.attributes.id);
+        socket.on('message', function(message) {
+          return App.Messages.push(message);
+        });
         return App.Router.show("home");
       };
     })(this));
@@ -1040,12 +1048,13 @@ Router = (function(superClass) {
       el: $("#content")
     });
     this.view.render();
-    if (localStorage.length !== 0) {
-      return App.I = new App.Models.I({
+    if (localStorage.length >= 3) {
+      App.I = new App.Models.I({
         pseudo: localStorage.getItem("pseudo"),
         local_secret: from_b64(localStorage.getItem("local_secret")),
         remote_secret: localStorage.getItem("remote_secret")
       });
+      return this.view.auto_signin();
     }
   };
 
