@@ -49,6 +49,19 @@ class App.Views.Index extends Backbone.View
     localStorage.setItem "local_secret", to_b64(App.I.get("local_secret"))
     localStorage.setItem "remote_secret", App.I.get "remote_secret"
 
+  init_socket: =>
+    socket = io()
+    socket.emit('join', App.I.id, App.I.attributes.id)
+    socket.on 'message', (message) ->
+      console.log('new message')
+      sender = App.Users.findWhere(id: message.user_id)
+      message = new App.Models.Message message
+      message.bare()
+      App.Messages.push(message)
+      console.log 'looking for user with id ' + sender
+      if sender and sender.messages_collection
+        sender.messages_collection.push message
+
   signup: =>
     @init_user()
     remember = if $("#remember_input")[0].checked then true else false
@@ -58,6 +71,7 @@ class App.Views.Index extends Backbone.View
       .on 'error', => alert("Login error...")
       .on 'sync', =>
         @store_login() if remember
+        @init_socket()
         App.Router.show("home")
       .save()
 
@@ -68,4 +82,5 @@ class App.Views.Index extends Backbone.View
       @store_login() if remember
       @load_data(res)
       @bare_data()
+      @init_socket()
       App.Router.show("home")

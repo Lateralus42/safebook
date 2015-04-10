@@ -1,5 +1,8 @@
 class App.Views.messageList extends Backbone.View
 
+  initialize: =>
+    @listenTo(@collection, 'add', @render)
+
   process_collection: =>
     messages = @collection.sort().map((e) -> e.attributes)
     for message in messages
