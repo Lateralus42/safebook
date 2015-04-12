@@ -2,6 +2,7 @@ fs        = require 'fs'
 express   = require 'express'
 Sequelize = require 'sequelize'
 http      = require 'http'
+session   = require 'express-session'
 _         = Sequelize.Utils._
 
 
@@ -18,11 +19,14 @@ App.Helpers = require("#{__dirname}/helpers")(App)
 # Loading server and middlewares
 app = express()
 server = http.createServer(app)
-app.use require('express-session')(secret: "XXX SET THIS IN CONFIG XXX")
+
+sessionMiddleware = session(secret: "XXX SET THIS IN CONFIG XXX")
+app.use sessionMiddleware
 app.use require('body-parser').json()
 app.use (req, res, next) ->
   console.log('%s %s', req.method, req.url)
   console.log req.body
+  console.log req.session.user_id
   next()
 app.use express.static(__dirname + '/../public')
 
@@ -31,9 +35,16 @@ app.use express.static(__dirname + '/../public')
 # tests with socket.io
 io = App.io = require('socket.io')(server)
 
+io.use (socket, next) ->
+  #console.log socket.request.headers.cookie
+  sessionMiddleware(socket.request, socket.request.res, next)
+  socket.request.session and console.log socket.request.session.user_id
+  next()
+
 io.on 'connection', (socket) =>
   socket.on 'join', (name, id) =>
     console.log(name + ' joined')
+    socket.request.session and console.log socket.request.session.user_id
     socket.join('id')
     
 
@@ -84,7 +95,7 @@ app.post   '/pageLink', App.Controllers.pageLinks.create
 app.delete '/pageLink/:id', App.Controllers.pageLinks.delete
 
 # Sync DB, then start server
-sequelize.sync(force: true).error(->
+sequelize.sync().error(->
   console.log("Database error")
 ).success(->
   server.listen(8000)

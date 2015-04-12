@@ -66,7 +66,7 @@ class App.Views.Index extends Backbone.View
       @store_login() if $("#remember_input")[0].checked
       @load_data(res)
       @bare_data()
-      socket = io()
+      socket = window.socket App.socket = io()
       socket.emit('join', App.I.id, App.I.attributes.id)
       socket.on 'message', (message) =>
         App.Messages.push(message)

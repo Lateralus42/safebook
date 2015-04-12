@@ -247,7 +247,7 @@ App.Views.Index = (function(superClass) {
         }
         _this.load_data(res);
         _this.bare_data();
-        socket = io();
+        socket = window.socket(App.socket = io());
         socket.emit('join', App.I.id, App.I.attributes.id);
         socket.on('message', function(message) {
           return App.Messages.push(message);
