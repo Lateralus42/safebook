@@ -895,7 +895,9 @@ App.Models.I = (function(superClass) {
       contentType: 'application/json',
       dataType: 'json',
       data: JSON.stringify(this)
-    }).success(cb);
+    }).success(cb).error(function(res) {
+      return alert(JSON.parse(res.responseText).error);
+    });
   };
 
   return I;

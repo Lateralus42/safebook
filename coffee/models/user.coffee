@@ -46,4 +46,5 @@ class App.Models.I extends App.Models.User
       contentType: 'application/json'
       dataType: 'json'
       data: JSON.stringify(@)
-    ).success(cb)
+    ).success(cb).error((res) ->
+      alert(JSON.parse(res.responseText).error))
