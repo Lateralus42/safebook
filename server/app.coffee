@@ -45,7 +45,7 @@ io.on 'connection', (socket) =>
   socket.on 'join', (name, id) =>
     console.log(name + ' joined')
     socket.request.session and console.log socket.request.session.user_id
-    socket.join('id')
+    socket.join(id)
     
 
 # Load all App.Models in models/

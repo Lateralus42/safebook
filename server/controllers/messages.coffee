@@ -16,8 +16,8 @@ module.exports = (App) ->
       App.Models.message.create(message).done (err, message) ->
         return res.status(401).end() if err
         res.status(201).json(message)
+        App.io.to(message.destination_id).emit('message', message)
     #io.to(message.destination_id).emit(message.user_id, message.hidden_content)
-    App.io.to(message.destination_id).emit('message', message)
 
   ## ###
   # Login Middleware

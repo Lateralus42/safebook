@@ -146,6 +146,7 @@ App.Views.Index = (function(superClass) {
     this.auto_signin = bind(this.auto_signin, this);
     this.signin = bind(this.signin, this);
     this.signup = bind(this.signup, this);
+    this.init_socket = bind(this.init_socket, this);
     this.store_login = bind(this.store_login, this);
     this.load_data = bind(this.load_data, this);
     this.init_user = bind(this.init_user, this);
@@ -217,6 +218,26 @@ App.Views.Index = (function(superClass) {
     return localStorage.setItem("remote_secret", App.I.get("remote_secret"));
   };
 
+  Index.prototype.init_socket = function() {
+    var socket;
+    socket = io();
+    socket.emit('join', App.I.id, App.I.attributes.id);
+    return socket.on('message', function(message) {
+      var sender;
+      console.log('new message');
+      sender = App.Users.findWhere({
+        id: message.user_id
+      });
+      message = new App.Models.Message(message);
+      message.bare();
+      App.Messages.push(message);
+      console.log('looking for user with id ' + sender);
+      if (sender && sender.messages_collection) {
+        return sender.messages_collection.push(message);
+      }
+    });
+  };
+
   Index.prototype.signup = function() {
     this.init_user();
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
@@ -232,6 +253,7 @@ App.Views.Index = (function(superClass) {
         if ($("#remember_input")[0].checked) {
           _this.store_login();
         }
+        _this.init_socket();
         return App.Router.show("home");
       };
     })(this)).save();
@@ -241,17 +263,12 @@ App.Views.Index = (function(superClass) {
     this.init_user();
     return App.I.login((function(_this) {
       return function(res) {
-        var socket;
         if ($("#remember_input")[0].checked) {
           _this.store_login();
         }
         _this.load_data(res);
         _this.bare_data();
-        socket = window.socket(App.socket = io());
-        socket.emit('join', App.I.id, App.I.attributes.id);
-        socket.on('message', function(message) {
-          return App.Messages.push(message);
-        });
+        _this.init_socket();
         return App.Router.show("home");
       };
     })(this));
@@ -265,6 +282,7 @@ App.Views.Index = (function(superClass) {
         }
         _this.load_data(res);
         _this.bare_data();
+        _this.init_socket();
         return App.Router.show("home");
       };
     })(this));
@@ -284,8 +302,13 @@ App.Views.messageList = (function(superClass) {
   function messageList() {
     this.render = bind(this.render, this);
     this.process_collection = bind(this.process_collection, this);
+    this.initialize = bind(this.initialize, this);
     return messageList.__super__.constructor.apply(this, arguments);
   }
+
+  messageList.prototype.initialize = function() {
+    return this.listenTo(this.collection, 'add', this.render);
+  };
 
   messageList.prototype.process_collection = function() {
     var destination, i, len, message, messages, user;
@@ -692,9 +715,10 @@ App.Views.userTalk = (function(superClass) {
       user: this.model.attributes
     }));
     $("textarea").autosize();
+    this.model.messages_collection = App.Messages.where_user(this.model.get('id'));
     this.messageList = new App.Views.messageList({
       el: $("#messageList"),
-      collection: App.Messages.where_user(this.model.get('id'))
+      collection: this.model.messages_collection
     });
     return this.messageList.render();
   };
