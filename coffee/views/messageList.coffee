@@ -1,7 +1,7 @@
 class App.Views.messageList extends Backbone.View
 
   process_collection: =>
-    messages = @collection.sort().toJSON()
+    messages = @collection.sort().map((e) -> e.attributes)
     for message in messages
       user = App.Users.findWhere(id: message.user_id)
       destination = if message.destination_type == "user"

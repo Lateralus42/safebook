@@ -281,7 +281,9 @@ App.Views.messageList = (function(superClass) {
 
   messageList.prototype.process_collection = function() {
     var destination, i, len, message, messages, user;
-    messages = this.collection.sort().toJSON();
+    messages = this.collection.sort().map(function(e) {
+      return e.attributes;
+    });
     for (i = 0, len = messages.length; i < len; i++) {
       message = messages[i];
       user = App.Users.findWhere({
@@ -702,10 +704,15 @@ App.Models.Message = (function(superClass) {
 
   function Message() {
     this.bare = bind(this.bare, this);
+    this.toJSON = bind(this.toJSON, this);
     return Message.__super__.constructor.apply(this, arguments);
   }
 
   Message.prototype.urlRoot = "/message";
+
+  Message.prototype.toJSON = function() {
+    return this.omit('content');
+  };
 
   Message.prototype.bare = function() {
     var key, page, user;
