@@ -1,2 +1,55 @@
-node_modules
+# sqlite
 *.sqlite
+
+# OSX
+.DS_Store
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Node
+npm-debug.log
+node_modules/
+
+# built application files
+*.apk
+*.ap_
+
+# iOS
+mobile/platforms/ios/build/
+mobile/platforms/ios/www/
+mobile/platforms/ios/cordova/console.log
+mobile/platforms/ios/CordovaLib/build/
+mobile/platforms/ios/www
+mobile/platforms/ios/MyPace/config.xml
+mobile/platforms/ios/.staging
+*.xcuserdatad
+
+# android
+mobile/platforms/android/assets/www
+mobile/platforms/android/bin
+mobile/platforms/android/gen
+mobile/platforms/android/local.properties
+mobile/platforms/android/ant-build
+mobile/platforms/android/ant-gen
+mobile/platforms/android/CordovaLib/ant-build
+mobile/platforms/android/CordovaLib/ant-gen
+mobile/platforms/android/CordovaLib/bin
+mobile/platforms/android/CordovaLib/gen
+mobile/platforms/android/CordovaLib/local.properties
+mobile/platforms/android/res/xml/config.xml
+
+# wp8
+mobile/platforms/wp8/bin
+mobile/platforms/wp8/obj
+mobile/platforms/wp8/www
+mobile/platforms/wp8/.staging
+mobile/platforms/wp8/*.suo
+mobile/platforms/wp8/*.csproj.user
+
+# res
+mobile/resources/signing

@@ -4,63 +4,50 @@ class Router extends Backbone.Router
     '': 'index'
     'home': 'home'
     'user/:id': 'userTalk'
-    'group/:id': 'groupTalk'
+    'page/:id': 'pageTalk'
 
   show: (route) =>
     @navigate(route, {trigger: true, replace: true})
 
-  fetched: false
-
   index: =>
-    App.Content = new App.Views.log(el: $("#content"))
-    App.Content.render()
+    @view = new App.Views.Index(el: $("#content"))
+    @view.render()
 
-    # Dans le futur:
-    # Faire des trucs si on a un bon cookie :)
+    if localStorage.length isnt 0
+      App.I = new App.Models.I
+        pseudo: localStorage.getItem "pseudo"
+        local_secret: from_b64(localStorage.getItem("local_secret"))
+        remote_secret: localStorage.getItem "remote_secret"
+      # @view.auto_signin()
 
   home: =>
     return @show("") unless App.I
-    App.Content.undelegateEvents() if App.Content
+    @view.undelegateEvents() if @view
 
-    if @fetched
-      App.Collections.Users.add(App.I)
-      App.Content = new App.Views.home(el: $("#content"))
-      App.Content.render()
-    else
-      App.Collections.Messages.fetch success: =>
-        App.Collections.Users.fetch success: =>
-          App.Collections.Groups.fetch success: =>
-            @fetched = true
-            App.Collections.Users.add(App.I)
-
-            App.Content = new App.Views.home(el: $("#content"))
-            App.Content.render()
+    App.Users.add(App.I)
+    @view = new App.Views.home(el: $("#content"))
+    @view.render()
 
   userTalk: (id) =>
     return @show("") unless App.I
-    App.Content.undelegateEvents() if App.Content
+    @view.undelegateEvents() if @view
 
-    model = App.Collections.Users.findWhere(id: id)
+    model = App.Users.findWhere(id: id)
 
     if model
-      App.Content = new App.Views.userTalk(el: $("#content"), model: model)
-      App.Content.render()
+      @view = new App.Views.userTalk(el: $("#content"), model: model)
+      @view.render()
     else
       console.log "user not found !"
       @show("home")
 
-  groupTalk: (id) =>
+  pageTalk: (id) =>
     return @show("") unless App.I
-    App.Content.undelegateEvents() if App.Content
+    @view.undelegateEvents() if @view
 
-    model = App.Collections.Groups.findWhere(id: id)
-
-    if model
-      App.Content = new App.Views.groupTalk(el: $("#content"), model: model)
-      App.Content.render()
-    else
-      console.log "group not found !"
-      @show("home")
+    model = App.Pages.findWhere(id: id)
+    @view = new App.Views.pageTalk(el: $("#content"), model: model)
+    @view.render()
 
 
 App.Router = new Router
