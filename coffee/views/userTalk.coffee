@@ -37,7 +37,6 @@ class App.Views.userTalk extends Backbone.View
     @$el.html(template(user: @model.attributes))
     $("textarea").autosize()
 
-    @model.messages_collection = App.Messages.where_user(@model.get('id'))
     @messageList = new App.Views.messageList
       el: $("#messageList")
       collection: @model.messages_collection
