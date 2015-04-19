@@ -19,7 +19,7 @@ class Router extends Backbone.Router
   auto_signin: (callback) ->
     return @index() if @auto_signin_tried
     @auto_signin_tried = true
-    return @index() if localStorage.length is 0
+    return @index() if localStorage.length < 3
 
     App.I = new App.Models.I
       pseudo: localStorage.getItem "pseudo"
@@ -57,6 +57,8 @@ class Router extends Backbone.Router
     return @show("") unless App.I
 
     @view.undelegateEvents() if @view
+    # App.Users.add(App.I)
+
     @view = new App.Views.home(el: $("#content"))
     @view.render()
 

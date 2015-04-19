@@ -32,12 +32,14 @@ class App.Views.Index extends Backbone.View
   load_data: (res) =>
     App.I.set(res.I).bare_mainkey().bare_ecdh()
 
-    App.Users.push(App.I)
-    App.Users.push(res.users)
+    console.log App.Users
+    # App.Users.push(App.I)
+    App.Users.push(res.Friends)
     App.PageLinks.push(res.pageLinks)
     App.Pages.push(res.created_pages)
     App.Pages.push(res.accessible_pages)
     App.Messages.push(res.messages)
+    console.log App.Users
 
   bare_data: ->
     App.Users.each (user) ->
@@ -63,6 +65,10 @@ class App.Views.Index extends Backbone.View
       console.log 'looking for user with id ' + sender
       if sender and sender.messages_collection
         sender.messages_collection.push message
+    socket.on 'add', (user) ->
+      user = new App.Models.User user
+      user.shared()
+      App.Users.push(user)
 
   signup: =>
     @init_user()

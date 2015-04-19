@@ -17,26 +17,41 @@ module.exports = (App) ->
         return res.status(401).end() if err
         res.status(201).json(message)
         App.io.to(message.destination_id).emit('message', message)
-    #io.to(message.destination_id).emit(message.user_id, message.hidden_content)
 
   ## ###
   # Login Middleware
   ## ###
 
   fetch: (req, res, next) ->
-    a = (page.id for page in req.data.created_pages)
-    b = (page.id for page in req.data.accessible_pages)
-    page_ids = _.union(a,b)
-    App.Models.message.findAll(
-      where: Sequelize.or(
-        { user_id: req.data.I.id },
-        { destination_id: req.data.I.id },
-        { destination_id: page_ids }
-      )
-    ).done (err, messages) ->
+    query = {
+      where:
+        $or: [{ user_id: req.session.user_id, destination_id: req.params.dest_id },
+              { user_id: req.params.dest_id, destination_id: req.session.user_id }]
+    }
+    if req.query.offset?
+      query.offset = parseInt(req.query.offset, 10)
+    if req.query.limit?
+      query.limit = parseInt(req.query.limit, 10)
+    console.log query
+    App.Models.message.findAll(query).done (err, messages) ->
       return res.status(401).end() if err
-      req.data.messages = messages
-      next()
+      res.json messages
+
+
+#  fetch: (req, res, next) ->
+#    a = (page.id for page in req.data.created_pages)
+#    b = (page.id for page in req.data.accessible_pages)
+#    page_ids = _.union(a,b)
+#    App.Models.message.findAll(
+#      where: Sequelize.or(
+#        { user_id: req.data.I.id },
+#        { destination_id: req.data.I.id },
+#        { destination_id: page_ids }
+#      )
+#    ).done (err, messages) ->
+#      return res.status(401).end() if err
+#      req.data.messages = messages
+#      next()
 
 #App.Models.message.findAll(
 #  where: Sequelize.or(

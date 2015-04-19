@@ -80,11 +80,13 @@
       <div class="col-sm-3">
         <div id="userList">
         </div>
+        <div id="userSearch">
+        </div>
         <div id="pageList">
         </div>
       </div>
       <div class="col-sm-9">
-        <h2 class="text-center">Welcome Home !</h2>
+        <h2 class="text-center">Welcome {{I}} !</h2>
         <div id="messageList">
         </div>
       </div>
@@ -101,11 +103,26 @@
               <span class="badge">0</span>
             </li>
           {{/each}}
-          <li class="list-group-item">
-            <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
-          </li>
         </ul>
       </div>
+    </script>
+
+    <!-- User search template -->
+    <script type="text/template" id="userSearchTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Add a friend</div>
+          <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
+          <ul class="list-group" id="search_user_results">
+          </ul>
+        </div>
+      </div>
+    </script>
+
+    <!-- Search result template -->
+    <script type="text/template" id="searchResultTemplate">
+      <li class="text-center list-group-item">
+        {{pseudo}} <a href="#" class="btn btn-default btn-xs glyphicon glyphicon-plus"></a>
+      </li>
     </script>
 
     <!-- Page list template -->
@@ -161,6 +178,7 @@
           </div>
         </div>
       {{/each}}
+      <button id="load_older_messages">Load older messages</button>
     </script>
 
     <!-- UserTalk template -->
