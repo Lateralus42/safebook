@@ -51,26 +51,21 @@ class App.Views.Index extends Backbone.View
 
   signup: =>
     @init_user()
+    remember = if $("#remember_input")[0].checked then true else false
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey()
     App.I.isNew = -> true
     App.I
       .on 'error', => alert("Login error...")
       .on 'sync', =>
-        @store_login() if $("#remember_input")[0].checked
+        @store_login() if remember
         App.Router.show("home")
       .save()
 
   signin: =>
     @init_user()
+    remember = if $("#remember_input")[0].checked then true else false
     App.I.login (res) =>
-      @store_login() if $("#remember_input")[0].checked
-      @load_data(res)
-      @bare_data()
-      App.Router.show("home")
-
-  auto_signin: =>
-    App.I.login (res) =>
-      @store_login() if $("#remember_input")[0].checked
+      @store_login() if remember
       @load_data(res)
       @bare_data()
       App.Router.show("home")

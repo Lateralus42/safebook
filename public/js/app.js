@@ -141,7 +141,6 @@ App.Views.Index = (function(superClass) {
   extend(Index, superClass);
 
   function Index() {
-    this.auto_signin = bind(this.auto_signin, this);
     this.signin = bind(this.signin, this);
     this.signup = bind(this.signup, this);
     this.store_login = bind(this.store_login, this);
@@ -216,7 +215,9 @@ App.Views.Index = (function(superClass) {
   };
 
   Index.prototype.signup = function() {
+    var remember;
     this.init_user();
+    remember = $("#remember_input")[0].checked ? true : false;
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
     App.I.isNew = function() {
       return true;
@@ -227,7 +228,7 @@ App.Views.Index = (function(superClass) {
       };
     })(this)).on('sync', (function(_this) {
       return function() {
-        if ($("#remember_input")[0].checked) {
+        if (remember) {
           _this.store_login();
         }
         return App.Router.show("home");
@@ -236,23 +237,12 @@ App.Views.Index = (function(superClass) {
   };
 
   Index.prototype.signin = function() {
+    var remember;
     this.init_user();
+    remember = $("#remember_input")[0].checked ? true : false;
     return App.I.login((function(_this) {
       return function(res) {
-        if ($("#remember_input")[0].checked) {
-          _this.store_login();
-        }
-        _this.load_data(res);
-        _this.bare_data();
-        return App.Router.show("home");
-      };
-    })(this));
-  };
-
-  Index.prototype.auto_signin = function() {
-    return App.I.login((function(_this) {
-      return function(res) {
-        if ($("#remember_input")[0].checked) {
+        if (remember) {
           _this.store_login();
         }
         _this.load_data(res);
@@ -880,14 +870,17 @@ App.Models.I = (function(superClass) {
     });
   };
 
-  I.prototype.login = function(cb) {
+  I.prototype.login = function(success_cb, error_cb) {
+    error_cb |= function() {
+      return console.log("login error");
+    };
     return $.ajax({
       url: "/login",
       type: "POST",
       contentType: 'application/json',
       dataType: 'json',
       data: JSON.stringify(this)
-    }).success(cb);
+    }).success(success_cb).error(error_cb);
   };
 
   return I;
@@ -1017,6 +1010,7 @@ Router = (function(superClass) {
     this.userTalk = bind(this.userTalk, this);
     this.home = bind(this.home, this);
     this.index = bind(this.index, this);
+    this.logout = bind(this.logout, this);
     this.show = bind(this.show, this);
     return Router.__super__.constructor.apply(this, arguments);
   }
@@ -1024,6 +1018,7 @@ Router = (function(superClass) {
   Router.prototype.routes = {
     '': 'index',
     'home': 'home',
+    'logout': 'logout',
     'user/:id': 'userTalk',
     'page/:id': 'pageTalk'
   };
@@ -1035,28 +1030,83 @@ Router = (function(superClass) {
     });
   };
 
+  Router.prototype.logout = function() {
+    localStorage.clear();
+    return this.show('');
+  };
+
+  Router.prototype.auto_signin_tried = false;
+
+  Router.prototype.auto_signin = function(callback) {
+    if (this.auto_signin_tried) {
+      return this.index();
+    }
+    this.auto_signin_tried = true;
+    if (localStorage.length === 0) {
+      return this.index();
+    }
+    App.I = new App.Models.I({
+      pseudo: localStorage.getItem("pseudo"),
+      local_secret: from_b64(localStorage.getItem("local_secret")),
+      remote_secret: localStorage.getItem("remote_secret")
+    });
+    return App.I.login(((function(_this) {
+      return function(res) {
+        App.I.set(res.I).bare_mainkey().bare_ecdh();
+        App.Users.push(App.I);
+        App.Users.push(res.users);
+        App.PageLinks.push(res.pageLinks);
+        App.Pages.push(res.created_pages);
+        App.Pages.push(res.accessible_pages);
+        App.Messages.push(res.messages);
+        App.Users.each(function(user) {
+          return user.shared();
+        });
+        App.Pages.each(function(page) {
+          return page.bare();
+        });
+        App.Messages.each(function(message) {
+          return message.bare();
+        });
+        return callback();
+      };
+    })(this)), ((function(_this) {
+      return function() {
+        localStorage.clear();
+        console.log("fail");
+        return _this.index();
+      };
+    })(this)));
+  };
+
   Router.prototype.index = function() {
+    if (!this.auto_signin_tried) {
+      return this.auto_signin((function(_this) {
+        return function() {
+          return _this.show("home");
+        };
+      })(this));
+    }
+    this.navigate("", {
+      trigger: false,
+      replace: true
+    });
     this.view = new App.Views.Index({
       el: $("#content")
     });
-    this.view.render();
-    if (localStorage.length !== 0) {
-      return App.I = new App.Models.I({
-        pseudo: localStorage.getItem("pseudo"),
-        local_secret: from_b64(localStorage.getItem("local_secret")),
-        remote_secret: localStorage.getItem("remote_secret")
-      });
-    }
+    return this.view.render();
   };
 
   Router.prototype.home = function() {
+    if (!(App.I || this.auto_signin_tried)) {
+      return this.auto_signin(this.home);
+    }
     if (!App.I) {
       return this.show("");
     }
     if (this.view) {
       this.view.undelegateEvents();
     }
-    App.Users.add(App.I);
     this.view = new App.Views.home({
       el: $("#content")
     });
@@ -1065,6 +1115,13 @@ Router = (function(superClass) {
 
   Router.prototype.userTalk = function(id) {
     var model;
+    if (!(App.I || this.auto_signin_tried)) {
+      return this.auto_signin((function(_this) {
+        return function() {
+          return _this.userTalk(id);
+        };
+      })(this));
+    }
     if (!App.I) {
       return this.show("");
     }
@@ -1074,20 +1131,22 @@ Router = (function(superClass) {
     model = App.Users.findWhere({
       id: id
     });
-    if (model) {
-      this.view = new App.Views.userTalk({
-        el: $("#content"),
-        model: model
-      });
-      return this.view.render();
-    } else {
-      console.log("user not found !");
-      return this.show("home");
-    }
+    this.view = new App.Views.userTalk({
+      el: $("#content"),
+      model: model
+    });
+    return this.view.render();
   };
 
   Router.prototype.pageTalk = function(id) {
     var model;
+    if (!(App.I || this.auto_signin_tried)) {
+      return this.auto_signin((function(_this) {
+        return function() {
+          return _this.pageTalk(id);
+        };
+      })(this));
+    }
     if (!App.I) {
       return this.show("");
     }
