@@ -39,11 +39,12 @@ class App.Models.I extends App.Models.User
   bare_mainkey: ->
     @set mainkey: App.S.bare(@get('local_secret'), @get('hidden_mainkey'))
 
-  login: (cb) ->
+  login: (success_cb, error_cb) ->
+    error_cb |= -> console.log "login error"
     $.ajax(
       url: "/login"
       type: "POST"
       contentType: 'application/json'
       dataType: 'json'
       data: JSON.stringify(@)
-    ).success(cb)
+    ).success(success_cb).error(error_cb)

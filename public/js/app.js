@@ -98,15 +98,15 @@ FileHasher = function(file, callback) {
   return hash_slice(i, j);
 };
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.home = (function(_super) {
-  __extends(home, _super);
+App.Views.home = (function(superClass) {
+  extend(home, superClass);
 
   function home() {
-    this.render = __bind(this.render, this);
+    this.render = bind(this.render, this);
     return home.__super__.constructor.apply(this, arguments);
   }
 
@@ -133,22 +133,21 @@ App.Views.home = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.Index = (function(_super) {
-  __extends(Index, _super);
+App.Views.Index = (function(superClass) {
+  extend(Index, superClass);
 
   function Index() {
-    this.auto_signin = __bind(this.auto_signin, this);
-    this.signin = __bind(this.signin, this);
-    this.signup = __bind(this.signup, this);
-    this.store_login = __bind(this.store_login, this);
-    this.load_data = __bind(this.load_data, this);
-    this.init_user = __bind(this.init_user, this);
-    this.hash_file = __bind(this.hash_file, this);
-    this.render = __bind(this.render, this);
+    this.signin = bind(this.signin, this);
+    this.signup = bind(this.signup, this);
+    this.store_login = bind(this.store_login, this);
+    this.load_data = bind(this.load_data, this);
+    this.init_user = bind(this.init_user, this);
+    this.hash_file = bind(this.hash_file, this);
+    this.render = bind(this.render, this);
     return Index.__super__.constructor.apply(this, arguments);
   }
 
@@ -216,7 +215,9 @@ App.Views.Index = (function(_super) {
   };
 
   Index.prototype.signup = function() {
+    var remember;
     this.init_user();
+    remember = $("#remember_input")[0].checked ? true : false;
     App.I.create_ecdh().create_mainkey().hide_ecdh().hide_mainkey();
     App.I.isNew = function() {
       return true;
@@ -227,7 +228,7 @@ App.Views.Index = (function(_super) {
       };
     })(this)).on('sync', (function(_this) {
       return function() {
-        if ($("#remember_input")[0].checked) {
+        if (remember) {
           _this.store_login();
         }
         return App.Router.show("home");
@@ -236,23 +237,12 @@ App.Views.Index = (function(_super) {
   };
 
   Index.prototype.signin = function() {
+    var remember;
     this.init_user();
+    remember = $("#remember_input")[0].checked ? true : false;
     return App.I.login((function(_this) {
       return function(res) {
-        if ($("#remember_input")[0].checked) {
-          _this.store_login();
-        }
-        _this.load_data(res);
-        _this.bare_data();
-        return App.Router.show("home");
-      };
-    })(this));
-  };
-
-  Index.prototype.auto_signin = function() {
-    return App.I.login((function(_this) {
-      return function(res) {
-        if ($("#remember_input")[0].checked) {
+        if (remember) {
           _this.store_login();
         }
         _this.load_data(res);
@@ -266,24 +256,26 @@ App.Views.Index = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.messageList = (function(_super) {
-  __extends(messageList, _super);
+App.Views.messageList = (function(superClass) {
+  extend(messageList, superClass);
 
   function messageList() {
-    this.render = __bind(this.render, this);
-    this.process_collection = __bind(this.process_collection, this);
+    this.render = bind(this.render, this);
+    this.process_collection = bind(this.process_collection, this);
     return messageList.__super__.constructor.apply(this, arguments);
   }
 
   messageList.prototype.process_collection = function() {
-    var destination, message, messages, user, _i, _len;
-    messages = this.collection.sort().toJSON();
-    for (_i = 0, _len = messages.length; _i < _len; _i++) {
-      message = messages[_i];
+    var destination, i, len, message, messages, user;
+    messages = this.collection.sort().map(function(e) {
+      return e.attributes;
+    });
+    for (i = 0, len = messages.length; i < len; i++) {
+      message = messages[i];
       user = App.Users.findWhere({
         id: message.user_id
       });
@@ -312,19 +304,19 @@ App.Views.messageList = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.pageLinkList = (function(_super) {
-  __extends(pageLinkList, _super);
+App.Views.pageLinkList = (function(superClass) {
+  extend(pageLinkList, superClass);
 
   function pageLinkList() {
-    this["delete"] = __bind(this["delete"], this);
-    this.create = __bind(this.create, this);
-    this.render = __bind(this.render, this);
-    this.page_users = __bind(this.page_users, this);
-    this.initialize = __bind(this.initialize, this);
+    this["delete"] = bind(this["delete"], this);
+    this.create = bind(this.create, this);
+    this.render = bind(this.render, this);
+    this.page_users = bind(this.page_users, this);
+    this.initialize = bind(this.initialize, this);
     return pageLinkList.__super__.constructor.apply(this, arguments);
   }
 
@@ -401,18 +393,18 @@ App.Views.pageLinkList = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.pageList = (function(_super) {
-  __extends(pageList, _super);
+App.Views.pageList = (function(superClass) {
+  extend(pageList, superClass);
 
   function pageList() {
-    this.new_page = __bind(this.new_page, this);
-    this.create_page = __bind(this.create_page, this);
-    this.render = __bind(this.render, this);
-    this.processed_pages = __bind(this.processed_pages, this);
+    this.new_page = bind(this.new_page, this);
+    this.create_page = bind(this.create_page, this);
+    this.render = bind(this.render, this);
+    this.processed_pages = bind(this.processed_pages, this);
     return pageList.__super__.constructor.apply(this, arguments);
   }
 
@@ -478,18 +470,18 @@ App.Views.pageList = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.pageTalk = (function(_super) {
-  __extends(pageTalk, _super);
+App.Views.pageTalk = (function(superClass) {
+  extend(pageTalk, superClass);
 
   function pageTalk() {
-    this.go_home = __bind(this.go_home, this);
-    this.talk = __bind(this.talk, this);
-    this.render = __bind(this.render, this);
-    this.page_users = __bind(this.page_users, this);
+    this.go_home = bind(this.go_home, this);
+    this.talk = bind(this.talk, this);
+    this.render = bind(this.render, this);
+    this.page_users = bind(this.page_users, this);
     return pageTalk.__super__.constructor.apply(this, arguments);
   }
 
@@ -563,17 +555,17 @@ App.Views.pageTalk = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.userList = (function(_super) {
-  __extends(userList, _super);
+App.Views.userList = (function(superClass) {
+  extend(userList, superClass);
 
   function userList() {
-    this.search_user = __bind(this.search_user, this);
-    this.keypress = __bind(this.keypress, this);
-    this.render = __bind(this.render, this);
+    this.search_user = bind(this.search_user, this);
+    this.keypress = bind(this.keypress, this);
+    this.render = bind(this.render, this);
     return userList.__super__.constructor.apply(this, arguments);
   }
 
@@ -619,18 +611,18 @@ App.Views.userList = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Views.userTalk = (function(_super) {
-  __extends(userTalk, _super);
+App.Views.userTalk = (function(superClass) {
+  extend(userTalk, superClass);
 
   function userTalk() {
-    this.render = __bind(this.render, this);
-    this.go_home = __bind(this.go_home, this);
-    this.hide_message = __bind(this.hide_message, this);
-    this.send_message = __bind(this.send_message, this);
+    this.render = bind(this.render, this);
+    this.go_home = bind(this.go_home, this);
+    this.hide_message = bind(this.hide_message, this);
+    this.send_message = bind(this.send_message, this);
     return userTalk.__super__.constructor.apply(this, arguments);
   }
 
@@ -693,19 +685,24 @@ App.Views.userTalk = (function(_super) {
 
 })(Backbone.View);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Models.Message = (function(_super) {
-  __extends(Message, _super);
+App.Models.Message = (function(superClass) {
+  extend(Message, superClass);
 
   function Message() {
-    this.bare = __bind(this.bare, this);
+    this.bare = bind(this.bare, this);
+    this.toJSON = bind(this.toJSON, this);
     return Message.__super__.constructor.apply(this, arguments);
   }
 
   Message.prototype.urlRoot = "/message";
+
+  Message.prototype.toJSON = function() {
+    return this.omit('content');
+  };
 
   Message.prototype.bare = function() {
     var key, page, user;
@@ -736,11 +733,11 @@ App.Models.Message = (function(_super) {
 
 })(Backbone.Model);
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Models.Page = (function(_super) {
-  __extends(Page, _super);
+App.Models.Page = (function(superClass) {
+  extend(Page, superClass);
 
   function Page() {
     return Page.__super__.constructor.apply(this, arguments);
@@ -772,11 +769,11 @@ App.Models.Page = (function(_super) {
 
 })(Backbone.Model);
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Models.PageLink = (function(_super) {
-  __extends(PageLink, _super);
+App.Models.PageLink = (function(superClass) {
+  extend(PageLink, superClass);
 
   function PageLink() {
     return PageLink.__super__.constructor.apply(this, arguments);
@@ -788,11 +785,11 @@ App.Models.PageLink = (function(_super) {
 
 })(Backbone.Model);
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Models.User = (function(_super) {
-  __extends(User, _super);
+App.Models.User = (function(superClass) {
+  extend(User, superClass);
 
   function User() {
     return User.__super__.constructor.apply(this, arguments);
@@ -815,8 +812,8 @@ App.Models.User = (function(_super) {
 
 })(Backbone.Model);
 
-App.Models.I = (function(_super) {
-  __extends(I, _super);
+App.Models.I = (function(superClass) {
+  extend(I, superClass);
 
   function I() {
     return I.__super__.constructor.apply(this, arguments);
@@ -873,29 +870,32 @@ App.Models.I = (function(_super) {
     });
   };
 
-  I.prototype.login = function(cb) {
+  I.prototype.login = function(success_cb, error_cb) {
+    error_cb |= function() {
+      return console.log("login error");
+    };
     return $.ajax({
       url: "/login",
       type: "POST",
       contentType: 'application/json',
       dataType: 'json',
       data: JSON.stringify(this)
-    }).success(cb);
+    }).success(success_cb).error(error_cb);
   };
 
   return I;
 
 })(App.Models.User);
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Collections.Messages = (function(_super) {
-  __extends(Messages, _super);
+App.Collections.Messages = (function(superClass) {
+  extend(Messages, superClass);
 
   function Messages() {
-    this.comparator = __bind(this.comparator, this);
+    this.comparator = bind(this.comparator, this);
     return Messages.__super__.constructor.apply(this, arguments);
   }
 
@@ -937,11 +937,11 @@ App.Collections.Messages = (function(_super) {
 
 App.Messages = new App.Collections.Messages();
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Collections.PageLinks = (function(_super) {
-  __extends(PageLinks, _super);
+App.Collections.PageLinks = (function(superClass) {
+  extend(PageLinks, superClass);
 
   function PageLinks() {
     return PageLinks.__super__.constructor.apply(this, arguments);
@@ -957,11 +957,11 @@ App.Collections.PageLinks = (function(_super) {
 
 App.PageLinks = new App.Collections.PageLinks();
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Collections.Pages = (function(_super) {
-  __extends(Pages, _super);
+App.Collections.Pages = (function(superClass) {
+  extend(Pages, superClass);
 
   function Pages() {
     return Pages.__super__.constructor.apply(this, arguments);
@@ -977,11 +977,11 @@ App.Collections.Pages = (function(_super) {
 
 App.Pages = new App.Collections.Pages();
 
-var __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-App.Collections.Users = (function(_super) {
-  __extends(Users, _super);
+App.Collections.Users = (function(superClass) {
+  extend(Users, superClass);
 
   function Users() {
     return Users.__super__.constructor.apply(this, arguments);
@@ -998,25 +998,27 @@ App.Collections.Users = (function(_super) {
 App.Users = new App.Collections.Users();
 
 var Router,
-  __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-Router = (function(_super) {
-  __extends(Router, _super);
+Router = (function(superClass) {
+  extend(Router, superClass);
 
   function Router() {
-    this.pageTalk = __bind(this.pageTalk, this);
-    this.userTalk = __bind(this.userTalk, this);
-    this.home = __bind(this.home, this);
-    this.index = __bind(this.index, this);
-    this.show = __bind(this.show, this);
+    this.pageTalk = bind(this.pageTalk, this);
+    this.userTalk = bind(this.userTalk, this);
+    this.home = bind(this.home, this);
+    this.index = bind(this.index, this);
+    this.logout = bind(this.logout, this);
+    this.show = bind(this.show, this);
     return Router.__super__.constructor.apply(this, arguments);
   }
 
   Router.prototype.routes = {
     '': 'index',
     'home': 'home',
+    'logout': 'logout',
     'user/:id': 'userTalk',
     'page/:id': 'pageTalk'
   };
@@ -1028,28 +1030,83 @@ Router = (function(_super) {
     });
   };
 
+  Router.prototype.logout = function() {
+    localStorage.clear();
+    return this.show('');
+  };
+
+  Router.prototype.auto_signin_tried = false;
+
+  Router.prototype.auto_signin = function(callback) {
+    if (this.auto_signin_tried) {
+      return this.index();
+    }
+    this.auto_signin_tried = true;
+    if (localStorage.length === 0) {
+      return this.index();
+    }
+    App.I = new App.Models.I({
+      pseudo: localStorage.getItem("pseudo"),
+      local_secret: from_b64(localStorage.getItem("local_secret")),
+      remote_secret: localStorage.getItem("remote_secret")
+    });
+    return App.I.login(((function(_this) {
+      return function(res) {
+        App.I.set(res.I).bare_mainkey().bare_ecdh();
+        App.Users.push(App.I);
+        App.Users.push(res.users);
+        App.PageLinks.push(res.pageLinks);
+        App.Pages.push(res.created_pages);
+        App.Pages.push(res.accessible_pages);
+        App.Messages.push(res.messages);
+        App.Users.each(function(user) {
+          return user.shared();
+        });
+        App.Pages.each(function(page) {
+          return page.bare();
+        });
+        App.Messages.each(function(message) {
+          return message.bare();
+        });
+        return callback();
+      };
+    })(this)), ((function(_this) {
+      return function() {
+        localStorage.clear();
+        console.log("fail");
+        return _this.index();
+      };
+    })(this)));
+  };
+
   Router.prototype.index = function() {
+    if (!this.auto_signin_tried) {
+      return this.auto_signin((function(_this) {
+        return function() {
+          return _this.show("home");
+        };
+      })(this));
+    }
+    this.navigate("", {
+      trigger: false,
+      replace: true
+    });
     this.view = new App.Views.Index({
       el: $("#content")
     });
-    this.view.render();
-    if (localStorage.length !== 0) {
-      return App.I = new App.Models.I({
-        pseudo: localStorage.getItem("pseudo"),
-        local_secret: from_b64(localStorage.getItem("local_secret")),
-        remote_secret: localStorage.getItem("remote_secret")
-      });
-    }
+    return this.view.render();
   };
 
   Router.prototype.home = function() {
+    if (!(App.I || this.auto_signin_tried)) {
+      return this.auto_signin(this.home);
+    }
     if (!App.I) {
       return this.show("");
     }
     if (this.view) {
       this.view.undelegateEvents();
     }
-    App.Users.add(App.I);
     this.view = new App.Views.home({
       el: $("#content")
     });
@@ -1058,6 +1115,13 @@ Router = (function(_super) {
 
   Router.prototype.userTalk = function(id) {
     var model;
+    if (!(App.I || this.auto_signin_tried)) {
+      return this.auto_signin((function(_this) {
+        return function() {
+          return _this.userTalk(id);
+        };
+      })(this));
+    }
     if (!App.I) {
       return this.show("");
     }
@@ -1067,20 +1131,22 @@ Router = (function(_super) {
     model = App.Users.findWhere({
       id: id
     });
-    if (model) {
-      this.view = new App.Views.userTalk({
-        el: $("#content"),
-        model: model
-      });
-      return this.view.render();
-    } else {
-      console.log("user not found !");
-      return this.show("home");
-    }
+    this.view = new App.Views.userTalk({
+      el: $("#content"),
+      model: model
+    });
+    return this.view.render();
   };
 
   Router.prototype.pageTalk = function(id) {
     var model;
+    if (!(App.I || this.auto_signin_tried)) {
+      return this.auto_signin((function(_this) {
+        return function() {
+          return _this.pageTalk(id);
+        };
+      })(this));
+    }
     if (!App.I) {
       return this.show("");
     }
