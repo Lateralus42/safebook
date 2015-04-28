@@ -1,6 +1,10 @@
 class App.Models.Message extends Backbone.Model
   urlRoot: "/message"
 
+  toJSON: =>
+    @omit('content')
+
+
   bare: =>
     key = null
 
