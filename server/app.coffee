@@ -25,7 +25,7 @@ for ctrl in _.map(fs.readdirSync("#{__dirname}/controllers"), (f)-> f.split('.')
 
 # Loading server and middlewares
 server = express()
-server.use require('express-session')(secret: "XXX SET THIS IN CONFIG XXX")
+server.use require('express-session')(secret: "XXX SET THIS IN CONFIG XXX", resave: true, saveUninitialized: true)
 server.use require('body-parser').json()
 server.use (req, res, next) ->
   console.log('%s %s', req.method, req.url)
