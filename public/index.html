@@ -80,6 +80,8 @@
       <div class="col-sm-3">
         <div id="userList">
         </div>
+        <div id="userRequestList">
+        </div>
         <div id="userSearch">
         </div>
         <div id="pageList">
@@ -107,11 +109,31 @@
       </div>
     </script>
 
+    <!-- User request list template -->
+    <script type="text/template" id="userRequestListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Requests</div>
+        <ul class="list-group" id="requests_list">
+        </ul>
+      </div>
+    </script>
+
+    <!-- User request template -->
+    <script type="text/template" id="userRequestTemplate">
+      <li class="text-center list-group-item">
+        {{pseudo}} <a href="#" class="btn btn-default btn-xs glyphicon glyphicon-ok"></a>
+      </li>
+    </script>
+
     <!-- User search template -->
     <script type="text/template" id="userSearchTemplate">
       <div class="panel panel-success">
         <div class="panel-heading text-center">Add a friend</div>
-          <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
+            </li>
+          </ul>
           <ul class="list-group" id="search_user_results">
           </ul>
         </div>

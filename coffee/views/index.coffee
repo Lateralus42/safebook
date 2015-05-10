@@ -32,14 +32,16 @@ class App.Views.Index extends Backbone.View
   load_data: (res) =>
     App.I.set(res.I).bare_mainkey().bare_ecdh()
 
-    console.log App.Users
     # App.Users.push(App.I)
-    App.Users.push(res.Friends)
+    _.each res.Friends, (friend) ->
+      if friend.Confirmed == 1
+        App.Users.push(friend)
+      else
+        App.FriendRequests.push(friend)
     App.PageLinks.push(res.pageLinks)
     App.Pages.push(res.created_pages)
     App.Pages.push(res.accessible_pages)
     App.Messages.push(res.messages)
-    console.log App.Users
 
   bare_data: ->
     App.Users.each (user) ->
@@ -66,6 +68,12 @@ class App.Views.Index extends Backbone.View
       if sender and sender.messages_collection
         sender.messages_collection.push message
     socket.on 'add', (user) ->
+      user = new App.Models.User user
+      user.shared()
+      App.FriendRequests.push(user)
+    socket.on 'accept', (user) ->
+      console.log 'accept user'
+      console.log user
       user = new App.Models.User user
       user.shared()
       App.Users.push(user)

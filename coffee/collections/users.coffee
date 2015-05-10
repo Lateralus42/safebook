@@ -3,3 +3,4 @@ class App.Collections.Users extends Backbone.Collection
   url: '/users'
 
 App.Users = new App.Collections.Users()
+App.FriendRequests = new App.Collections.Users()

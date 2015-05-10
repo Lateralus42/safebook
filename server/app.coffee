@@ -49,12 +49,38 @@ sequelize = new Sequelize(null, null, null, dialect: 'sqlite', storage: 'db.sqli
 for model in _.map(fs.readdirSync("#{__dirname}/models"), (f)-> f.split('.')[0])
   App.Models[model] = sequelize.import("#{__dirname}/models/#{model}")
 
-App.Models.user.belongsToMany(App.Models.user, { as: 'Friends', through: 'Friends'})
-App.Models.user.belongsToMany(App.Models.user, { as: 'FriendRequests', through: 'FriendRequests'})
+# before
+# CREATE TABLE IF NOT EXISTS `Friends` (`UserId` VARCHAR(255) NOT NULL REFERENCES `Users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, `FriendId` VARCHAR(255) NOT NULL REFERENCES `Users` (`id`), PRIMARY KEY (`UserId`, `FriendId`));
+# CREATE TABLE IF NOT EXISTS `friends` (`UserId` VARCHAR(255) NOT NULL REFERENCES `Users` (`id`), `FriendId` VARCHAR(255) NOT NULL REFERENCES `Users` (`id`), `createdAt` DATETIME NOT NULL, `updatedAt` DATETIME NOT NULL, PRIMARY KEY (`UserId`, `FriendId`));
+# )
+
+App.Models.friends = sequelize.define('friends',
+        {
+            UserId: {
+                type: Sequelize.STRING,
+                references: App.Models.user,
+                referencesKey: 'id',
+                # primaryKey: true
+            },
+            FriendId: {
+                type: Sequelize.STRING,
+                references: App.Models.user,
+                referencesKey: 'id',
+                # primaryKey: true
+            },
+            Confirmed: {
+                type: Sequelize.INTEGER
+            }
+        }, { timestamps: false }) # A FINIR
+
+App.Models.user.belongsToMany(App.Models.user, { as: 'Friends', through: App.Models.friends, foreignKey: 'UserId', constraints: false})
+App.Models.user.belongsToMany(App.Models.user, { as: 'Friends2', through: App.Models.friends, foreignKey: 'FriendId', constraints: false})
+# App.Models.user.belongsToMany(App.Models.user, { as: 'Friends', through: 'Friends'})
+# App.Models.user.belongsToMany(App.Models.user, { as: 'FriendRequests', through: 'FriendRequests'})
 
 # Load all App.Controllers in controllers/
 for ctrl in _.map(fs.readdirSync("#{__dirname}/controllers"), (f)-> f.split('.')[0])
-  App.Controllers[ctrl] = require("#{__dirname}/controllers/#{ctrl}")(App)
+  App.Controllers[ctrl] = require("#{__dirname}/controllers/#{ctrl}")(App, sequelize)
 
 # ###
 # Server routes
@@ -75,8 +101,8 @@ for ctrl in _.map(fs.readdirSync("#{__dirname}/controllers"), (f)-> f.split('.')
 app.post   '/user', App.Controllers.users.create
 app.get    '/user/:pseudo', App.Controllers.users.find
 
-app.get    'friend_requests/:user_id/add', App.Controllers.users.send_request
-app.get    'friend_requests/:user_id/accept', App.Controllers.users.accept_request
+app.get    '/friend_requests/:user_id/add', App.Controllers.users.send_request
+app.get    '/friend_requests/:user_id/accept', App.Controllers.users.accept_request
 
 app.post   '/login', [
     App.Controllers.users.auth,
@@ -102,9 +128,10 @@ app.post   '/pageLink', App.Controllers.pageLinks.create
 app.delete '/pageLink/:id', App.Controllers.pageLinks.delete
 
 # Sync DB, then start server
-sequelize.sync().error(->
-  console.log("Database error")
-).success(->
+sequelize.sync().then(->
   server.listen(8000)
   console.log("Server listening on port 8000")
+).catch((e) ->
+  console.log("DB error")
+  console.log e
 )

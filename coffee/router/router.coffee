@@ -12,6 +12,9 @@ class Router extends Backbone.Router
 
   logout: =>
     localStorage.clear()
+    App.Messages.reset()
+    App.Users.reset()
+    App.FriendRequests.reset()
     @show('')
 
   auto_signin_tried: false
@@ -28,7 +31,7 @@ class Router extends Backbone.Router
     App.I.login(
       ((res) =>
         App.I.set(res.I).bare_mainkey().bare_ecdh()
-        App.Users.push(App.I)
+        # App.Users.push(App.I)
         App.Users.push(res.users)
         App.PageLinks.push(res.pageLinks)
         App.Pages.push(res.created_pages)
