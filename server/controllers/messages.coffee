@@ -13,10 +13,12 @@ module.exports = (App) ->
     message.user_id = req.session.user_id
     App.Helpers.create_id 16, (id) ->
       message.id = id
-      App.Models.message.create(message).done (err, message) ->
-        return res.status(401).end() if err
+      App.Models.message.create(message).then (message) ->
         res.status(201).json(message)
         App.io.to(message.destination_id).emit('message', message)
+      .error (err) ->
+        return res.status(401).end()
+    #io.to(message.destination_id).emit(message.user_id, message.hidden_content)
 
   ## ###
   # Login Middleware
@@ -33,9 +35,10 @@ module.exports = (App) ->
     if req.query.limit?
       query.limit = parseInt(req.query.limit, 10)
     console.log query
-    App.Models.message.findAll(query).done (err, messages) ->
-      return res.status(401).end() if err
+    App.Models.message.findAll(query).then (messages) ->
       res.json messages
+    .error (err) ->
+      return res.status(401).end()
 
 
 #  fetch: (req, res, next) ->

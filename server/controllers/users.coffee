@@ -86,10 +86,11 @@ module.exports = (App, sequelize) ->
     d = (link.user_id       for link in req.data.pageLinks)
     user_contacts = _.union(_.union(a,b), _.union(c,d))
 
-    App.Models.user.findAll(where: id: user_contacts).done (err, users) ->
-      return res.status(401).end() if err
+    App.Models.user.findAll(where: id: user_contacts).then (users) ->
       req.data.users = (user.public() for user in users)
       next()
+    .error (err) ->
+      return res.status(401).end()
 
 ### Login old pipeline
     data = user_keys = user_contacts = null # old stuff
