@@ -40,7 +40,9 @@ class App.Views.Index extends Backbone.View
     App.Messages.push(res.messages)
 
   bare_data: ->
-    App.Users.each (user) -> user.shared()
+    App.Users.each (user) ->
+      user.shared()
+      user.messages_collection = App.Messages.where_user(user.get('id'))
     App.Pages.each (page) -> page.bare()
     App.Messages.each (message) -> message.bare()
 
