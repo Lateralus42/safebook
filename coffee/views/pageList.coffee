@@ -1,5 +1,9 @@
 class App.Views.pageList extends Backbone.View
 
+  initialize: =>
+    @listenTo(App.Pages, 'add', @render)
+    @listenTo(App.Pages, 'remove', @render)
+
   processed_pages: =>
     pages = []
     App.Pages.each (page) ->

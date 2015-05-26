@@ -15,6 +15,8 @@ class Router extends Backbone.Router
     App.Messages.reset()
     App.Users.reset()
     App.FriendRequests.reset()
+    App.Pages.reset()
+    App.PageLinks.reset()
     @show('')
 
   auto_signin_tried: false

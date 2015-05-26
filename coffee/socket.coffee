@@ -23,4 +23,15 @@ class App.Socket
       user = new App.Models.User user
       App.Users.push(user)
 
+    @io.on 'pageLink:add', (page) ->
+      console.log 'new page'
+      console.log page
+      page = new App.Models.Page page
+      App.Pages.push page
+
+    @io.on 'pageLink:delete', (page) ->
+      console.log 'delete page'
+      console.log page
+      App.Pages.remove page.id
+
 App.Io = new App.Socket()

@@ -11,7 +11,9 @@ module.exports = (App) ->
         App.Helpers.create_id 16, (id) ->
           pageLink.id = id
           App.Models.pageLink.create(pageLink)
-            .then (page) ->
+            .then (pageLink) ->
+              page.hidden_key = pageLink.hidden_key
+              App.io.to(pageLink.user_id).emit('pageLink:add', page)
               res.status(201).json(pageLink)
             .catch (err) ->
               return res.status(401).end()
@@ -20,13 +22,19 @@ module.exports = (App) ->
 
   delete: (req, res) ->
     return res.status(401).end() unless req.session.user_id
-    App.Models.pageLink.find(where: id: req.params.id).done (err, pageLink) ->
-      return res.status(401).end() if err
-      App.Models.page.find( where: { page_id: pageLink.page_id, user_id: req.session.user_id })
-      .then (err, page) ->
-        pageLink.destroy()
-          .then ->
-            res.status(200).end()
+    App.Models.pageLink.find(where: id: req.params.id)
+      .then (pageLink) ->
+        console.log 'found pagelink'
+        App.Models.page.find( where: { id: pageLink.page_id, user_id: req.session.user_id })
+          .then (page) ->
+            console.log 'found page'
+            pageLink.destroy()
+              .then ->
+                console.log 'deleted pagelink'
+                App.io.to(pageLink.user_id).emit('pageLink:delete', page)
+                res.status(200).end()
+              .catch (err) ->
+                return res.status(401).end()
           .catch (err) ->
             return res.status(401).end()
       .catch (err) ->

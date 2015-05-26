@@ -2,8 +2,8 @@ class App.Models.Page extends Backbone.Model
   urlRoot: "/page"
 
   initialize: =>
-    @on('add', =>
-      @bare())
+    @on 'add', =>
+      @bare()
 
   toJSON: -> @pick("name", "hidden_key")
 

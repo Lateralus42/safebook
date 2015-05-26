@@ -41,6 +41,7 @@ class App.Views.Index extends Backbone.View
     App.Pages.push(res.created_pages)
     App.Pages.push(res.accessible_pages)
     App.Messages.push(res.messages)
+    console.log res.accessible_pages
 
   store_login: =>
     localStorage.setItem "pseudo", App.I.get "pseudo"
