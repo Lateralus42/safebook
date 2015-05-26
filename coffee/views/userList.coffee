@@ -38,13 +38,11 @@ class App.Views.userRequest extends Backbone.View
 
   accept_request: (e) =>
     e.preventDefault()
-    console.log 'add'
     $.ajax url: '/friend_requests/' + @model.get('id') + '/accept', success: (res) =>
-      console.log 'muahaha'
       App.FriendRequests.remove @model
       App.Users.push @model
     , error: =>
-      alert 'error !'
+      alert 'Error while accepting the request.'
 
   render: =>
     template = Handlebars.compile $("#userRequestTemplate").html()
@@ -71,7 +69,6 @@ class App.Views.userSearch extends Backbone.View
     'keyup #search_user_input': 'keypress'
 
   keypress: (e) =>
-    #if e.which is 13
     @search_user $("#search_user_input").val()
 
   search_user: (pseudo) =>
@@ -87,13 +84,12 @@ class App.Views.searchResult extends Backbone.View
 
   add_friend: (e) =>
     e.preventDefault()
-    console.log 'add'
     $.ajax url: '/friend_requests/' + @model.get('id') + '/add', success: =>
       App.SearchResults.reset()
       $("#userSearchTemplate").val("")
-      alert 'request sent !'
+      alert 'Request sent.'
     , error: =>
-      alert 'error !'
+      alert 'Error while sending the request.'
 
 
   render: =>

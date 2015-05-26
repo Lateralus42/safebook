@@ -32,7 +32,6 @@ class App.Views.Index extends Backbone.View
   load_data: (res) =>
     App.I.set(res.I).bare_mainkey().bare_ecdh()
 
-    # App.Users.push(App.I)
     _.each res.Friends, (friend) ->
       if friend.Confirmed == 1
         App.Users.push(friend)
@@ -42,13 +41,6 @@ class App.Views.Index extends Backbone.View
     App.Pages.push(res.created_pages)
     App.Pages.push(res.accessible_pages)
     App.Messages.push(res.messages)
-
-  bare_data: ->
-    App.Users.each (user) ->
-      user.shared()
-      user.messages_collection = App.Messages.where_user(user.get('id'))
-    App.Pages.each (page) -> page.bare()
-    App.Messages.each (message) -> message.bare()
 
   store_login: =>
     localStorage.setItem "pseudo", App.I.get "pseudo"

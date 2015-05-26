@@ -60,8 +60,6 @@ class Router extends Backbone.Router
     return @show("") unless App.I
 
     @view.undelegateEvents() if @view
-    # App.Users.add(App.I)
-
     @view = new App.Views.home(el: $("#content"))
     @view.render()
 

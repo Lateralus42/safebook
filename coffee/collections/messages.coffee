@@ -11,12 +11,6 @@ class App.Collections.Messages extends Backbone.Collection
   where_user: (id) ->
     messages = new App.Collections.Messages()
     messages.url = '/messages/' + id
-    #messages.push @where
-    #  destination_type: 'user'
-    #  destination_id: id
-    #messages.push App.Messages.where
-    #  destination_type: 'user'
-    #  user_id: id
     messages
 
   where_page: (id) ->

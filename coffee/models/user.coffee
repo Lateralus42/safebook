@@ -2,8 +2,9 @@ class App.Models.User extends Backbone.Model
   urlRoot: "/user"
 
   initialize: =>
-    @on('add', =>
-      @messages_collection = App.Messages.where_user(@get('id')))
+    @on 'add', =>
+      @messages_collection = App.Messages.where_user(@get('id'))
+      @shared()
       
   idAttribute: "pseudo"
 
