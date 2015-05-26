@@ -55,29 +55,6 @@ class App.Views.Index extends Backbone.View
     localStorage.setItem "local_secret", to_b64(App.I.get("local_secret"))
     localStorage.setItem "remote_secret", App.I.get "remote_secret"
 
-  init_socket: =>
-    socket = io()
-    socket.emit('join', App.I.id, App.I.attributes.id)
-    socket.on 'message', (message) ->
-      console.log('new message')
-      sender = App.Users.findWhere(id: message.user_id)
-      message = new App.Models.Message message
-      message.bare()
-      App.Messages.push(message)
-      console.log 'looking for user with id ' + sender
-      if sender and sender.messages_collection
-        sender.messages_collection.push message
-    socket.on 'add', (user) ->
-      user = new App.Models.User user
-      user.shared()
-      App.FriendRequests.push(user)
-    socket.on 'accept', (user) ->
-      console.log 'accept user'
-      console.log user
-      user = new App.Models.User user
-      user.shared()
-      App.Users.push(user)
-
   signup: =>
     @init_user()
     remember = if $("#remember_input")[0].checked then true else false
@@ -87,7 +64,7 @@ class App.Views.Index extends Backbone.View
       .on 'error', => alert("Login error...")
       .on 'sync', =>
         @store_login() if remember
-        @init_socket()
+        App.Io.init()
         App.Router.show("home")
       .save()
 
@@ -97,6 +74,5 @@ class App.Views.Index extends Backbone.View
     App.I.login (res) =>
       @store_login() if remember
       @load_data(res)
-      @bare_data()
-      @init_socket()
+      App.Io.init()
       App.Router.show("home")
