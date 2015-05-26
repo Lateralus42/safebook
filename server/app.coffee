@@ -106,9 +106,9 @@ app.get    '/friend_requests/:user_id/accept', App.Controllers.users.accept_requ
 
 app.post   '/login', [
     App.Controllers.users.auth,
-#    App.Controllers.pages.fetch_created,
-#    App.Controllers.pages.fetch_accessibles,
-#    App.Controllers.pageLinks.fetch,
+    App.Controllers.pages.fetch_created,
+    App.Controllers.pages.fetch_accessibles,
+    App.Controllers.pageLinks.fetch,
 #    App.Controllers.messages.fetch,
 #    App.Controllers.users.fetch,
     (req, res, next) ->
