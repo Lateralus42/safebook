@@ -24,11 +24,25 @@ module.exports = (App) ->
   # Login Middleware
   ## ###
 
-  fetch: (req, res, next) ->
+  fetch_user: (req, res, next) ->
     query = {
       where:
         $or: [{ user_id: req.session.user_id, destination_id: req.params.dest_id },
               { user_id: req.params.dest_id, destination_id: req.session.user_id }]
+    }
+    if req.query.offset?
+      query.offset = parseInt(req.query.offset, 10)
+    if req.query.limit?
+      query.limit = parseInt(req.query.limit, 10)
+    console.log query
+    App.Models.message.findAll(query).then (messages) ->
+      res.json messages
+    .error (err) ->
+      return res.status(401).end()
+
+  fetch_page: (req, res, next) ->
+    query = {
+      where: { destination_type: 'page', destination_id: req.params.dest_id }
     }
     if req.query.offset?
       query.offset = parseInt(req.query.offset, 10)

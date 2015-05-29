@@ -15,7 +15,7 @@ class App.Views.pageTalk extends Backbone.View
 
     @messageList = new App.Views.messageList
       el: $("#messageList")
-      collection: App.Messages.where_page(@model.get('id'))
+      collection: @model.messages_collection
     @pageLinkList = new App.Views.pageLinkList
       el: $("#pageLinkList")
       model: @model

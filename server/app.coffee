@@ -117,7 +117,8 @@ app.post   '/login', [
     ,(req, res) -> res.json(req.data)
   ]
 
-app.get    '/messages/:dest_id', App.Controllers.messages.fetch
+app.get    '/messages/user/:dest_id', App.Controllers.messages.fetch_user
+app.get    '/messages/page/:dest_id', App.Controllers.messages.fetch_page
 
 app.post   '/message', App.Controllers.messages.create
 app.post   '/page', App.Controllers.pages.create

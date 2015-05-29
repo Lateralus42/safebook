@@ -2,6 +2,7 @@ class App.Models.Page extends Backbone.Model
   urlRoot: "/page"
 
   initialize: =>
+    @messages_collection = App.Messages.where_page(@get('id'))
     @on 'add', =>
       @bare()
 
