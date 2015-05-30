@@ -13,6 +13,7 @@
     <script type="text/javascript" src="js/underscore.js"></script>
     <script type="text/javascript" src="js/backbone.js"></script>
     <script type="text/javascript" src="js/sjcl.js"></script>
+    <script type="text/javascript" src="js/socket.io.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
 
     <!-- Login template -->
@@ -79,11 +80,15 @@
       <div class="col-sm-3">
         <div id="userList">
         </div>
+        <div id="userRequestList">
+        </div>
+        <div id="userSearch">
+        </div>
         <div id="pageList">
         </div>
       </div>
       <div class="col-sm-9">
-        <h2 class="text-center">Welcome Home !</h2>
+        <h2 class="text-center">Welcome {{I}} !</h2>
         <div id="messageList">
         </div>
       </div>
@@ -100,11 +105,46 @@
               <span class="badge">0</span>
             </li>
           {{/each}}
-          <li class="list-group-item">
-            <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
-          </li>
         </ul>
       </div>
+    </script>
+
+    <!-- User request list template -->
+    <script type="text/template" id="userRequestListTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Requests</div>
+        <ul class="list-group" id="requests_list">
+        </ul>
+      </div>
+    </script>
+
+    <!-- User request template -->
+    <script type="text/template" id="userRequestTemplate">
+      <li class="text-center list-group-item">
+        {{pseudo}} <a href="#" class="btn btn-default btn-xs glyphicon glyphicon-ok"></a>
+      </li>
+    </script>
+
+    <!-- User search template -->
+    <script type="text/template" id="userSearchTemplate">
+      <div class="panel panel-success">
+        <div class="panel-heading text-center">Add a friend</div>
+          <ul class="list-group">
+            <li class="list-group-item">
+              <input type="text" id="search_user_input" placeholder="Find someone" class="form-control text-center"></input>
+            </li>
+          </ul>
+          <ul class="list-group" id="search_user_results">
+          </ul>
+        </div>
+      </div>
+    </script>
+
+    <!-- Search result template -->
+    <script type="text/template" id="searchResultTemplate">
+      <li class="text-center list-group-item">
+        {{pseudo}} <a href="#" class="btn btn-default btn-xs glyphicon glyphicon-plus"></a>
+      </li>
     </script>
 
     <!-- Page list template -->
@@ -160,6 +200,7 @@
           </div>
         </div>
       {{/each}}
+      <button id="load_older_messages">Load older messages</button>
     </script>
 
     <!-- UserTalk template -->

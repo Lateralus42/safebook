@@ -39,5 +39,5 @@ class App.Views.userTalk extends Backbone.View
 
     @messageList = new App.Views.messageList
       el: $("#messageList")
-      collection: App.Messages.where_user(@model.get('id'))
+      collection: @model.messages_collection
     @messageList.render()

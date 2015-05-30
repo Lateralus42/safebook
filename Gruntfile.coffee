@@ -6,6 +6,7 @@ module.exports = (grunt) ->
         files:
           'public/js/app.js': [
             'coffee/init.coffee'
+            'coffee/socket.coffee'
             'coffee/helpers/crypto.coffee'
             'coffee/helpers/fileHasher.coffee'
             'coffee/views/*.coffee'

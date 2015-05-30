@@ -1,10 +1,17 @@
 class App.Views.pageList extends Backbone.View
 
+  initialize: =>
+    @listenTo(App.Pages, 'add', @render)
+    @listenTo(App.Pages, 'remove', @render)
+
   processed_pages: =>
     pages = []
     App.Pages.each (page) ->
       tmp  = _.clone(page.attributes)
-      user = App.Users.findWhere(id: tmp.user_id)
+      user = if tmp.user_id is App.I.get('id')
+        App.I
+      else
+        App.Users.findWhere(id: tmp.user_id)
       tmp.user_name = user.get('pseudo')
       pages.push(tmp)
     pages

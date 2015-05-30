@@ -32,17 +32,16 @@ class App.Views.Index extends Backbone.View
   load_data: (res) =>
     App.I.set(res.I).bare_mainkey().bare_ecdh()
 
-    App.Users.push(App.I)
-    App.Users.push(res.users)
+    _.each res.Friends, (friend) ->
+      if friend.Confirmed == 1
+        App.Users.push(friend)
+      else
+        App.FriendRequests.push(friend)
     App.PageLinks.push(res.pageLinks)
     App.Pages.push(res.created_pages)
     App.Pages.push(res.accessible_pages)
     App.Messages.push(res.messages)
-
-  bare_data: ->
-    App.Users.each (user) -> user.shared()
-    App.Pages.each (page) -> page.bare()
-    App.Messages.each (message) -> message.bare()
+    console.log res.accessible_pages
 
   store_login: =>
     localStorage.setItem "pseudo", App.I.get "pseudo"
@@ -58,6 +57,7 @@ class App.Views.Index extends Backbone.View
       .on 'error', => alert("Login error...")
       .on 'sync', =>
         @store_login() if remember
+        App.Io.init()
         App.Router.show("home")
       .save()
 
@@ -67,5 +67,5 @@ class App.Views.Index extends Backbone.View
     App.I.login (res) =>
       @store_login() if remember
       @load_data(res)
-      @bare_data()
+      App.Io.init()
       App.Router.show("home")

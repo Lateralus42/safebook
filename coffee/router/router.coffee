@@ -12,6 +12,11 @@ class Router extends Backbone.Router
 
   logout: =>
     localStorage.clear()
+    App.Messages.reset()
+    App.Users.reset()
+    App.FriendRequests.reset()
+    App.Pages.reset()
+    App.PageLinks.reset()
     @show('')
 
   auto_signin_tried: false
@@ -19,7 +24,7 @@ class Router extends Backbone.Router
   auto_signin: (callback) ->
     return @index() if @auto_signin_tried
     @auto_signin_tried = true
-    return @index() if localStorage.length is 0
+    return @index() if localStorage.length < 3
 
     App.I = new App.Models.I
       pseudo: localStorage.getItem "pseudo"
@@ -28,7 +33,7 @@ class Router extends Backbone.Router
     App.I.login(
       ((res) =>
         App.I.set(res.I).bare_mainkey().bare_ecdh()
-        App.Users.push(App.I)
+        # App.Users.push(App.I)
         App.Users.push(res.users)
         App.PageLinks.push(res.pageLinks)
         App.Pages.push(res.created_pages)

@@ -1,7 +1,11 @@
 class App.Models.User extends Backbone.Model
-
   urlRoot: "/user"
 
+  initialize: =>
+    @on 'add', =>
+      @messages_collection = App.Messages.where_user(@get('id'))
+      @shared()
+      
   idAttribute: "pseudo"
 
   shared: ->
@@ -40,7 +44,8 @@ class App.Models.I extends App.Models.User
     @set mainkey: App.S.bare(@get('local_secret'), @get('hidden_mainkey'))
 
   login: (success_cb, error_cb) ->
-    error_cb |= -> console.log "login error"
+    unless error_cb
+      error_cb = -> alert(JSON.parse(res.responseText).error)
     $.ajax(
       url: "/login"
       type: "POST"
