@@ -1,10 +1,12 @@
 <html lang="en">
 	<head>
-    <meta charset="utf8">
+    <meta charset="utf-8">
     <title>Safebook</title>
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="images/Safebook-icone.png"/>
 
     <!-- CSS files -->
-		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/safebook.css">
 
     <!-- JS files -->
     <script type="text/javascript" src="js/jquery-2.1.1.js"></script>
@@ -18,42 +20,29 @@
 
     <!-- Login template -->
     <script type="text/template" id="logViewTemplate">
-      <div class="col-sm-6 col-sm-offset-3">
-        <div class="form-group">
-          <label for="pseudo_input">
-            <u>A-Side</u>: Pseudo
-          </label>
-          <input type="text" id="pseudo_input" placeholder="Your Pseudo" class="form-control" autofocus></input>
+      <img src="images/SB-new-logo-fr.png" alt="Logo Safebook" id="logo" class="on open"/>
+      <div id="connect" class="on open">
+        <div class="form_group pseudo">
+          <label for="pseudo_input">Pseudo</label>
+          <input type="text" id="pseudo_input" placeholder="Your Pseudo" class="form-control" autofocus>
         </div>
-        <div class="form-group">
-          <label for="string_password_input">
-            <u>B-Side (1)</u>: Use a string as a password
-          </label>
-          <input type="password" id="string_password_input" placeholder="Password" class="form-control"></input>
-          <p class="help-block">
-            You need something random with at least <b>12 characters</b>, numbers and <b>other characters</b>
-          </p>
+        <div class="form_group pass_string">
+          <label for="string_password_input">Password-string</label>
+          <input type="password" id="string_password_input" placeholder="Password" class="form-control">
+          <p class="help-block">You need something random with at least <b>12 characters</b>, numbers and <b>other characters</b></p>
         </div>
-        <div class="form-group">
-          <label for="file_password_input">
-            <u>B-Side (2)</u>: And/Or use a file as a password
-          </label>
-          <input type="file" id="file_password_input"></input>
-          <input type="hidden" id="file_password_result_input"></input>
-          <p class="help-block">
-            You can use any file (picture, document, ...) but <b>make sure that you are the only owner of this file</b>
-          </p>
+        <div class="form_group pass_file">
+          <label for="file_password_input">Password-file</label>
+          <input type="file" id="file_password_input">
+          <input type="hidden" id="file_password_result_input">
+          <p class="help-block">You can use any file (picture, document, ...) but <b>make sure that you are the only owner of this file</b></p>
         </div>
-        <div class="form-group">
-          <input type="checkbox" id="remember_input"></input>
-          <span>Remember me</span>
+        <div class="form-group remember">
+          <label>Remember me</label>
+          <input type="checkbox" id="remember_input">
         </div>
-        <div class="col-sm-6">
-          <button type="submit" id="signin" class="btn btn-block btn-success">Sign In</button>
-        </div>
-        <div class="col-sm-6">
-          <button type="submit" id="signup" class="btn btn-block btn-warning">Sign Up</button>
-        </div>
+        <button type="submit" class="sign up" id="signup">Sign Up</button>
+        <button type="submit" class="sign in" id="signin">Sign In</button>
       </div>
     </script>
 
@@ -77,20 +66,15 @@
 
     <!-- Home template -->
     <script type="text/template" id="homeViewTemplate">
-      <div class="col-sm-3">
-        <div id="userList">
+      <div class="on">
+        <div id="left"></div>
+        <div id="middle">
+          <a href="#logout"><h2>Logout</h2></a>
         </div>
-        <div id="userRequestList">
-        </div>
-        <div id="userSearch">
-        </div>
-        <div id="pageList">
-        </div>
-      </div>
-      <div class="col-sm-9">
-        <h2 class="text-center">Welcome {{I}} !</h2>
-        <div id="messageList">
-        </div>
+        <div id="right"></div>
+        <div id="I"></div>
+        <div id="send_message"></div>
+        <div id="you"></div>
       </div>
     </script>
 
@@ -293,22 +277,10 @@
     </script>
 
 
-	</head>
-	<body class="container">
+  </head>
 
-    <div id="header" class="row">
-      <div class="col-sm-4">
-        <a href="#home">
-          <img src="logo.png" class="col-sm-offset-1" style="margin-bottom: 10px; margin-top: 10px">
-        </a>
-      </div>
-      <div class="col-sm-6">
-        <h1>This is the header !</h1>
-      </div>
-      <div class="col-sm-2">
-        <a href="#logout"><h2>Logout</h2></a>
-      </div>
-    </div>
+  <body>
+
 
     <div id="content" class="row">
     </div>
