@@ -1,7 +1,8 @@
 class App.Views.messageList extends Backbone.View
 
   initialize: =>
-    @collection.fetch(remove: false, data: limit: @collection.limit)
+    if @collection.length is 0
+      @collection.fetch(remove: false, data: limit: @collection.limit)
     @listenTo(@collection, 'add', @render)
     
   events:

@@ -147,3 +147,30 @@ button.sign.in{
 	bottom: 0;
 	right: 0;
 }
+
+.filter {
+}
+
+.filter.active_filter {
+	font-weight: bold;
+}
+
+.talk_item {
+	background-color: grey;
+}
+
+.talk_item.active_talk {
+	background-color: yellow;
+}
+
+.talk_item.item_user {
+	color: blue;
+}
+
+.talk_item.item_page {
+	color: green;
+}
+
+.talk_item.item_request {
+	color: red;
+}

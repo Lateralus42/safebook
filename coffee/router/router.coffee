@@ -54,33 +54,62 @@ class Router extends Backbone.Router
     return @auto_signin(=> @show("home")) unless @auto_signin_tried
 
     @navigate("", {trigger: false, replace: true})
-    @view = new App.Views.Index(el: $("#content"))
-    @view.render()
+    @index_view = new App.Views.Index()
+    $("#content").html(@index_view.render().el)
 
   home: =>
+    console.log 'home'
     return @auto_signin(@home) unless App.I or @auto_signin_tried
     return @show("") unless App.I
 
-    @view.undelegateEvents() if @view
-    @view = new App.Views.home(el: $("#content"))
-    @view.render()
+    #@index_view.undelegateEvents() if @index_view
+    @index_view.remove() if @index_view
+    unless @home_view
+      @home_view = new App.Views.home()
+      $("#content").html(@home_view.render().el)
 
   userTalk: (id) =>
+    console.log 'usertalk'
     return @auto_signin(=> @userTalk(id)) unless App.I or @auto_signin_tried
     return @show("") unless App.I
 
-    @view.undelegateEvents() if @view
+    unless @home_view
+      @home_view = new App.Views.home()
+      @home_view.render()
+    # a revenir
     model = App.Users.findWhere(id: id)
-    @view = new App.Views.userTalk(el: $("#content"), model: model)
-    @view.render()
+    model.set active: true
+    model.talk_item.render()
+    if App.Talks.active_talk
+      App.Talks.active_talk.set('active', false)
+      App.Talks.active_talk.talk_item.render()
+    App.Talks.active_talk = model
+    model.message_view = model.message_view or new App.Views.messageList(el: $("#middle"), collection: model.messages)
+    model.message_view.render()
+    App.Views.SendMessage.model = model
+    App.Views.SendMessage.model_type = 'user'
+    # @home_view.related_pages.model = model
+    # @home_view.related_pages.render()
 
   pageTalk: (id) =>
     return @auto_signin(=> @pageTalk(id)) unless App.I or @auto_signin_tried
     return @show("") unless App.I
 
-    @view.undelegateEvents() if @view
+    unless @home_view
+      @home_view = new App.Views.home()
+      @home_view.render()
     model = App.Pages.findWhere(id: id)
-    @view = new App.Views.pageTalk(el: $("#content"), model: model)
-    @view.render()
+    model.set active: true
+    model.talk_item.render()
+    if App.Talks.active_talk
+      App.Talks.active_talk.set('active', false)
+      App.Talks.active_talk.talk_item.render()
+    App.Talks.active_talk = model
+    model.message_view = model.message_view or new App.Views.messageList(el: $("#middle"), collection: model.messages)
+    model.message_view.render()
+    App.Views.SendMessage.model = model
+    App.Views.SendMessage.model_type = 'page'
+    @home_view.member_list.model = model
+    @home_view.member_list.render()
 
 App.Router = new Router

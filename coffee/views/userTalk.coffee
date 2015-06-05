@@ -9,7 +9,7 @@ class App.Views.userTalk extends Backbone.View
     hidden_content = @hide_message(content)
 
     message = new App.Models.Message
-      destination_type: "user"
+      destination_type: @model_type
       destination_id: @model.get('id')
       hidden_content: hidden_content
       content: content
@@ -17,15 +17,13 @@ class App.Views.userTalk extends Backbone.View
     message
       .on 'error', => alert "Sending error"
       .on 'sync', =>
-        App.Messages.add(message)
-        @messageList.collection.push(message)
-        @messageList.render()
+        @model.messages.push(message)
         $("#message_input").val("")
       .save()
 
   hide_message: (content) =>
-    if @model.get('id') is App.I.get('id')
-      App.S.hide_text(App.I.get('mainkey'), content)
+    if @model_type == 'page'
+      App.S.hide_text(@model.get('key'), content)
     else
       App.S.hide_text(@model.get('shared'), content)
 
@@ -33,11 +31,10 @@ class App.Views.userTalk extends Backbone.View
     App.Router.show("home")
 
   render: =>
-    template = Handlebars.compile($("#userTalkTemplate").html())
-    @$el.html(template(user: @model.attributes))
+    @$el.html($("#userTalkTemplate").html())
     $("textarea").autosize()
 
-    @messageList = new App.Views.messageList
-      el: $("#messageList")
-      collection: @model.messages_collection
-    @messageList.render()
+    # @messageList = new App.Views.messageList
+    #   el: $("#messageList")
+    #   collection: @model.messages
+    # @messageList.render()

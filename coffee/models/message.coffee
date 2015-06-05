@@ -3,6 +3,7 @@ class App.Models.Message extends Backbone.Model
 
   initialize: =>
     @on('add', =>
+      App.Talks.trigger 'update'
       @bare())
 
   toJSON: =>

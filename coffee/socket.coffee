@@ -12,8 +12,9 @@ class App.Socket
       sender = App.Users.findWhere(id: message.user_id)
       message = new App.Models.Message message
       App.Messages.push(message)
-      if sender and sender.messages_collection
-        sender.messages_collection.push message
+      if sender and sender.messages
+        sender.messages.push message
+        # App.Views.LeftBar.render_items()
 
     @io.on 'add', (user) ->
       user = new App.Models.User user

@@ -78,6 +78,17 @@
       </div>
     </script>
 
+    <script type="text/template" id="leftBarTemplate">
+      <ul id="talk_list"></ul>
+      <a href="#" id="filter_user_talks" class="filter active_filter">USERS</a> | <a href="#" id="filter_group_talks" class="filter active_filter">GROUPS</a>
+    </script>
+
+    <script type="text/template" id="talkItemTemplate">
+      <li class="talk_item item_{{type}}{{#if active}} active_talk{{/if}}">
+        <a href="{{url}}">{{#if pseudo}}{{pseudo}}{{/if}}{{#if name}}{{name}}{{/if}}</a>
+      </li>
+    </script>
+      
     <!-- User list template -->
     <script type="text/template" id="userListTemplate">
       <div class="panel panel-success">
@@ -158,6 +169,7 @@
 
     <!-- Message list template -->
     <script type="text/template" id="messageListTemplate">
+      <button id="load_older_messages">Load older messages</button>
       {{#each messages}}
         <div class="panel panel-success">
           <div class="panel-heading">
@@ -184,34 +196,14 @@
           </div>
         </div>
       {{/each}}
-      <button id="load_older_messages">Load older messages</button>
     </script>
 
     <!-- UserTalk template -->
     <script type="text/template" id="userTalkTemplate">
-
-      <div class="col-sm-4">
-        <div class="panel panel-success">
-          <div class="panel-heading">
-            <h3 class="panel-title text-center">
-              User Talk
-            </h3>
-          </div>
-          <div class="panel-body">
-            <p class="text-center">Pseudo: <b>{{user.pseudo}}</b></p>
-            <p class="text-center">Id: <b>{{user.id}}</b></p>
-          </div>
-        </div>
-        <button type="button" id="back_button" class="btn btn-block btn-success">Back</button>
-      </div>
-
       <div class="col-sm-8">
         <div class="well">
           <textarea id="message_input" placeholder="Send a message..." class="form-control"></textarea>
           <button id="send_message" type="button" class="btn btn-success">Hide and send</button>
-        </div>
-
-        <div id="messageList">
         </div>
       </div>
     </script>
@@ -275,15 +267,10 @@
         </ul>
       </div>
     </script>
-
-
   </head>
 
   <body>
-
-
-    <div id="content" class="row">
-    </div>
-
+    <div id="content" class="row"></div>
   </body>
+
 </html>

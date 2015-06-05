@@ -3,8 +3,13 @@ class App.Models.User extends Backbone.Model
 
   initialize: =>
     @on 'add', =>
-      @messages_collection = App.Messages.where_user(@get('id'))
+      @messages = App.Messages.where_user(@get('id'))
       @shared()
+      if @get('Confirmed') is 1
+        @set('type', 'user')
+      else
+        @set('type', 'request')
+      @set('url', '#user/' + @get('id'))
       
   idAttribute: "pseudo"
 

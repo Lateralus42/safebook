@@ -2,11 +2,11 @@ class App.Models.Page extends Backbone.Model
   urlRoot: "/page"
 
   initialize: =>
-    @messages_collection = App.Messages.where_page(@get('id'))
+    @messages = App.Messages.where_page(@get('id'))
     @on 'add', =>
       @bare()
-
-  toJSON: -> @pick("name", "hidden_key")
+      @set('type', 'page')
+      @set('url', '#page/' + @get('id'))
 
   bare: ->
     if @get('user_id') is App.I.get('id')

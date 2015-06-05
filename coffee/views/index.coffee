@@ -32,16 +32,21 @@ class App.Views.Index extends Backbone.View
   load_data: (res) =>
     App.I.set(res.I).bare_mainkey().bare_ecdh()
 
-    _.each res.Friends, (friend) ->
-      if friend.Confirmed == 1
-        App.Users.push(friend)
-      else
-        App.FriendRequests.push(friend)
+    App.Users.push(res.Friends)
+#     _.each res.Friends, (friend) ->
+#       if friend.Confirmed == 1
+#         App.Users.push(friend)
+#       else
+#         App.FriendRequests.push(friend)
+#     App.Talks.push(res.Friends)
+#     App.Talks.push(res.created_pages)
+#     App.Talks.push(res.accessible_pages)
     App.PageLinks.push(res.pageLinks)
     App.Pages.push(res.created_pages)
     App.Pages.push(res.accessible_pages)
     App.Messages.push(res.messages)
-    console.log res.accessible_pages
+    App.Talks.push(App.Users.models)
+    App.Talks.push(App.Pages.models)
 
   store_login: =>
     localStorage.setItem "pseudo", App.I.get "pseudo"
